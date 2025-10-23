@@ -293,6 +293,137 @@ class AuthService {
     }
   }
 
+  // Reset password
+  async resetPassword(email) {
+    try {
+      await connectDB();
+      const { User, OTP } = getModels();
+
+      const user = await User.findOne({ email, isActive: true });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Generate and send password reset OTP
+      const otpData = generateOTPWithTimestamp(10); // 10 minutes expiry
+      const emailSent = await sendPasswordResetEmail(email, user.displayName, otpData.otp);
+      
+      if (emailSent) {
+        console.log(`✅ Password reset OTP sent to ${email}: ${otpData.otp}`);
+      } else {
+        console.log(`📧 OTP Code for ${email}: ${otpData.otp}`);
+      }
+
+      // Store OTP in database
+      await OTP.create({
+        email,
+        otp: otpData.otp,
+        type: 'password_reset',
+        expiresAt: new Date(otpData.expiresAt)
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw error;
+    }
+  }
+
+  // Verify password reset OTP and update password
+  async verifyPasswordResetOTP(email, otp, newPassword) {
+    try {
+      await connectDB();
+      const { User, OTP } = getModels();
+
+      // Verify OTP from database
+      const otpRecord = await OTP.findOne({
+        email,
+        otp,
+        type: 'password_reset',
+        used: false,
+        expiresAt: { $gt: new Date() }
+      });
+
+      if (!otpRecord) {
+        throw new Error('Invalid or expired OTP');
+      }
+
+      // Update user password
+      const user = await User.findOne({ email, isActive: true });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      user.password = newPassword;
+      await user.save();
+
+      // Mark OTP as used
+      otpRecord.used = true;
+      await otpRecord.save();
+
+      return { success: true };
+    } catch (error) {
+      console.error('Password reset verification error:', error);
+      throw error;
+    }
+  }
+
+  // Get user by ID
+  async getUserById(userId) {
+    try {
+      await connectDB();
+      const { User } = getModels();
+      const user = await User.findById(userId).select('-password');
+      return user;
+    } catch (error) {
+      console.error('Get user error:', error);
+      throw error;
+    }
+  }
+
+  // Update user profile
+  async updateUserProfile(userId, updates) {
+    try {
+      await connectDB();
+      const { User } = getModels();
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { $set: updates },
+        { new: true, runValidators: true }
+      ).select('-password');
+      
+      return user;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  }
+
+  // Verify auth token
+  async verifyAuthToken(token) {
+    try {
+      const decoded = this.verifyToken(token);
+      const user = await this.getUserById(decoded.userId);
+      
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          displayName: user.displayName,
+          role: user.role,
+          emailVerified: user.emailVerified
+        }
+      };
+    } catch (error) {
+      console.error('Token verification error:', error);
+      throw error;
+    }
+  }
+
   // Add user to newsletter
   async addToNewsletter(email, displayName, source) {
     try {
