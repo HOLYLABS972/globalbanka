@@ -60,21 +60,30 @@ export default function CheckoutPageClient() {
           return;
         }
 
-        // Load plan data from Firestore
-        const { doc, getDoc } = await import('firebase/firestore');
-        const { db } = await import('../../src/firebase/config');
-        
-        const planDoc = await getDoc(doc(db, 'plans', planId));
-        
-        if (planDoc.exists()) {
-          const planData = planDoc.data();
-          setPlan({
-            id: planDoc.id,
-            ...planData,
-            type: planType || 'country'
-          });
-        } else {
-          setError('Plan not found');
+        // Load plan data from API
+        try {
+          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.roamjet.net';
+          const response = await fetch(`${API_BASE_URL}/api/public/plans/${planId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Plan not found: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.success && data.data.plan) {
+            const planData = data.data.plan;
+            setPlan({
+              id: planData._id || planData.id,
+              ...planData,
+              type: planType || 'country'
+            });
+          } else {
+            setError('Plan not found');
+          }
+        } catch (apiError) {
+          console.error('Error loading plan from API:', apiError);
+          setError('Failed to load plan');
         }
       } catch (err) {
         console.error('Error loading plan:', err);
