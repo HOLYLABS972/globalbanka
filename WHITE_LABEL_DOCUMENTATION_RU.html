@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Документация по Белой Марке eSIM Решения</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 60px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #34495e;
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 5px solid #3498db;
+        }
+        
+        h3 {
+            color: #546e7a;
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        h4 {
+            color: #607d8b;
+            font-size: 1.1em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            color: #ecf0f1;
+        }
+        
+        .architecture {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 0.85em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.85em;
+        }
+        
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .put { background: #ffc107; color: black; }
+        .delete { background: #dc3545; color: white; }
+        
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            h3 {
+                font-size: 1.2em;
+            }
+            
+            pre {
+                font-size: 0.8em;
+                padding: 15px;
+                overflow-x: auto;
+            }
+            
+            .architecture {
+                font-size: 0.75em;
+                padding: 15px;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .endpoint {
+                font-size: 0.8em;
+                padding: 8px 12px;
+            }
+            
+            .method {
+                font-size: 0.75em;
+                padding: 2px 6px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            
+            h2 {
+                page-break-after: avoid;
+            }
+            
+            pre, .architecture {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <img src="https://esim.roamjet.net/images/logo_icon/ioslogo.png" alt="Логотип Roamjet eSIMs" style="width: 96px; height: auto; margin-bottom: 20px;">
+            <h1 style="border: none; padding: 0;">Документация</h1>
+        </div>
+        
+        <h2>Обзор</h2>
+        <p>Это комплексное eSIM решение, которое предоставляет предприятиям возможность предлагать услуги eSIM своим клиентам. Решение состоит из нескольких компонентов, работающих вместе для предоставления полной платформы управления eSIM.</p>
+        
+        <h2>Архитектурный обзор</h2>
+        <div class="architecture">┌─────────────────────────────────────────────────────────────────┐
+│                        eSIM РЕШЕНИЕ                        │
+├─────────────────────────────────────────────────────────────────┤
+│  Облачные сервисы               │  Самостоятельно размещаемые    │
+│  ┌─────────────────────────────┐│  ┌─────────────────────────────┐│
+│  │ Панель администратора        ││  │ Frontend (Next.js)         ││
+│  │ • Бизнес-панель              ││  │ • Интерфейс клиента        ││
+│  │ • Управление пользователями  ││  │ • Поддержка многоязычности  ││
+│  │ • Аналитика                  ││  │ • Интеграция платежей      ││
+│  │ • Управление API ключами     ││  │ • Панель пользователя       ││
+│  │ • Отслеживание баланса      ││  └─────────────────────────────┘│
+│  └─────────────────────────────┘│  ┌─────────────────────────────┐│
+│  ┌─────────────────────────────┐│  │ Сервер платежей              ││
+│  │ API Сервер (Python Flask)   ││  │ • Интеграция Stripe         ││
+│  │ • Интеграция Airalo          ││  │ • Сессии оплаты             ││
+│  │ • MongoDB Аутентификация     ││  │ • Обработка платежей        ││
+│  │ • Обработка заказов          ││  └─────────────────────────────┘│
+│  │ • Генерация QR кодов         ││                                ││
+│  │ • Режимы Sandbox/Production ││                                ││
+│  └─────────────────────────────┘│                                ││
+└─────────────────────────────────────────────────────────────────┘</div>
+        
+        <h2>Компоненты</h2>
+        
+        <h3>1. Облачная панель администратора</h3>
+        <div class="feature-box">
+            <p><strong>Расположение:</strong> Облачное решение (не предоставляется как саморазмещаемое)</p>
+            
+            <h4>Функции:</h4>
+            <ul>
+                <li><strong>Бизнес-панель:</strong> Обзор бизнес-метрик, доходов и производительности</li>
+                <li><strong>Управление пользователями:</strong> Управление учетными записями клиентов и бизнес-пользователей</li>
+                <li><strong>Управление API ключами:</strong> Генерация и управление API ключами для бизнес-операций</li>
+                <li><strong>Отслеживание баланса:</strong> Мониторинг балансов счетов и истории транзакций</li>
+                <li><strong>Аналитика:</strong> Подробная отчетность по продажам eSIM, использованию и поведению клиентов</li>
+                <li><strong>Управление KYC:</strong> Обработка процессов верификации "Знай своего клиента"</li>
+                <li><strong>Конфигурация:</strong> Управление ключами Stripe, учетными данными Airalo и настройками системы</li>
+            </ul>
+            
+            <p><strong>Доступ:</strong> Предоставляется как облачное веб-приложение</p>
+        </div>
+        
+        <h3>2. Облачный API сервер</h3>
+        <div class="feature-box">
+            <p><strong>Расположение:</strong> Облачное решение (не предоставляется как саморазмещаемое)</p>
+            
+            <h4>Методы аутентификации:</h4>
+            <ol>
+                <li><strong>Аутентификация API ключа:</strong> Для бизнес-пользователей</li>
+                <li><strong>Аутентификация JWT токена:</strong> Для обычных клиентов</li>
+                <li><strong>Интеграция OAuth:</strong> Социальный вход через Google и Yandex</li>
+                <li><strong>Публичные эндпоинты:</strong> Для неаутентифицированного доступа</li>
+            </ol>
+            
+            <h4>Основные эндпоинты:</h4>
+            
+            <p><strong>Публичные эндпоинты</strong> (Без аутентификации):</p>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/public/countries - Получить доступные страны
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/public/plans - Получить планы eSIM с фильтрацией
+            </div>
+            
+            <p><strong>Бизнес API эндпоинты</strong> (Требуется API ключ):</p>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/esim/create - Создать eSIM
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/esim/details - Получить детали eSIM
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/esim/usage - Получить статистику использования
+            </div>
+            
+            <p><strong>Пользовательские эндпоинты</strong> (Требуется JWT токен):</p>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/user/balance - Получить баланс пользователя
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/order - Создать заказ eSIM
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/qr-code - Получить QR код
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/sim-details - Получить детали SIM
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/sim-usage - Получить данные об использовании
+            </div>
+            
+            <h4>Функции:</h4>
+            <ul>
+                <li><strong>Режим Sandbox:</strong> Тестовые данные для тестирования</li>
+                <li><strong>Режим Production:</strong> Реальные покупки eSIM</li>
+                <li><strong>Управление балансом:</strong> Автоматическое списание затрат</li>
+                <li><strong>Отслеживание транзакций:</strong> Полный аудит</li>
+            </ul>
+            
+            <p><strong>Доступ:</strong> Предоставляется как облачные API эндпоинты</p>
+        </div>
+        
+        <h3>3. Саморазмещаемый Frontend (Next.js)</h3>
+        <div class="feature-box">
+            <p><strong>Репозиторий:</strong> <code>/Users/admin/Documents/GitHub/esim-globalbanka/</code></p>
+            
+            <h4>Технологический стек:</h4>
+            <ul>
+                <li><strong>Фреймворк:</strong> Next.js 14.2.5</li>
+                <li><strong>Стилизация:</strong> Tailwind CSS</li>
+                <li><strong>Аутентификация:</strong> MongoDB + JWT Auth</li>
+                <li><strong>База данных:</strong> MongoDB Atlas (Облачная база данных)</li>
+                <li><strong>Платежи:</strong> Интеграция Stripe</li>
+                <li><strong>Интернационализация:</strong> i18next (поддержка 7 языков)</li>
+            </ul>
+            
+            <div class="note">
+                <strong>Настройка MongoDB:</strong> Frontend требует конфигурации MongoDB Atlas для:
+                <ul>
+                    <li><strong>Подключение к базе данных:</strong> Подключение к кластеру MongoDB Atlas</li>
+                    <li><strong>Аутентификация:</strong> Аутентификация пользователей на основе JWT</li>
+                    <li><strong>Хранение данных:</strong> Данные пользователей, заказы и информация eSIM</li>
+                    <li><strong>Интеграция OAuth:</strong> Социальный вход через Google и Yandex</li>
+                </ul>
+            </div>
+            
+            <h4>Ключевые функции:</h4>
+            
+            <p><strong>Интерфейс клиента:</strong></p>
+            <ul>
+                <li><strong>Поддержка многоязычности:</strong> Английский, Испанский, Французский, Немецкий, Арабский, Иврит, Русский</li>
+                <li><strong>Поддержка RTL:</strong> Поддержка языков справа налево для арабского и иврита</li>
+                <li><strong>Адаптивный дизайн:</strong> Подход дизайна с приоритетом мобильных устройств</li>
+                <li><strong>Выбор страны:</strong> Просмотр планов eSIM по странам</li>
+                <li><strong>Сравнение планов:</strong> Сравнение различных пакетов eSIM</li>
+                <li><strong>Генерация QR кодов:</strong> Мгновенные QR коды для активации eSIM</li>
+            </ul>
+            
+            <p><strong>Панель пользователя:</strong></p>
+            <ul>
+                <li><strong>Управление заказами:</strong> Просмотр и управление заказами eSIM</li>
+                <li><strong>Отслеживание использования:</strong> Мониторинг использования данных и срока действия</li>
+                <li><strong>Настройки аккаунта:</strong> Обновление профиля и предпочтений</li>
+                <li><strong>История платежей:</strong> Отслеживание платежных транзакций</li>
+                <li><strong>Доступ к QR кодам:</strong> Скачивание и просмотр QR кодов для купленных eSIM</li>
+            </ul>
+            
+            <p><strong>Система аутентификации:</strong></p>
+            <ul>
+                <li><strong>Регистрация Email/Пароль:</strong> Стандартная аутентификация с JWT</li>
+                <li><strong>Верификация Email:</strong> Верификация email на основе OTP</li>
+                <li><strong>Сброс пароля:</strong> Безопасное восстановление пароля</li>
+                <li><strong>Google OAuth:</strong> Интеграция социального входа</li>
+                <li><strong>Yandex OAuth:</strong> Социальный вход, удобный для России</li>
+                <li><strong>Управление сессиями:</strong> Постоянные пользовательские сессии на основе JWT</li>
+            </ul>
+        </div>
+        
+        <h3>4. Саморазмещаемая интеграция платежей (Stripe)</h3>
+        <div class="feature-box">
+            <p><strong>Сервер платежей:</strong> <code>https://pay.roamjet.net</code> (Облачная обработка платежей)</p>
+            
+            <h4>Функции:</h4>
+            <ul>
+                <li><strong>Stripe Checkout:</strong> Безопасная обработка платежей</li>
+                <li><strong>Поддержка мультивалютности:</strong> USD и другие валюты</li>
+                <li><strong>Тестовые/Продакшн режимы:</strong> Sandbox и продакшн среды</li>
+                <li><strong>Интеграция Webhook:</strong> Уведомления о платежах в реальном времени</li>
+                <li><strong>Поддержка возвратов:</strong> Автоматизированная обработка возвратов</li>
+            </ul>
+            
+            <h4>Поток платежей:</h4>
+            <ol>
+                <li>Клиент выбирает план eSIM</li>
+                <li>Frontend создает сессию оплаты</li>
+                <li>Перенаправление на Stripe Checkout</li>
+                <li>Обработка платежа</li>
+                <li>Уведомление Webhook</li>
+                <li>Создание заказа через API</li>
+                <li>Генерация QR кода</li>
+            </ol>
+        </div>
+        
+        <h2>Руководство по развертыванию</h2>
+        
+        <h3>Облачные сервисы</h3>
+        <div class="info">
+            <p><strong>Панель администратора:</strong></p>
+            <ul>
+                <li>Полностью управляемый облачный сервис</li>
+                <li>Развертывание не требуется</li>
+                <li>Доступ предоставляется поставщиком решения</li>
+            </ul>
+            
+            <p><strong>API сервер:</strong></p>
+            <ul>
+                <li>Полностью управляемый облачный сервис</li>
+                <li>Доступен по адресу <code>https://api.roamjet.net</code> (продакшн)</li>
+                <li>Доступен по адресу <code>https://sandbox.roamjet.net</code> (тестирование)</li>
+                <li>Развертывание не требуется</li>
+            </ul>
+        </div>
+        
+        <h3>Развертывание саморазмещаемого Frontend (Next.js)</h3>
+        
+        <h4>1. Установка зависимостей:</h4>
+        <pre><code>cd /Users/admin/Documents/GitHub/esim-globalbanka/
+npm install</code></pre>
+        
+        <h4>2. Конфигурация окружения:</h4>
+        <pre><code># Создать .env.local
+# Конфигурация MongoDB
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
+
+# Конфигурация JWT
+JWT_SECRET=your-super-secure-jwt-secret-key-here
+JWT_EXPIRES_IN=7d
+
+# Конфигурация Google OAuth
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Конфигурация Yandex OAuth
+NEXT_PUBLIC_YANDEX_APP_ID=your-yandex-app-id
+YANDEX_APP_SECRET=your-yandex-app-secret
+
+# Конфигурация API
+NEXT_PUBLIC_ROAMJET_API_KEY=rjapi_2k9lt4821123xd7p2dl37mv48jukgo51
+
+# Конфигурация Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-key
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret
+
+# Конфигурация сервиса email
+EMAIL_SERVICE_URL=https://smtp.roamjet.net</code></pre>
+        
+        <div class="note">
+            <strong>Настройка MongoDB:</strong> Frontend требует конфигурации MongoDB Atlas для:
+            <ul>
+                <li><strong>Подключение к базе данных:</strong> Подключение к кластеру MongoDB Atlas</li>
+                <li><strong>Аутентификация:</strong> Аутентификация пользователей на основе JWT</li>
+                <li><strong>Хранение данных:</strong> Данные пользователей, заказы и информация eSIM</li>
+                <li><strong>Интеграция OAuth:</strong> Социальный вход через Google и Yandex</li>
+            </ul>
+        </div>
+        
+        <h4>3. Сборка и развертывание:</h4>
+        <pre><code>npm run build
+npm start</code></pre>
+        
+        <h3>Среда Sandbox</h3>
+        <div class="info">
+            <p>Среда sandbox предоставляет:</p>
+            <ul>
+                <li><strong>Тестовые данные:</strong> Все заказы возвращают тестовые данные</li>
+                <li><strong>Без реальных затрат:</strong> Все транзакции бесплатны</li>
+                <li><strong>Неограниченный баланс:</strong> Идеально для тестирования</li>
+                <li><strong>Мгновенные QR коды:</strong> Мгновенный ответ для тестирования</li>
+            </ul>
+        </div>
+        
+        <h2>Документация API</h2>
+        
+        <h3>Аутентификация</h3>
+        
+        <h4>Аутентификация API ключа:</h4>
+        <pre><code>Authorization: Bearer rjapi_2k9lt4821123xd7p2dl37mv48jukgo51</code></pre>
+        
+        <h4>Аутентификация JWT токена:</h4>
+        <pre><code>Authorization: Bearer JWT_TOKEN
+X-API-Key: rjapi_2k9lt4821123xd7p2dl37mv48jukgo51</code></pre>
+        
+        <h3>Примеры вызовов API</h3>
+        
+        <h4>Получить доступные страны:</h4>
+        <pre><code>curl https://api.roamjet.net/api/public/countries</code></pre>
+        
+        <h4>Получить планы eSIM:</h4>
+        <pre><code>curl "https://api.roamjet.net/api/public/plans?country=FR&limit=10"</code></pre>
+        
+        <h4>Создать заказ eSIM:</h4>
+        <pre><code>curl -X POST https://sandbox.roamjet.net/api/user/order \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -H "X-API-Key: rjapi_2k9lt4821123xd7p2dl37mv48jukgo51" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "package_id": "package-id",
+    "quantity": "1",
+    "to_email": "customer@example.com",
+    "description": "Описание заказа"
+  }'</code></pre>
+        
+        <h4>Получить QR код:</h4>
+        <pre><code>curl -X POST https://sandbox.roamjet.net/api/user/qr-code \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -H "X-API-Key: rjapi_2k9lt4821123xd7p2dl37mv48jukgo51" \
+  -H "Content-Type: application/json" \
+  -d '{"orderId": "mongodb-order-id"}'</code></pre>
+        
+        <h2>Поддержка многоязычности</h2>
+        <p>Frontend поддерживает 7 языков с поддержкой RTL:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Язык</th>
+                    <th>Код</th>
+                    <th>Поддержка RTL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Английский</td>
+                    <td>en</td>
+                    <td>Нет</td>
+                </tr>
+                <tr>
+                    <td>Испанский</td>
+                    <td>es</td>
+                    <td>Нет</td>
+                </tr>
+                <tr>
+                    <td>Французский</td>
+                    <td>fr</td>
+                    <td>Нет</td>
+                </tr>
+                <tr>
+                    <td>Немецкий</td>
+                    <td>de</td>
+                    <td>Нет</td>
+                </tr>
+                <tr>
+                    <td>Арабский</td>
+                    <td>ar</td>
+                    <td>Да</td>
+                </tr>
+                <tr>
+                    <td>Иврит</td>
+                    <td>he</td>
+                    <td>Да</td>
+                </tr>
+                <tr>
+                    <td>Русский</td>
+                    <td>ru</td>
+                    <td>Нет</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p><strong>Расположение языковых файлов:</strong> <code>public/locales/{language}/common.json</code></p>
+        
+        <h2>Функции безопасности</h2>
+        <ul>
+            <li><strong>Аутентификация MongoDB:</strong> Безопасная аутентификация пользователей на основе JWT</li>
+            <li><strong>Управление API ключами:</strong> Контроль доступа на уровне бизнеса</li>
+            <li><strong>Защита CORS:</strong> Безопасность межсайтовых запросов</li>
+            <li><strong>Валидация входных данных:</strong> Серверная валидация данных</li>
+            <li><strong>Ограничение скорости:</strong> Ограничение запросов API</li>
+            <li><strong>Только HTTPS:</strong> Безопасная связь</li>
+            <li><strong>Переменные окружения:</strong> Защита конфиденциальных данных</li>
+            <li><strong>Интеграция OAuth:</strong> Безопасность социального входа Google и Yandex</li>
+        </ul>
+        
+        <h2>Мониторинг и аналитика</h2>
+        
+        <h3>Аналитика Frontend</h3>
+        <ul>
+            <li><strong>Интеграция AppsFlyer:</strong> Аналитика мобильных приложений</li>
+            <li><strong>Отслеживание поведения пользователей:</strong> Анализ пути клиента</li>
+            <li><strong>Мониторинг производительности:</strong> Время загрузки страниц и ошибки</li>
+        </ul>
+        
+        <h3>Мониторинг Backend</h3>
+        <ul>
+            <li><strong>Отслеживание использования API:</strong> Логирование запросов и аналитика</li>
+            <li><strong>Мониторинг ошибок:</strong> Отслеживание исключений и оповещения</li>
+            <li><strong>Метрики производительности:</strong> Время отклика и пропускная способность</li>
+        </ul>
+        
+        <h3>Бизнес-метрики</h3>
+        <ul>
+            <li><strong>Отслеживание доходов:</strong> Мониторинг платежей и транзакций</li>
+            <li><strong>Аналитика клиентов:</strong> Вовлеченность и удержание пользователей</li>
+            <li><strong>Использование eSIM:</strong> Отслеживание потребления данных и срока действия</li>
+        </ul>
+        
+        <h2>Поддержка и обслуживание</h2>
+        
+        <h3>Облачная панель администратора</h3>
+        <ul>
+            <li><strong>Управляемый сервис:</strong> Полностью обслуживается поставщиком</li>
+            <li><strong>Автоматические обновления:</strong> Регулярные обновления функций и безопасности</li>
+            <li><strong>Поддержка 24/7:</strong> Доступность технической поддержки</li>
+            <li><strong>Управление резервными копиями:</strong> Автоматизированные резервные копии данных</li>
+        </ul>
+        
+        <h3>Саморазмещаемые компоненты</h3>
+        <ul>
+            <li><strong>Самообслуживание:</strong> Клиент отвечает за обновления</li>
+            <li><strong>Документация:</strong> Подробные руководства по настройке и обслуживанию</li>
+            <li><strong>Поддержка сообщества:</strong> Ресурсы сообщества разработчиков</li>
+            <li><strong>Настройка:</strong> Полный контроль над модификациями</li>
+        </ul>
+        
+        <h2>Ценообразование и выставление счетов</h2>
+        
+        <h3>Бизнес-модель</h3>
+        <ul>
+            <li><strong>Использование API:</strong> Модель ценообразования "плати за использование"</li>
+            <li><strong>Система баланса:</strong> Предоплаченный баланс аккаунта</li>
+            <li><strong>Комиссии за транзакции:</strong> Небольшая комиссия за каждую покупку eSIM</li>
+            <li><strong>Скидки за объем:</strong> Сниженные тарифы для пользователей с высоким объемом</li>
+        </ul>
+        
+        <h3>Обработка платежей</h3>
+        <ul>
+            <li><strong>Интеграция Stripe:</strong> Безопасная обработка платежей</li>
+            <li><strong>Множественные валюты:</strong> Поддержка различных валют</li>
+            <li><strong>Автоматизированное выставление счетов:</strong> Поддержка повторяющихся платежей</li>
+            <li><strong>Генерация счетов:</strong> Подробные выписки по счетам</li>
+        </ul>
+        
+        <h2>Начало работы</h2>
+        <ol>
+            <li><strong>Связаться с поставщиком:</strong> Обратиться за доступом к облачной панели администратора</li>
+            <li><strong>Развернуть Frontend:</strong> Настроить приложение Next.js</li>
+            <li><strong>Настроить платежи:</strong> Настроить интеграцию Stripe</li>
+            <li><strong>Тестовая среда:</strong> Использовать sandbox для первоначального тестирования</li>
+            <li><strong>Запуск в продакшн:</strong> Переключиться на продакшн режим</li>
+        </ol>
+        
+        <h2>Контактная информация</h2>
+        <p>Для технической поддержки, помощи в развертывании или запросов функций, пожалуйста, обращайтесь:</p>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <div style="font-size: 1.3em; color: #3498db; font-weight: 600; margin-bottom: 10px;">Roamjet eSIMs</div>
+            <div style="font-size: 1.1em; margin-bottom: 5px;">
+                <strong>Email:</strong> <a href="mailto:support@roamjet.net" style="color: #3498db; text-decoration: none;">support@roamjet.net</a>
+            </div>
+            <div style="font-size: 0.95em; color: #7f8c8d; margin-top: 10px;">
+                Или обращайтесь через каналы поддержки облачной панели администратора.
+            </div>
+        </div>
+        
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #3498db;">
+        
+        <p style="text-align: center; color: #7f8c8d; font-style: italic;">
+            Эта документация охватывает полную архитектуру eSIM решения, включая как облачные, так и саморазмещаемые компоненты. Регулярные обновления этой документации будут предоставляться по мере выпуска новых функций.
+        </p>
+    </div>
+</body>
+</html>

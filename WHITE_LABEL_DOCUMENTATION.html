@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eSIM White Label Solution Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 60px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #34495e;
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 5px solid #3498db;
+        }
+        
+        h3 {
+            color: #546e7a;
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        h4 {
+            color: #607d8b;
+            font-size: 1.1em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            color: #ecf0f1;
+        }
+        
+        .architecture {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 0.85em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.85em;
+        }
+        
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .put { background: #ffc107; color: black; }
+        .delete { background: #dc3545; color: white; }
+        
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            h3 {
+                font-size: 1.2em;
+            }
+            
+            pre {
+                font-size: 0.8em;
+                padding: 15px;
+                overflow-x: auto;
+            }
+            
+            .architecture {
+                font-size: 0.75em;
+                padding: 15px;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .endpoint {
+                font-size: 0.8em;
+                padding: 8px 12px;
+            }
+            
+            .method {
+                font-size: 0.75em;
+                padding: 2px 6px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            
+            h2 {
+                page-break-after: avoid;
+            }
+            
+            pre, .architecture {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <img src="https://esim.roamjet.net/images/logo_icon/ioslogo.png" alt="Roamjet eSIMs Logo" style="width: 96px; height: auto; margin-bottom: 20px;">
+            <h1 style="border: none; padding: 0;">White Label Documentation</h1>
+        </div>
+        
+        <h2>Overview</h2>
+        <p>This is a comprehensive white label eSIM solution that provides businesses with the ability to offer eSIM services to their customers. The solution consists of multiple components working together to deliver a complete eSIM management platform.</p>
+        
+        <h2>Architecture Overview</h2>
+        <div class="architecture">┌─────────────────────────────────────────────────────────────────┐
+│                        WHITE LABEL SOLUTION                     │
+├─────────────────────────────────────────────────────────────────┤
+│  Cloud-Hosted Services         │  Self-Hosted Components       │
+│  ┌─────────────────────────────┐│  ┌─────────────────────────────┐│
+│  │ Admin Panel                 ││  │ Frontend (Next.js)         ││
+│  │ • Business Dashboard        ││  │ • Customer Interface        ││
+│  │ • User Management           ││  │ • Multi-language Support    ││
+│  │ • Analytics                 ││  │ • Payment Integration      ││
+│  │ • API Key Management        ││  │ • User Dashboard            ││
+│  │ • Balance Tracking          ││  └─────────────────────────────┘│
+│  └─────────────────────────────┘│  ┌─────────────────────────────┐│
+│  ┌─────────────────────────────┐│  │ Payment Server               ││
+│  │ API Server (Python Flask)   ││  │ • Stripe Integration         ││
+│  │ • Airalo Integration         ││  │ • Checkout Sessions         ││
+│  │ • Firebase Authentication    ││  │ • Payment Processing        ││
+│  │ • Order Processing           ││  └─────────────────────────────┘│
+│  │ • QR Code Generation         ││                                ││
+│  │ • Sandbox/Production Modes   ││                                ││
+│  └─────────────────────────────┘│                                ││
+└─────────────────────────────────────────────────────────────────┘</div>
+        
+        <h2>Components</h2>
+        
+        <h3>1. Cloud-Hosted Admin Panel</h3>
+        <div class="feature-box">
+            <p><strong>Location:</strong> Cloud-hosted solution (not provided as self-hosted)</p>
+            
+            <h4>Features:</h4>
+            <ul>
+                <li><strong>Business Dashboard:</strong> Overview of business metrics, revenue, and performance</li>
+                <li><strong>User Management:</strong> Manage customer accounts and business users</li>
+                <li><strong>API Key Management:</strong> Generate and manage API keys for business operations</li>
+                <li><strong>Balance Tracking:</strong> Monitor account balances and transaction history</li>
+                <li><strong>Analytics:</strong> Detailed reporting on eSIM sales, usage, and customer behavior</li>
+                <li><strong>KYC Management:</strong> Handle Know Your Customer verification processes</li>
+                <li><strong>Configuration:</strong> Manage Stripe keys, Airalo credentials, and system settings</li>
+            </ul>
+            
+            <p><strong>Access:</strong> Provided as a cloud-hosted web application</p>
+        </div>
+        
+        <h3>2. Cloud-Hosted API Server</h3>
+        <div class="feature-box">
+            <p><strong>Location:</strong> Cloud-hosted solution (not provided as self-hosted)</p>
+            
+            <h4>Authentication Methods:</h4>
+            <ol>
+                <li><strong>API Key Authentication:</strong> For business users</li>
+                <li><strong>JWT Token Authentication:</strong> For regular customers</li>
+                <li><strong>OAuth Integration:</strong> Google and Yandex social login</li>
+                <li><strong>Public Endpoints:</strong> For unauthenticated access</li>
+            </ol>
+            
+            <h4>Core Endpoints:</h4>
+            
+            <p><strong>Public Endpoints</strong> (No Authentication):</p>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/public/countries - Get available countries
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/public/plans - Get eSIM plans with filtering
+            </div>
+            
+            <p><strong>Business API Endpoints</strong> (API Key Required):</p>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/esim/create - Create eSIM
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/esim/details - Get eSIM details
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/esim/usage - Get usage statistics
+            </div>
+            
+            <p><strong>User Endpoints</strong> (JWT Token Required):</p>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/user/balance - Get user balance
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/order - Create eSIM order
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/qr-code - Get QR code
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/sim-details - Get SIM details
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/user/sim-usage - Get usage data
+            </div>
+            
+            <h4>Features:</h4>
+            <ul>
+                <li><strong>Sandbox Mode:</strong> Mock data for testing</li>
+                <li><strong>Production Mode:</strong> Real eSIM purchases</li>
+                <li><strong>Balance Management:</strong> Automatic cost deduction</li>
+                <li><strong>Transaction Tracking:</strong> Complete audit trail</li>
+            </ul>
+            
+            <p><strong>Access:</strong> Provided as cloud-hosted API endpoints</p>
+        </div>
+        
+        <h3>3. Self-Hosted Frontend (Next.js)</h3>
+        <div class="feature-box">
+            <p><strong>Repository:</strong> <code>/Users/admin/Documents/GitHub/esim-globalbanka/</code></p>
+            
+            <h4>Technology Stack:</h4>
+            <ul>
+                <li><strong>Framework:</strong> Next.js 14.2.5</li>
+                <li><strong>Styling:</strong> Tailwind CSS</li>
+                <li><strong>Authentication:</strong> MongoDB + JWT Auth</li>
+                <li><strong>Database:</strong> MongoDB Atlas (Cloud-hosted database)</li>
+                <li><strong>Payments:</strong> Stripe Integration</li>
+                <li><strong>Internationalization:</strong> i18next (7 languages supported)</li>
+            </ul>
+            
+            <div class="note">
+                <strong>Note:</strong> While the frontend application is self-hosted, it uses MongoDB Atlas as a cloud-hosted database service for data storage and real-time synchronization.
+            </div>
+            
+            <h4>Key Features:</h4>
+            
+            <p><strong>Customer Interface:</strong></p>
+            <ul>
+                <li><strong>Multi-language Support:</strong> English, Spanish, French, German, Arabic, Hebrew, Russian</li>
+                <li><strong>RTL Support:</strong> Right-to-left language support for Arabic and Hebrew</li>
+                <li><strong>Responsive Design:</strong> Mobile-first design approach</li>
+                <li><strong>Country Selection:</strong> Browse eSIM plans by country</li>
+                <li><strong>Plan Comparison:</strong> Compare different eSIM packages</li>
+                <li><strong>QR Code Generation:</strong> Instant QR codes for eSIM activation</li>
+            </ul>
+            
+            <p><strong>User Dashboard:</strong></p>
+            <ul>
+                <li><strong>Order Management:</strong> View and manage eSIM orders</li>
+                <li><strong>Usage Tracking:</strong> Monitor data usage and validity</li>
+                <li><strong>Account Settings:</strong> Update profile and preferences</li>
+                <li><strong>Payment History:</strong> Track payment transactions</li>
+                <li><strong>QR Code Access:</strong> Download and view QR codes for purchased eSIMs</li>
+            </ul>
+            
+            <p><strong>Authentication System:</strong></p>
+            <ul>
+                <li><strong>Email/Password Registration:</strong> Standard authentication with JWT</li>
+                <li><strong>Email Verification:</strong> OTP-based email verification</li>
+                <li><strong>Password Reset:</strong> Secure password recovery</li>
+                <li><strong>Google OAuth:</strong> Social login integration</li>
+                <li><strong>Yandex OAuth:</strong> Russian-friendly social login</li>
+                <li><strong>Session Management:</strong> JWT-based persistent user sessions</li>
+            </ul>
+        </div>
+        
+        <h3>4. Self-Hosted Payment Integration (Stripe)</h3>
+        <div class="feature-box">
+            <p><strong>Payment Server:</strong> <code>https://pay.roamjet.net</code> (Cloud-hosted payment processing)</p>
+            
+            <h4>Features:</h4>
+            <ul>
+                <li><strong>Stripe Checkout:</strong> Secure payment processing</li>
+                <li><strong>Multi-currency Support:</strong> USD and other currencies</li>
+                <li><strong>Test/Live Modes:</strong> Sandbox and production environments</li>
+                <li><strong>Webhook Integration:</strong> Real-time payment notifications</li>
+                <li><strong>Refund Support:</strong> Automated refund processing</li>
+            </ul>
+            
+            <h4>Payment Flow:</h4>
+            <ol>
+                <li>Customer selects eSIM plan</li>
+                <li>Frontend creates checkout session</li>
+                <li>Redirect to Stripe Checkout</li>
+                <li>Payment processing</li>
+                <li>Webhook notification</li>
+                <li>Order creation via API</li>
+                <li>QR code generation</li>
+            </ol>
+        </div>
+        
+        <h2>Deployment Guide</h2>
+        
+        <h3>Cloud-Hosted Services</h3>
+        <div class="info">
+            <p><strong>Admin Panel:</strong></p>
+            <ul>
+                <li>Fully managed cloud service</li>
+                <li>No deployment required</li>
+                <li>Access provided by solution provider</li>
+            </ul>
+            
+            <p><strong>API Server:</strong></p>
+            <ul>
+                <li>Fully managed cloud service</li>
+                <li>Available at <code>https://api.roamjet.net</code> (production)</li>
+                <li>Available at <code>https://sandbox.roamjet.net</code> (testing)</li>
+                <li>No deployment required</li>
+            </ul>
+        </div>
+        
+        <h3>Self-Hosted Frontend Deployment (Next.js)</h3>
+        
+        <h4>1. Install Dependencies:</h4>
+        <pre><code>cd /Users/admin/Documents/GitHub/esim-globalbanka/
+npm install</code></pre>
+        
+        <h4>2. Environment Configuration:</h4>
+        <pre><code># Create .env.local
+# MongoDB Configuration
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
+
+# JWT Configuration
+JWT_SECRET=your-super-secure-jwt-secret-key-here
+JWT_EXPIRES_IN=7d
+
+# Google OAuth Configuration
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Yandex OAuth Configuration
+NEXT_PUBLIC_YANDEX_APP_ID=your-yandex-app-id
+YANDEX_APP_SECRET=your-yandex-app-secret
+
+# API Configuration
+NEXT_PUBLIC_ROAMJET_API_KEY=rjapi_2k9lt4821123xd7p2dl37mv48jukgo51
+
+# Stripe Configuration
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-key
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret
+
+# Email Service Configuration
+EMAIL_SERVICE_URL=https://smtp.roamjet.net</code></pre>
+        
+        <div class="note">
+            <strong>MongoDB Setup:</strong> The frontend requires MongoDB Atlas configuration for:
+            <ul>
+                <li><strong>Database Connection:</strong> MongoDB Atlas cluster connection</li>
+                <li><strong>Authentication:</strong> JWT-based user authentication</li>
+                <li><strong>Data Storage:</strong> User data, orders, and eSIM information</li>
+                <li><strong>OAuth Integration:</strong> Google and Yandex social login</li>
+            </ul>
+        </div>
+        
+        <h4>3. Build and Deploy:</h4>
+        <pre><code>npm run build
+npm start</code></pre>
+        
+        <h3>Sandbox Environment</h3>
+        <div class="info">
+            <p>The sandbox environment provides:</p>
+            <ul>
+                <li><strong>Mock Data:</strong> All orders return test data</li>
+                <li><strong>No Real Costs:</strong> All transactions are free</li>
+                <li><strong>Unlimited Balance:</strong> Perfect for testing</li>
+                <li><strong>Instant QR Codes:</strong> Immediate response for testing</li>
+            </ul>
+        </div>
+        
+        <h2>API Documentation</h2>
+        
+        <h3>Authentication</h3>
+        
+        <h4>API Key Authentication:</h4>
+        <pre><code>Authorization: Bearer rjapi_2k9lt4821123xd7p2dl37mv48jukgo51</code></pre>
+        
+        <h4>JWT Token Authentication:</h4>
+        <pre><code>Authorization: Bearer JWT_TOKEN
+X-API-Key: rjapi_2k9lt4821123xd7p2dl37mv48jukgo51</code></pre>
+        
+        <h3>Example API Calls</h3>
+        
+        <h4>Get Available Countries:</h4>
+        <pre><code>curl https://api.roamjet.net/api/public/countries</code></pre>
+        
+        <h4>Get eSIM Plans:</h4>
+        <pre><code>curl "https://api.roamjet.net/api/public/plans?country=FR&limit=10"</code></pre>
+        
+        <h4>Create eSIM Order:</h4>
+        <pre><code>curl -X POST https://sandbox.roamjet.net/api/user/order \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -H "X-API-Key: rjapi_2k9lt4821123xd7p2dl37mv48jukgo51" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "package_id": "package-id",
+    "quantity": "1",
+    "to_email": "customer@example.com",
+    "description": "Order description"
+  }'</code></pre>
+        
+        <h4>Get QR Code:</h4>
+        <pre><code>curl -X POST https://sandbox.roamjet.net/api/user/qr-code \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -H "X-API-Key: rjapi_2k9lt4821123xd7p2dl37mv48jukgo51" \
+  -H "Content-Type: application/json" \
+  -d '{"orderId": "mongodb-order-id"}'</code></pre>
+        
+        <h2>Multi-Language Support</h2>
+        <p>The frontend supports 7 languages with RTL support:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Language</th>
+                    <th>Code</th>
+                    <th>RTL Support</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>English</td>
+                    <td>en</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>Spanish</td>
+                    <td>es</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>French</td>
+                    <td>fr</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>German</td>
+                    <td>de</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>Arabic</td>
+                    <td>ar</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>Hebrew</td>
+                    <td>he</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>Russian</td>
+                    <td>ru</td>
+                    <td>No</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p><strong>Language Files Location:</strong> <code>public/locales/{language}/common.json</code></p>
+        
+        <h2>Security Features</h2>
+        <ul>
+            <li><strong>MongoDB Authentication:</strong> Secure JWT-based user authentication</li>
+            <li><strong>API Key Management:</strong> Business-level access control</li>
+            <li><strong>CORS Protection:</strong> Cross-origin request security</li>
+            <li><strong>Input Validation:</strong> Server-side data validation</li>
+            <li><strong>Rate Limiting:</strong> API request throttling</li>
+            <li><strong>HTTPS Only:</strong> Secure communication</li>
+            <li><strong>Environment Variables:</strong> Sensitive data protection</li>
+            <li><strong>OAuth Integration:</strong> Google and Yandex social login security</li>
+        </ul>
+        
+        <h2>Monitoring and Analytics</h2>
+        
+        <h3>Frontend Analytics</h3>
+        <ul>
+            <li><strong>AppsFlyer Integration:</strong> Mobile app analytics</li>
+            <li><strong>User Behavior Tracking:</strong> Customer journey analysis</li>
+            <li><strong>Performance Monitoring:</strong> Page load times and errors</li>
+        </ul>
+        
+        <h3>Backend Monitoring</h3>
+        <ul>
+            <li><strong>API Usage Tracking:</strong> Request logging and analytics</li>
+            <li><strong>Error Monitoring:</strong> Exception tracking and alerting</li>
+            <li><strong>Performance Metrics:</strong> Response times and throughput</li>
+        </ul>
+        
+        <h3>Business Metrics</h3>
+        <ul>
+            <li><strong>Revenue Tracking:</strong> Payment and transaction monitoring</li>
+            <li><strong>Customer Analytics:</strong> User engagement and retention</li>
+            <li><strong>eSIM Usage:</strong> Data consumption and validity tracking</li>
+        </ul>
+        
+        <h2>Support and Maintenance</h2>
+        
+        <h3>Cloud-Hosted Admin Panel</h3>
+        <ul>
+            <li><strong>Managed Service:</strong> Fully maintained by provider</li>
+            <li><strong>Automatic Updates:</strong> Regular feature and security updates</li>
+            <li><strong>24/7 Support:</strong> Technical support availability</li>
+            <li><strong>Backup Management:</strong> Automated data backups</li>
+        </ul>
+        
+        <h3>Self-Hosted Components</h3>
+        <ul>
+            <li><strong>Self-Maintained:</strong> Customer responsible for updates</li>
+            <li><strong>Documentation:</strong> Comprehensive setup and maintenance guides</li>
+            <li><strong>Community Support:</strong> Developer community resources</li>
+            <li><strong>Customization:</strong> Full control over modifications</li>
+        </ul>
+        
+        <h2>Pricing and Billing</h2>
+        
+        <h3>Business Model</h3>
+        <ul>
+            <li><strong>API Usage:</strong> Pay-per-use pricing model</li>
+            <li><strong>Balance System:</strong> Prepaid account balance</li>
+            <li><strong>Transaction Fees:</strong> Small fee per eSIM purchase</li>
+            <li><strong>Volume Discounts:</strong> Reduced rates for high-volume users</li>
+        </ul>
+        
+        <h3>Payment Processing</h3>
+        <ul>
+            <li><strong>Stripe Integration:</strong> Secure payment processing</li>
+            <li><strong>Multiple Currencies:</strong> Support for various currencies</li>
+            <li><strong>Automated Billing:</strong> Recurring payment support</li>
+            <li><strong>Invoice Generation:</strong> Detailed billing statements</li>
+        </ul>
+        
+        <h2>Getting Started</h2>
+        <ol>
+            <li><strong>Contact Provider:</strong> Reach out for cloud admin panel access</li>
+            <li><strong>Deploy Frontend:</strong> Set up Next.js application</li>
+            <li><strong>Configure Payments:</strong> Set up Stripe integration</li>
+            <li><strong>Test Environment:</strong> Use sandbox for initial testing</li>
+            <li><strong>Go Live:</strong> Switch to production mode</li>
+        </ol>
+        
+        <h2>Contact Information</h2>
+        <p>For technical support, deployment assistance, or feature requests, please contact:</p>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <div style="font-size: 1.3em; color: #3498db; font-weight: 600; margin-bottom: 10px;">Roamjet eSIMs</div>
+            <div style="font-size: 1.1em; margin-bottom: 5px;">
+                <strong>Email:</strong> <a href="mailto:support@roamjet.net" style="color: #3498db; text-decoration: none;">support@roamjet.net</a>
+            </div>
+            <div style="font-size: 0.95em; color: #7f8c8d; margin-top: 10px;">
+                Or reach out through the cloud-hosted admin panel support channels.
+            </div>
+        </div>
+        
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #3498db;">
+        
+        <p style="text-align: center; color: #7f8c8d; font-style: italic;">
+            This documentation covers the complete white label eSIM solution architecture, including both cloud-hosted and self-hosted components. Regular updates to this documentation will be provided as new features are released.
+        </p>
+    </div>
+</body>
+</html>
+
+
