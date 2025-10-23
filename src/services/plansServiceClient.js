@@ -64,14 +64,86 @@ export const getAllCountries = async () => {
   }
 };
 
-// Get countries with pricing (simplified version for compatibility)
+// Get countries with pricing (full version with actual pricing calculation)
 export const getCountriesWithPricing = async () => {
   try {
-    const countries = await getAllCountries();
-    return countries.map(country => ({
-      ...country,
-      flagEmoji: getFlagEmoji(country.code)
-    }));
+    // Get countries and plans from API
+    console.log('🌍 Fetching countries from API:', `${API_BASE_URL}/api/public/countries`);
+    let countries = [];
+    
+    try {
+      const countriesResponse = await axios.get(`${API_BASE_URL}/api/public/countries`);
+      if (countriesResponse.data.success) {
+        countries = countriesResponse.data.data.countries.map(country => ({
+          ...country,
+          flagEmoji: country.flagEmoji || getFlagEmoji(country.code)
+        }));
+        console.log(`✅ Loaded ${countries.length} countries from API`);
+      }
+    } catch (apiError) {
+      console.error('❌ Error fetching countries from API:', apiError);
+      throw apiError;
+    }
+    
+    // Get all plans (already filtered for enabled plans)
+    const allPlans = await getAllPlans();
+    
+    console.log('🔍 All enabled plans loaded for countries:', allPlans.length);
+    console.log('🔍 Sample plan data:', allPlans.slice(0, 3).map(p => ({ 
+      id: p.id || p._id, 
+      name: p.name, 
+      price: p.price, 
+      country_codes: p.country_codes,
+      country_ids: p.country_ids 
+    })));
+    
+    // Calculate minimum price for each country using the same logic as admin dashboard
+    const countriesWithPricing = countries.map(country => {
+      // Find all plans for this country
+      const countryPlans = allPlans.filter(plan => {
+        // Check if plan applies to this country by country code
+        if (plan.country_codes && Array.isArray(plan.country_codes)) {
+          return plan.country_codes.includes(country.code);
+        }
+        
+        // Fallback: check by country ID if available
+        if (plan.country_ids && Array.isArray(plan.country_ids) && country.id) {
+          return plan.country_ids.includes(country.id);
+        }
+        
+        return false;
+      });
+      
+      // Calculate minimum price from valid plans
+      const validPrices = countryPlans
+        .map(plan => parseFloat(plan.price))
+        .filter(price => !isNaN(price) && price > 0);
+      
+      const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 999;
+      const plansCount = countryPlans.length;
+      
+      // Debug logging for first few countries
+      if (countries.indexOf(country) < 5) {
+        console.log(`🔍 Country ${country.name} (${country.code}):`, {
+          plansFound: countryPlans.length,
+          validPrices: validPrices.length,
+          minPrice: minPrice,
+          samplePlans: countryPlans.slice(0, 2).map(p => ({ name: p.name, price: p.price }))
+        });
+      }
+      
+      return {
+        ...country,
+        minPrice,
+        plansCount,
+        plans: countryPlans // Include plans for detailed view
+      };
+    });
+    
+    console.log('🎯 Countries with pricing calculated:', countriesWithPricing.length);
+    console.log('🎯 Countries with valid pricing:', countriesWithPricing.filter(c => c.minPrice < 999).length);
+    
+    return countriesWithPricing;
   } catch (error) {
     console.error('❌ Error getting countries with pricing:', error);
     throw error;
