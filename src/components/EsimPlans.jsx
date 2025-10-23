@@ -13,6 +13,7 @@ import { detectPlatform, shouldRedirectToDownload, isMobileDevice } from '../uti
 import { getMobileCountries } from '../data/mobileCountries';
 import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageUtils';
 import { translateCountries } from '../utils/countryTranslations';
+import smartCountryService from '../services/smartCountryService';
 
 // Helper function to get flag emoji from country code
 const getFlagEmoji = (countryCode) => {
@@ -221,7 +222,7 @@ const EsimPlans = () => {
     }
   }, [countriesData, countriesError, countriesLoading, locale]);
 
-  // Search function - uses hardcoded countries for landing, API for plans page
+  // Search function - uses smart country service for immediate results
   const searchCountries = async (term) => {
     if (!term || term.length < 2) {
       setSearchResults([]);
@@ -231,19 +232,15 @@ const EsimPlans = () => {
 
     setIsSearching(true);
     try {
-      // Landing pages: Use hardcoded countries
-      if (!isPlansPage) {
-        console.log('🏠 Landing search - Using hardcoded countries:', term);
-        const mobileCountries = getMobileCountries(locale); // Pass locale for translation
-        const searchResults = mobileCountries.filter(country => 
-          matchesCountrySearch(country.name, term) ||
-          country.code.toLowerCase().includes(term.toLowerCase())
-        );
-        // Countries are already translated by getMobileCountries
-        setSearchResults(searchResults);
-        setIsSearching(false);
-        return;
-      }
+      // Use smart country service for all searches
+      console.log('🔍 Smart search for:', term);
+      const searchResults = await smartCountryService.searchCountries(term);
+      
+      // Translate results based on current locale
+      const translatedResults = translateCountries(searchResults, locale);
+      setSearchResults(translatedResults);
+      setIsSearching(false);
+      return;
       
       console.log('📊 Plans page search - Using API:', term);
       

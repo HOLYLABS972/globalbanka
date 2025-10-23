@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { useI18n } from '../contexts/I18nContext';
 import { translateCountryName } from '../utils/countryTranslations';
+import smartCountryService from '../services/smartCountryService';
 
 const CountrySearchBar = ({ onSearch, showCountryCount = true }) => {
   const { t, locale } = useI18n();
@@ -14,13 +15,21 @@ const CountrySearchBar = ({ onSearch, showCountryCount = true }) => {
   // Check if current locale is RTL
   const isRTL = locale === 'ar' || locale === 'he';
   
-  // Popular countries with their codes for translation
-  const popularCountries = [
-    { code: 'FR', name: 'France' },
-    { code: 'TH', name: 'Thailand' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'ES', name: 'Spain' },
-  ];
+  const [popularCountries, setPopularCountries] = useState([]);
+
+  // Load cached countries immediately on component mount
+  useEffect(() => {
+    const cachedCountries = smartCountryService.getImmediateCountries();
+    // Take first 4 for popular suggestions
+    const popular = cachedCountries.slice(0, 4).map(country => ({
+      code: country.code,
+      name: country.name
+    }));
+    setPopularCountries(popular);
+    
+    // Preload full countries in background
+    smartCountryService.preloadCountries();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();

@@ -127,13 +127,16 @@ const SharePackagePage = () => {
     }
   }, [packageId, urlCountryCode]);
 
-  // Load discount settings
+  // Load discount settings - use environment variables instead of MongoDB
   const loadDiscountSettings = useCallback(async () => {
     try {
-      const { getRegularSettings } = await import('../../../src/services/settingsService');
-      const regular = await getRegularSettings();
+      // Use environment variables instead of MongoDB to avoid client-side connection errors
+      const regular = {
+        discountPercentage: parseInt(process.env.NEXT_PUBLIC_DISCOUNT_PERCENTAGE) || 20,
+        minimumPrice: parseFloat(process.env.NEXT_PUBLIC_MINIMUM_PRICE) || 0.5
+      };
       setRegularSettings(regular);
-      console.log('⚙️ Loaded discount settings:', { regular });
+      console.log('⚙️ Using environment settings:', { regular });
     } catch (error) {
       console.error('Error loading discount settings:', error);
     }
@@ -182,15 +185,11 @@ const SharePackagePage = () => {
     const checkMode = async () => {
       try {
         console.log('🔍 Starting mode detection...');
-        const { configService } = await import('../../../src/services/configService');
         
-        // Detect API key mode from frontend (no backend needed)
-        const apiKeyMode = await configService.getApiKeyMode();
+        // Use environment variables instead of MongoDB services
+        const roamjetApiKey = process.env.NEXT_PUBLIC_ROAMJET_API_KEY;
+        const apiKeyMode = roamjetApiKey && roamjetApiKey.includes('sandbox') ? 'sandbox' : 'production';
         console.log('🔑 Detected API key mode:', apiKeyMode);
-        
-        // Get API key for debugging
-        const { configService: configService2 } = await import('../../../src/services/configService');
-        const airaloConfig = await configService2.getAiraloConfig();
         
         // Set environment mode based on API key mode
         setEnvironmentMode(apiKeyMode === 'sandbox' ? 'sandbox' : 'production');
@@ -202,7 +201,7 @@ const SharePackagePage = () => {
           hasInsufficientFunds: apiKeyMode === 'production', // Show error in production mode
           minimumRequired: 4,
           mode: apiKeyMode,
-          apiKey: airaloConfig?.apiKey || 'No API key found (localhost)'
+          apiKey: roamjetApiKey || 'No API key found (localhost)'
         };
         
         setBalanceInfo(balanceInfo);
@@ -282,7 +281,7 @@ const SharePackagePage = () => {
     localStorage.setItem('selectedPackage', JSON.stringify(checkoutData));
     
     // Call payment service directly instead of going to checkout page
-    const { paymentService } = await import('../../../src/services/paymentService');
+    const { paymentService } = await import('../../../src/services/paymentServiceClient');
     
     try {
       // Generate unique order ID for each purchase
