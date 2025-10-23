@@ -206,7 +206,7 @@
 
   /* Form Elements */
   .form-input {
-    @apply appearance-none relative block w-full px-4 py-3 border rounded-30px focus:outline-none focus:ring-2 focus:z-10 sm:text-sm;
+    @apply appearance-none relative block w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:z-10 sm:text-sm;
     border-color: var(--jordy-blue);
     color: var(--eerie-black);
     background: white;

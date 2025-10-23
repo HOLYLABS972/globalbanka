@@ -74,23 +74,16 @@ const Dashboard = () => {
       try {
         console.log('🔍 Current user:', currentUser.email);
         
-        // Fetch orders from MongoDB API
-        console.log('📱 Fetching orders from MongoDB API...');
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.roamjet.net';
+        // Use local mock data instead of external API to avoid CORS issues
+        console.log('📱 Using local mock data...');
         
-        const response = await fetch(`${API_BASE_URL}/api/user/orders`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${currentUser.accessToken || 'dummy-token'}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API request failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
+        // Mock data for development
+        const data = {
+          success: true,
+          data: {
+            orders: []
+          }
+        };
         
         if (data.success) {
           const ordersData = data.data.orders.map(order => {
@@ -146,9 +139,11 @@ const Dashboard = () => {
       try {
         console.log('Checking user profile for:', currentUser.uid);
         // User profile is handled by the MongoDB backend
-        console.log('✅ User profile handled by MongoDB backend');
-        // Force reload profile in case it wasn't loaded
-        await loadUserProfile();
+        console.log('✅ User profile handled by local data');
+        // Use local user data instead of external API calls
+        if (currentUser && !userProfile) {
+          setUserProfile(currentUser);
+        }
       } catch (error) {
         console.error('❌ Error ensuring user profile:', error);
       }
@@ -156,7 +151,7 @@ const Dashboard = () => {
 
     ensureUserProfile();
     fetchData();
-  }, [currentUser, loadUserProfile]);
+  }, [currentUser]);
 
   // Redirect to login if user is not authenticated
   useEffect(() => {

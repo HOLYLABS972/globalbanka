@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Settings, Edit3, Key, Phone, User, Mail, Save, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Edit3, Phone, User, Mail, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../../utils/languageUtils';
@@ -25,9 +25,14 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
   const [editingName, setEditingName] = useState(false);
   const [editingPhone, setEditingPhone] = useState(false);
   const [newName, setNewName] = useState(currentUser?.displayName || '');
-  const [newPhone, setNewPhone] = useState(userProfile?.phoneNumber || '');
+  const [newPhone, setNewPhone] = useState(userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || '');
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isSendingReset, setIsSendingReset] = useState(false);
+
+  // Sync state when user data changes
+  useEffect(() => {
+    setNewName(currentUser?.displayName || userProfile?.displayName || '');
+    setNewPhone(userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || '');
+  }, [currentUser, userProfile]);
 
   const handleUpdateName = async () => {
     if (!newName.trim()) {
@@ -37,17 +42,20 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
 
     setIsUpdating(true);
     try {
-      // Update user profile via MongoDB API
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.roamjet.net';
+      const userId = currentUser.id || currentUser.uid || currentUser._id;
+      console.log('🔍 Updating name for user:', userId, 'New name:', newName.trim());
       
-      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
-        method: 'PUT',
+      // Update user profile via local API
+      const response = await fetch('/api/auth/update-profile', {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${currentUser.accessToken || 'dummy-token'}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          displayName: newName.trim()
+          userId: userId,
+          updates: {
+            displayName: newName.trim()
+          }
         }),
       });
       
@@ -61,7 +69,14 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
         throw new Error(result.error || 'Failed to update name');
       }
 
-      await onLoadUserProfile();
+      // Update local user data and refresh the display
+      if (typeof onLoadUserProfile === 'function') {
+        await onLoadUserProfile();
+      }
+      
+      // Force update the local state to show the new name immediately
+      setNewName(newName.trim());
+      
       setEditingName(false);
       toast.success(t('dashboard.nameUpdatedSuccessfully', 'Name updated successfully'));
     } catch (error) {
@@ -75,17 +90,20 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
   const handleUpdatePhone = async () => {
     setIsUpdating(true);
     try {
-      // Update user profile via MongoDB API
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.roamjet.net';
+      const userId = currentUser.id || currentUser.uid || currentUser._id;
+      console.log('🔍 Updating phone for user:', userId, 'New phone:', newPhone.trim());
       
-      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
-        method: 'PUT',
+      // Update user profile via local API
+      const response = await fetch('/api/auth/update-profile', {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${currentUser.accessToken || 'dummy-token'}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phoneNumber: newPhone.trim()
+          userId: userId,
+          updates: {
+            phone: newPhone.trim()
+          }
         }),
       });
       
@@ -99,7 +117,14 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
         throw new Error(result.error || 'Failed to update phone number');
       }
 
-      await onLoadUserProfile();
+      // Update local user data and refresh the display
+      if (typeof onLoadUserProfile === 'function') {
+        await onLoadUserProfile();
+      }
+      
+      // Also update the local state immediately
+      const updatedUser = { ...currentUser, phone: newPhone.trim() };
+      
       setEditingPhone(false);
       toast.success('Phone number updated successfully');
     } catch (error) {
@@ -110,40 +135,6 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
     }
   };
 
-  const handlePasswordReset = async () => {
-    setIsSendingReset(true);
-    try {
-      // Send password reset via MongoDB API
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.roamjet.net';
-      
-      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: currentUser.email
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Password reset failed: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to send password reset email');
-      }
-      
-      toast.success('Password reset email sent! Check your inbox.');
-    } catch (error) {
-      console.error('Error sending password reset:', error);
-      toast.error('Failed to send password reset email');
-    } finally {
-      setIsSendingReset(false);
-    }
-  };
 
   const cancelNameEdit = () => {
     setNewName(currentUser?.displayName || '');
@@ -151,7 +142,7 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
   };
 
   const cancelPhoneEdit = () => {
-    setNewPhone(userProfile?.phoneNumber || '');
+    setNewPhone(userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || '');
     setEditingPhone(false);
   };
 
@@ -222,7 +213,7 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
                         </div>
                       ) : (
                         <div className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <span className="text-eerie-black">{currentUser.displayName || t('dashboard.notSet', 'Not set')}</span>
+                          <span className="text-eerie-black">{newName || currentUser.displayName || userProfile?.displayName || t('dashboard.notSet', 'Not set')}</span>
                           <button
                             onClick={() => setEditingName(true)}
                             className="text-tufts-blue hover:text-cobalt-blue transition-colors"
@@ -265,7 +256,7 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
                         </div>
                       ) : (
                         <div className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <span className="text-eerie-black">{userProfile?.phoneNumber || t('dashboard.notSet', 'Not set')}</span>
+                          <span className="text-eerie-black">{newPhone || userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || t('dashboard.notSet', 'Not set')}</span>
                           <button
                             onClick={() => setEditingPhone(true)}
                             className="text-tufts-blue hover:text-cobalt-blue transition-colors"
@@ -283,15 +274,20 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
                       </label>
                       <div className="p-3 bg-gray-50 rounded-lg">
                         <span className="text-eerie-black">
-                          {userProfile?.createdAt ? 
-                            (userProfile.createdAt.toDate ? 
-                              new Date(userProfile.createdAt.toDate()).toLocaleDateString() :
-                              new Date(userProfile.createdAt).toLocaleDateString()
-                            ) : 
+                          {(userProfile?.createdAt || currentUser?.createdAt) ? 
+                            (() => {
+                              const dateValue = userProfile?.createdAt || currentUser?.createdAt;
+                              if (dateValue?.toDate) {
+                                return new Date(dateValue.toDate()).toLocaleDateString();
+                              } else if (dateValue) {
+                                return new Date(dateValue).toLocaleDateString();
+                              }
+                              return t('dashboard.unknown', 'Unknown');
+                            })() : 
                             t('dashboard.unknown', 'Unknown')
                           }
                         </span>
-                        {!userProfile?.createdAt && (
+                        {!(userProfile?.createdAt || currentUser?.createdAt) && (
                           <button 
                             onClick={async () => {
                               console.log('Manual refresh triggered');
@@ -307,44 +303,6 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
                   </div>
                 </div>
 
-                {/* Security */}
-                <div>
-                  <h3 className={`text-lg font-medium text-eerie-black mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
-                    {t('dashboard.security', 'Security')}
-                  </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className={`block text-sm font-medium text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
-                        <Key className={`w-4 h-4 inline ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                        {t('dashboard.password', 'Password')}
-                      </label>
-                      <div className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        <span className="text-eerie-black">••••••••</span>
-                        <button
-                          onClick={handlePasswordReset}
-                          disabled={isSendingReset}
-                          className="text-sm bg-tufts-blue text-white px-4 py-2 rounded-lg hover:bg-cobalt-blue transition-colors disabled:opacity-50"
-                        >
-                          {isSendingReset ? t('dashboard.sending', 'Sending...') : t('dashboard.resetPassword', 'Reset Password')}
-                        </button>
-                      </div>
-                      <p className={`text-xs text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
-                        {t('dashboard.passwordResetInfo', "We'll send a password reset link to your email address")}
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className={`block text-sm font-medium text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
-                        {t('dashboard.accountRole', 'Account Role')}
-                      </label>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <span className="text-eerie-black capitalize">
-                          {t(`dashboard.roles.${userProfile?.role || 'customer'}`, userProfile?.role || 'customer')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

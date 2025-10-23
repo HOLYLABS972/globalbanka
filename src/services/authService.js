@@ -239,7 +239,7 @@ class AuthService {
     }
   }
 
-  // Reset password
+  // Reset password (send OTP via email)
   async resetPassword(email) {
     try {
       await connectDB();
@@ -249,14 +249,14 @@ class AuthService {
         throw new Error('User not found');
       }
 
-      // Generate and send password reset OTP
+      // Generate OTP and send via email
       const otpData = generateOTPWithTimestamp(10); // 10 minutes expiry
-      const emailSent = await sendPasswordResetEmail(email, user.displayName, otpData.otp);
+      const emailSent = await sendPasswordResetEmail(email, user.displayName || 'User', otpData.otp);
       
       if (emailSent) {
         console.log(`✅ Password reset OTP sent to ${email}: ${otpData.otp}`);
       } else {
-        console.log(`📧 OTP Code for ${email}: ${otpData.otp}`);
+        console.log(`📧 Password reset OTP for ${email}: ${otpData.otp}`);
       }
 
       // Store OTP in database
@@ -267,7 +267,7 @@ class AuthService {
         expiresAt: new Date(otpData.expiresAt)
       });
 
-      return { success: true };
+      return { success: true, message: 'Password reset code sent to your email' };
     } catch (error) {
       console.error('Password reset error:', error);
       throw error;
@@ -312,10 +312,42 @@ class AuthService {
     }
   }
 
+  // Change password directly (for logged in users)
+  async changePassword(userId, currentPassword, newPassword) {
+    try {
+      await connectDB();
+
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+      if (!isCurrentPasswordValid) {
+        throw new Error('Current password is incorrect');
+      }
+
+      // Update password
+      user.password = newPassword;
+      await user.save();
+
+      return { success: true, message: 'Password changed successfully' };
+    } catch (error) {
+      console.error('Password change error:', error);
+      throw error;
+    }
+  }
+
+
   // Get user by ID
   async getUserById(userId) {
     try {
       await connectDB();
+      
+      // Ensure user has creation date
+      await this.ensureUserCreationDate(userId);
+      
       const user = await User.findById(userId).select('-password');
       return user;
     } catch (error) {
@@ -328,16 +360,43 @@ class AuthService {
   async updateUserProfile(userId, updates) {
     try {
       await connectDB();
+      
+      // First, ensure the user has a createdAt date if missing
+      await this.ensureUserCreationDate(userId);
+      
       const user = await User.findByIdAndUpdate(
         userId,
         { $set: updates },
         { new: true, runValidators: true }
       ).select('-password');
       
-      return user;
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      return { success: true, user };
     } catch (error) {
       console.error('Update profile error:', error);
       throw error;
+    }
+  }
+
+  // Ensure user has a creation date
+  async ensureUserCreationDate(userId) {
+    try {
+      await connectDB();
+      const user = await User.findById(userId);
+      
+      if (user && !user.createdAt) {
+        // Set creation date to current date if missing
+        await User.findByIdAndUpdate(userId, {
+          $set: { createdAt: new Date() }
+        });
+        console.log(`✅ Added creation date for user: ${user.email}`);
+      }
+    } catch (error) {
+      console.error('Error ensuring user creation date:', error);
+      // Don't throw error as this is not critical for the update operation
     }
   }
 

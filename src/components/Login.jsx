@@ -92,6 +92,8 @@ const Login = () => {
     setPassword('');
   };
 
+
+
   const handleCredentialResponse = useCallback(async (response) => {
     setLoading(true);
     
@@ -241,6 +243,15 @@ const Login = () => {
                   )}
                 </button>
               </div>
+              
+              <div className="text-center">
+                <Link
+                  href={getLocalizedUrl('/forgot-password')}
+                  className="text-sm font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
+                >
+                  {t('auth.login.forgotPassword', 'Forgot your password?')}
+                </Link>
+              </div>
             </form>
           ) : (
             <form className="mt-8 space-y-6" onSubmit={handlePasswordSubmit}>
@@ -289,7 +300,7 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <div className="text-sm">
                   <Link
-                    href="/forgot-password"
+                    href={getLocalizedUrl('/forgot-password')}
                     className="font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
                   >
                     {t('auth.login.forgotPassword', 'Forgot your password?')}
