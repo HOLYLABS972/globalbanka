@@ -39,9 +39,23 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  async function signup(email, password, displayName) {
+  async function signup(email, password, displayName, referralCode) {
     try {
-      const result = await authService.signup(email, password, displayName);
+      const result = await authService.signup(email, password, displayName, referralCode);
+      
+      // Store pending signup data in localStorage for verification
+      if (result.pending) {
+        const pendingSignup = {
+          email,
+          password,
+          displayName,
+          otp: result.otp,
+          expiresAt: Date.now() + (15 * 60 * 1000), // 15 minutes from now
+          timestamp: Date.now()
+        };
+        localStorage.setItem('pendingSignup', JSON.stringify(pendingSignup));
+      }
+      
       return result;
     } catch (error) {
       throw error;

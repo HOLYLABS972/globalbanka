@@ -55,6 +55,19 @@ export function AuthProvider({ children }) {
         throw new Error(data.error || 'Registration failed');
       }
 
+      // Store pending signup data in localStorage for verification
+      if (data.pending) {
+        const pendingSignup = {
+          email,
+          password,
+          displayName,
+          otp: data.otp,
+          expiresAt: Date.now() + (15 * 60 * 1000), // 15 minutes from now
+          timestamp: Date.now()
+        };
+        localStorage.setItem('pendingSignup', JSON.stringify(pendingSignup));
+      }
+
       return data;
     } catch (error) {
       throw error;
