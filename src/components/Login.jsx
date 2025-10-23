@@ -16,7 +16,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: email, 2: password
-  const { login, signInWithGoogle } = useAuth();
+  const { login } = useAuth();
   const { t, locale } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
@@ -95,26 +95,34 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-      await signInWithGoogle();
-      toast.success(t('auth.login.googleSignInSuccessful', 'Signed in with Google successfully!'));
       
-      // Check for return URL parameter
-      const returnUrl = searchParams.get('returnUrl');
-      if (returnUrl) {
-        router.push(decodeURIComponent(returnUrl));
-      } else {
-        // Default redirect to homepage (not dashboard)
-        router.push('/');
-      }
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       
-      // Save English as preferred language
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('roamjet-language', 'en');
+      if (!clientId) {
+        toast.error('Google Client ID not configured');
+        setLoading(false);
+        return;
       }
+
+      // Create Google OAuth URL for redirect-based authentication
+      const redirectUri = `${window.location.origin}/auth/google/callback`;
+      const scope = 'openid email profile';
+      const responseType = 'code';
+      
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${clientId}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+        `scope=${encodeURIComponent(scope)}&` +
+        `response_type=${responseType}&` +
+        `access_type=offline&` +
+        `prompt=consent`;
+
+      // Redirect to Google OAuth
+      window.location.href = googleAuthUrl;
+      
     } catch (error) {
       console.error('Google sign-in error:', error);
       toast.error(error.message || t('auth.login.googleSignInFailed', 'Failed to sign in with Google'));
-    } finally {
       setLoading(false);
     }
   };

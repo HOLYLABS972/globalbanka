@@ -39,11 +39,23 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  async function signup(email, password, displayName) {
+  async function signup(email, password, displayName, referralCode) {
     try {
-      const authService = (await import('../services/authService')).default;
-      const result = await authService.signup(email, password, displayName);
-      return result;
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, displayName, referralCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      return data;
     } catch (error) {
       throw error;
     }
@@ -51,17 +63,28 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
-      const authService = (await import('../services/authService')).default;
-      const result = await authService.login(email, password);
-      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
       // Store auth data in localStorage
-      localStorage.setItem('authToken', result.token);
-      localStorage.setItem('userData', JSON.stringify(result.user));
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userData', JSON.stringify(data.user));
       
-      setCurrentUser(result.user);
-      setUserProfile(result.user);
+      setCurrentUser(data.user);
+      setUserProfile(data.user);
       
-      return result.user;
+      return data.user;
     } catch (error) {
       throw error;
     }
@@ -82,9 +105,21 @@ export function AuthProvider({ children }) {
 
   async function resetPassword(email) {
     try {
-      const authService = (await import('../services/authService')).default;
-      const result = await authService.resetPassword(email);
-      return result;
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Password reset failed');
+      }
+
+      return data;
     } catch (error) {
       throw error;
     }
@@ -103,20 +138,32 @@ export function AuthProvider({ children }) {
       }
 
       const pendingSignup = JSON.parse(pendingSignupData);
-      const authService = (await import('../services/authService')).default;
-      const result = await authService.verifyEmailOTP(otp, pendingSignup);
       
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ otp, pendingSignupData: pendingSignup }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Email verification failed');
+      }
+
       // Store auth data in localStorage
-      localStorage.setItem('authToken', result.token);
-      localStorage.setItem('userData', JSON.stringify(result.user));
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userData', JSON.stringify(data.user));
       
       // Clear pending signup data
       localStorage.removeItem('pendingSignup');
       
-      setCurrentUser(result.user);
-      setUserProfile(result.user);
+      setCurrentUser(data.user);
+      setUserProfile(data.user);
       
-      return result.user;
+      return data.user;
     } catch (error) {
       throw error;
     }
@@ -124,9 +171,21 @@ export function AuthProvider({ children }) {
 
   async function verifyPasswordResetOTP(email, otp, newPassword) {
     try {
-      const authService = (await import('../services/authService')).default;
-      const result = await authService.verifyPasswordResetOTP(email, otp, newPassword);
-      return result;
+      const response = await fetch('/api/auth/verify-password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Password reset verification failed');
+      }
+
+      return data;
     } catch (error) {
       throw error;
     }
@@ -138,9 +197,20 @@ export function AuthProvider({ children }) {
         throw new Error('No user logged in');
       }
 
-      const authService = (await import('../services/authService')).default;
-      const updatedUser = await authService.updateUserProfile(currentUser.id, updates);
-      
+      const response = await fetch('/api/auth/update-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: currentUser.id, updates }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Profile update failed');
+      }
+
       // Update stored user data
       const updatedUserData = { ...currentUser, ...updates };
       localStorage.setItem('userData', JSON.stringify(updatedUserData));
@@ -148,7 +218,7 @@ export function AuthProvider({ children }) {
       setCurrentUser(updatedUserData);
       setUserProfile(updatedUserData);
       
-      return updatedUser;
+      return data;
     } catch (error) {
       throw error;
     }
@@ -160,11 +230,11 @@ export function AuthProvider({ children }) {
         console.log('🔍 AuthContext: Loading user profile for:', currentUser.email);
         console.log('🆔 AuthContext: User ID:', currentUser.id);
         
-        const authService = (await import('../services/authService')).default;
-        const user = await authService.getUserById(currentUser.id);
-        console.log('📋 AuthContext: User profile loaded:', user);
+        const response = await fetch(`/api/auth/user?userId=${currentUser.id}`);
+        const user = await response.json();
         
-        if (user) {
+        if (response.ok) {
+          console.log('📋 AuthContext: User profile loaded:', user);
           setUserProfile(user);
         } else {
           console.log('❌ AuthContext: No user profile found');
@@ -181,8 +251,17 @@ export function AuthProvider({ children }) {
       const token = localStorage.getItem('authToken');
       if (token && currentUser) {
         try {
-          const authService = (await import('../services/authService')).default;
-          await authService.verifyAuthToken(token);
+          const response = await fetch('/api/auth/verify-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Token verification failed');
+          }
         } catch (error) {
           console.error('Token verification failed:', error);
           // Clear invalid auth data

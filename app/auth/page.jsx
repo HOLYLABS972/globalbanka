@@ -1,26 +1,26 @@
-import Auth from '../../src/components/Auth';
+import { redirect } from 'next/navigation';
 
 export const metadata = {
-  title: 'Authentication - RoamJet',
-  description: 'Sign in to your RoamJet account using email, Google, or Yandex authentication.',
-  keywords: ['authentication', 'sign in', 'RoamJet account', 'eSIM authentication', 'email login', 'Google login', 'Yandex login'],
+  title: 'Authentication - Globalbanka',
+  description: 'Sign in to your Globalbanka account to manage your global eSIM plans and travel connectivity.',
+  keywords: ['authentication', 'sign in', 'Globalbanka account', 'eSIM authentication', 'email login', 'Google login'],
   openGraph: {
-    title: 'Authentication - RoamJet | Global eSIM Plans',
-    description: 'Sign in to your RoamJet account using email, Google, or Yandex authentication.',
+    title: 'Authentication - Globalbanka | Global eSIM Plans',
+    description: 'Sign in to your Globalbanka account to manage your global eSIM plans and travel connectivity.',
     url: '/auth',
     images: [
       {
         url: '/images/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'RoamJet Authentication - Global eSIM Plans',
+        alt: 'Globalbanka Authentication - Global eSIM Plans',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Authentication - RoamJet | Global eSIM Plans',
-    description: 'Sign in to your RoamJet account using email, Google, or Yandex authentication.',
+    title: 'Authentication - Globalbanka | Global eSIM Plans',
+    description: 'Sign in to your Globalbanka account to manage your global eSIM plans and travel connectivity.',
     images: ['/images/og-image.svg'],
   },
   alternates: {
@@ -29,5 +29,6 @@ export const metadata = {
 };
 
 export default function AuthPage() {
-  return <Auth />;
+  // Redirect to login page since Auth component has been integrated into Login
+  redirect('/login');
 }
