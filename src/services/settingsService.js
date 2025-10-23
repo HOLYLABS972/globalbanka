@@ -224,4 +224,16 @@ class SettingsService {
 // Create singleton instance
 const settingsService = new SettingsService();
 
+// Get regular settings (for compatibility)
+export const getRegularSettings = async () => {
+  try {
+    const settings = await settingsService.getSection('regular');
+    return settings;
+  } catch (error) {
+    console.error('❌ Error getting regular settings:', error);
+    return defaultSettings.regular;
+  }
+};
+
+export { settingsService };
 export default settingsService;

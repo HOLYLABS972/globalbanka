@@ -344,6 +344,20 @@ export const getPlansStats = async () => {
   }
 };
 
+// Get countries with pricing (simplified version for compatibility)
+export const getCountriesWithPricing = async () => {
+  try {
+    const countries = await getAllCountries();
+    return countries.map(country => ({
+      ...country,
+      flagEmoji: getFlagEmoji(country.code)
+    }));
+  } catch (error) {
+    console.error('❌ Error getting countries with pricing:', error);
+    throw error;
+  }
+};
+
 // Export all functions
 export default {
   getAllPlans,
@@ -359,5 +373,6 @@ export default {
   getPlansByContinent,
   getPlansByRegion,
   getPlansByFilters,
-  getPlansStats
+  getPlansStats,
+  getCountriesWithPricing
 };

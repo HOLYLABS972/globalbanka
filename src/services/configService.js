@@ -184,4 +184,5 @@ class ConfigService {
 // Create singleton instance
 const configService = new ConfigService();
 
+export { configService };
 export default configService;
