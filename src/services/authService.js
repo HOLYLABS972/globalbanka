@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { User, OTP, Newsletter } from '../database/models';
 import connectDB from '../database/config';
 import { sendVerificationEmail, sendPasswordResetEmail } from './emailService';
 import { generateOTPWithTimestamp } from '../utils/otpUtils';
@@ -31,6 +30,7 @@ class AuthService {
   async signup(email, password, displayName) {
     try {
       await connectDB();
+      const { User, OTP } = await import('../database/models');
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });

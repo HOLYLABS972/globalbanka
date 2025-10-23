@@ -1,14 +1,6 @@
 "use client";
 
-/// <reference types="google.accounts" />
-
 import React, { useState, useCallback, useEffect } from 'react';
-
-declare global {
-  interface Window {
-    google: typeof google;
-  }
-}
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -140,7 +132,7 @@ const Login = () => {
       return;
     }
     
-    if (window.google) {
+    if (window.google && window.google.accounts && window.google.accounts.id) {
       window.google.accounts.id.initialize({
         client_id: clientId,
         callback: handleCredentialResponse,
