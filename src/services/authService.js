@@ -3,6 +3,20 @@ import connectDB from '../database/config';
 import { sendVerificationEmail, sendPasswordResetEmail } from './emailService';
 import { generateOTPWithTimestamp } from '../utils/otpUtils';
 
+// Import models after database connection
+let User, OTP, Newsletter;
+
+async function getModels() {
+  if (!User || !OTP || !Newsletter) {
+    await connectDB();
+    const models = await import('../database/models');
+    User = models.User;
+    OTP = models.OTP;
+    Newsletter = models.Newsletter;
+  }
+  return { User, OTP, Newsletter };
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
@@ -29,8 +43,7 @@ class AuthService {
   // Sign up with email and password
   async signup(email, password, displayName) {
     try {
-      await connectDB();
-      const { User, OTP } = await import('../database/models');
+      const { User, OTP } = await getModels();
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });
@@ -77,8 +90,7 @@ class AuthService {
   async verifyEmailOTP(otp, pendingSignupData) {
     try {
       console.log('🔍 Starting OTP verification for:', pendingSignupData.email);
-      await connectDB();
-      const { User, OTP } = await import('../database/models');
+      const { User, OTP } = await getModels();
 
       // Check if OTP has expired
       const now = Date.now();
@@ -158,8 +170,7 @@ class AuthService {
   // Login with email and password
   async login(email, password) {
     try {
-      await connectDB();
-      const { User } = await import('../database/models');
+      const { User } = await getModels();
 
       const user = await User.findOne({ email, isActive: true });
       if (!user) {
@@ -197,8 +208,7 @@ class AuthService {
   // Google OAuth login/signup
   async signInWithGoogle(googleUser) {
     try {
-      await connectDB();
-      const { User } = await import('../database/models');
+      const { User } = await getModels();
 
       // Check if user already exists
       let user = await User.findOne({ email: googleUser.email });
@@ -255,8 +265,7 @@ class AuthService {
   // Reset password
   async resetPassword(email) {
     try {
-      await connectDB();
-      const { User, OTP } = await import('../database/models');
+      const { User, OTP } = await getModels();
 
       const user = await User.findOne({ email, isActive: true });
       if (!user) {
@@ -291,8 +300,7 @@ class AuthService {
   // Verify password reset OTP and update password
   async verifyPasswordResetOTP(email, otp, newPassword) {
     try {
-      await connectDB();
-      const { User, OTP } = await import('../database/models');
+      const { User, OTP } = await getModels();
 
       // Verify OTP from database
       const otpRecord = await OTP.findOne({
@@ -330,8 +338,7 @@ class AuthService {
   // Get user by ID
   async getUserById(userId) {
     try {
-      await connectDB();
-      const { User } = await import('../database/models');
+      const { User } = await getModels();
       const user = await User.findById(userId).select('-password');
       return user;
     } catch (error) {
@@ -343,8 +350,7 @@ class AuthService {
   // Update user profile
   async updateUserProfile(userId, updates) {
     try {
-      await connectDB();
-      const { User } = await import('../database/models');
+      const { User } = await getModels();
       const user = await User.findByIdAndUpdate(
         userId,
         { $set: updates },
@@ -361,8 +367,7 @@ class AuthService {
   // Add user to newsletter
   async addToNewsletter(email, displayName, source) {
     try {
-      await connectDB();
-      const { Newsletter } = await import('../database/models');
+      const { Newsletter } = await getModels();
       
       // Check if email already exists in newsletter
       const existingSubscription = await Newsletter.findOne({ email });
