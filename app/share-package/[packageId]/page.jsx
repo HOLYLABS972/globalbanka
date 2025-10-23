@@ -198,7 +198,7 @@ const SharePackagePage = () => {
         // Set balance info with mode detection
         const balanceInfo = {
           balance: 0,
-          hasInsufficientFunds: apiKeyMode === 'production', // Show error in production mode
+          hasInsufficientFunds: false, // Allow purchases in both modes
           minimumRequired: 4,
           mode: apiKeyMode,
           apiKey: roamjetApiKey || 'No API key found (localhost)'
@@ -505,17 +505,17 @@ const SharePackagePage = () => {
                 <h3 className={`text-2xl font-semibold text-gray-900 mb-4 ${isRTL ? 'text-right' : 'text-center'}`}>{t('sharePackage.getThisPackage', 'Get This Package')}</h3>
                 <button
                   onClick={handlePurchase}
-                  disabled={currentMode === 'production'} // Only disable in production mode
+                  disabled={!packageData} // Only disable if package data is not loaded
                   className={`w-full max-w-md mx-auto flex items-center justify-center space-x-3 py-4 px-6 rounded-xl transition-colors font-medium text-lg shadow-lg ${
-                    currentMode === 'production'
+                    !packageData
                       ? 'bg-gray-400 cursor-not-allowed text-white'
                       : 'bg-blue-600 hover:bg-blue-700 text-white'
                   }`}
                 >
                   <Smartphone className="w-6 h-6" />
                   <span>
-                    {currentMode === 'production'
-                      ? t('sharePackage.serviceUnavailable', 'Service Unavailable') 
+                    {!packageData
+                      ? t('sharePackage.loading', 'Loading...') 
                       : t('sharePackage.purchaseNow', 'Purchase Now')}
                   </span>
                 </button>
