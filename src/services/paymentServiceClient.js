@@ -1,6 +1,6 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Server payments service URL
+// Server payments service URL - payments go to pay.roamjet.net
 const SERVER_PAYMENTS_URL = 'https://pay.roamjet.net';
 
 // Stripe instance cache
@@ -12,9 +12,15 @@ async function getStripeInstance() {
   try {
     // Use environment variables instead of configService to avoid MongoDB connections
     const mode = process.env.NEXT_PUBLIC_STRIPE_MODE || 'test';
-    const publishableKey = mode === 'live' 
+    let publishableKey = mode === 'live' 
       ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE
       : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST;
+    
+    // Fallback to hardcoded test key if no environment key is found
+    if (!publishableKey && mode === 'test') {
+      publishableKey = 'pk_test_51QgvHMDAQpPJFhcuO3sh2pE1JSysFYHgJo781w5lzeDX6Qh9P026LaxpeilCyXx73TwCLHcF5O0VQU45jPZhLBK800G6bH5LdA';
+      console.log('🔑 Using fallback Stripe test key');
+    }
     
     // If mode changed, reinitialize Stripe
     if (mode !== currentStripeMode || !stripeInstance) {
@@ -78,17 +84,26 @@ export const paymentService = {
     try {
       console.log('🛒 Creating checkout session:', orderData);
       
-      // Try the payment server with proper headers
-      const response = await fetch(`${SERVER_PAYMENTS_URL}/api/create-checkout-session`, {
+      // Transform orderData to match your Flask app's expected format
+      const flaskPayload = {
+        order: orderData.orderId || orderData.planId,
+        email: orderData.customerEmail,
+        name: orderData.planName,
+        total: orderData.amount,
+        currency: orderData.currency || 'usd',
+        domain: window.location.origin
+      };
+      
+      console.log('🔄 Transformed payload for Flask app:', flaskPayload);
+      
+      // Use your Flask payment service TEST endpoint for one-time orders
+      const response = await fetch(`${SERVER_PAYMENTS_URL}/test/create-payment-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Origin': window.location.origin,
         },
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(orderData),
+        body: JSON.stringify(flaskPayload),
       });
 
       if (!response.ok) {
@@ -96,10 +111,27 @@ export const paymentService = {
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
-      const { sessionId, url } = await response.json();
-      console.log('✅ Checkout session created:', { sessionId, url });
+      const result = await response.json();
+      console.log('✅ Flask payment response:', result);
       
-      return { sessionId, url };
+      // Extract sessionUrl from your Flask app response format
+      // test/create-payment-order returns: {'sessionUrl': session.url, 'sessionId': session.id, 'status': 'success'}
+      const sessionUrl = result.sessionUrl;
+      const sessionId = result.sessionId;
+      
+      if (!sessionUrl) {
+        console.error('❌ No sessionUrl in response:', result);
+        throw new Error('No session URL returned from payment service');
+      }
+      
+      if (result.status !== 'success') {
+        throw new Error(result.error || 'Payment session creation failed');
+      }
+      
+      return { 
+        sessionId: sessionId,
+        url: sessionUrl 
+      };
     } catch (error) {
       console.error('❌ Error creating checkout session:', error);
       

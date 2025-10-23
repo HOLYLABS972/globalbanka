@@ -74,16 +74,20 @@ const Dashboard = () => {
       try {
         console.log('🔍 Current user:', currentUser.email);
         
-        // Use local mock data instead of external API to avoid CORS issues
-        console.log('📱 Using local mock data...');
+        // Fetch real eSIM data from MongoDB via local API
+        console.log('📱 Fetching eSIM data from MongoDB...');
         
-        // Mock data for development
-        const data = {
-          success: true,
-          data: {
-            orders: []
-          }
-        };
+        const userId = currentUser.uid || currentUser.id || currentUser._id || `email_${currentUser.email}`;
+        console.log('🔍 Looking for eSIMs with userId:', userId);
+        
+        const response = await fetch(`/api/esims/list?userId=${encodeURIComponent(userId)}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch eSIMs: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('📱 eSIM API response:', data);
         
         if (data.success) {
           const ordersData = data.data.orders.map(order => {
@@ -762,7 +766,6 @@ const Dashboard = () => {
       {/* Stats Cards */}
       <StatsCards 
         orders={orders}
-        activeOrders={activeOrders}
       />
 
       {/* Recent Orders */}

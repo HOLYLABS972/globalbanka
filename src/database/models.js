@@ -382,7 +382,7 @@ const settingsSchema = new mongoose.Schema({
 // Order Schema (for tracking eSIM orders)
 const orderSchema = new mongoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String, // Change to String to handle email-based IDs
     ref: 'User'
   },
   orderId: {
@@ -522,6 +522,141 @@ orderSchema.index({ status: 1 });
 otpSchema.index({ email: 1, type: 1 });
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
+// API Usage Schema (for tracking API calls)
+const apiUsageSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true
+  },
+  userEmail: {
+    type: String,
+    required: true
+  },
+  endpoint: {
+    type: String,
+    required: true
+  },
+  method: {
+    type: String,
+    required: true
+  },
+  mode: {
+    type: String,
+    enum: ['sandbox', 'production'],
+    required: true
+  },
+  packageId: String,
+  packageName: String,
+  orderId: String,
+  airaloOrderId: String,
+  amount: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String,
+    enum: ['success', 'error', 'completed'],
+    required: true
+  },
+  isTestOrder: {
+    type: Boolean,
+    default: false
+  },
+  testModeLabel: String,
+  metadata: {
+    quantity: Number,
+    iccid: String,
+    source: String
+  }
+}, {
+  timestamps: true
+});
+
+// eSIM Schema (for storing eSIM records)
+const esimSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true
+  },
+  activationDate: Date,
+  capacity: Number,
+  countryCode: String,
+  countryName: String,
+  currency: {
+    type: String,
+    default: 'USD'
+  },
+  errorMessage: String,
+  expiryDate: String,
+  iccid: String,
+  operator: {
+    name: String,
+    slug: String
+  },
+  orderResult: {
+    activationCode: String,
+    confirmationCode: String,
+    createdAt: String,
+    iccid: String,
+    isDemo: Boolean,
+    orderId: String,
+    planId: String,
+    planName: String,
+    provider: String,
+    qrCode: String,
+    smdpAddress: String,
+    status: String,
+    success: Boolean,
+    validUntil: String,
+    updatedAt: String
+  },
+  period: Number,
+  planId: String,
+  planName: String,
+  price: Number,
+  purchaseDate: Date,
+  qrCode: String,
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'expired'],
+    default: 'active'
+  },
+  processingStatus: {
+    type: String,
+    enum: ['pending', 'processing', 'completed', 'failed'],
+    default: 'completed'
+  },
+  completedAt: Date,
+  airaloOrderId: String,
+  airaloOrderData: mongoose.Schema.Types.Mixed,
+  processingKey: String,
+  // QR Code related fields
+  activationCode: String,
+  directAppleInstallationUrl: String,
+  qrCodeUrl: String,
+  lpa: String,
+  smdpAddress: String,
+  isTestMode: {
+    type: Boolean,
+    default: false
+  },
+  testModeNotice: String
+}, {
+  timestamps: true
+});
+
+// Indexes for ApiUsage
+apiUsageSchema.index({ userId: 1 });
+apiUsageSchema.index({ mode: 1 });
+apiUsageSchema.index({ status: 1 });
+apiUsageSchema.index({ createdAt: -1 });
+
+// Indexes for Esim
+esimSchema.index({ userId: 1 });
+esimSchema.index({ 'orderResult.orderId': 1 });
+esimSchema.index({ status: 1 });
+esimSchema.index({ processingStatus: 1 });
+
 export const User = mongoose.models?.User || mongoose.model('User', userSchema);
 export const BusinessUser = mongoose.models?.BusinessUser || mongoose.model('BusinessUser', businessUserSchema);
 export const DataPlan = mongoose.models?.DataPlan || mongoose.model('DataPlan', dataPlanSchema);
@@ -530,6 +665,8 @@ export const Newsletter = mongoose.models?.Newsletter || mongoose.model('Newslet
 export const Settings = mongoose.models?.Settings || mongoose.model('Settings', settingsSchema);
 export const Order = mongoose.models?.Order || mongoose.model('Order', orderSchema);
 export const OTP = mongoose.models?.OTP || mongoose.model('OTP', otpSchema);
+export const ApiUsage = mongoose.models?.ApiUsage || mongoose.model('ApiUsage', apiUsageSchema);
+export const Esim = mongoose.models?.Esim || mongoose.model('Esim', esimSchema);
 
 export default {
   User,
@@ -539,5 +676,7 @@ export default {
   Newsletter,
   Settings,
   Order,
-  OTP
+  OTP,
+  ApiUsage,
+  Esim
 };

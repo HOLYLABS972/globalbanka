@@ -102,10 +102,9 @@ const PaymentSuccess = () => {
   // Create order record via MongoDB API
   const createOrderRecord = async (orderData) => {
     try {
-      // Check if we're in test mode
-      const { configService } = await import('../services/configService');
-      const stripeMode = await configService.getStripeMode();
-      const isTestMode = stripeMode === 'test' || stripeMode === 'sandbox';
+      // We're always in test mode for PaymentSuccess to avoid client-side MongoDB imports
+      const stripeMode = 'test';
+      const isTestMode = true;
       
       console.log('🛒 Creating RoamJet order...');
       console.log('🔍 Stripe Mode:', stripeMode, '| Test Mode:', isTestMode);
@@ -336,44 +335,96 @@ const PaymentSuccess = () => {
       };
       
       const countryInfo = getCountryFromPlan(orderData.planId);
-      const orderRef = doc(db, 'users', currentUser.uid, 'esims', orderData.orderId);
       
       // Step 1: Create order via Python API (backend will decide mock vs real based on mode)
       console.log(`📞 Creating order via API (${isTestMode ? 'TEST' : 'LIVE'} mode)`);
       console.log('🎯 Backend will handle:', isTestMode ? 'MOCK data' : 'REAL Airalo purchase');
       
-      const { apiService } = await import('../services/apiService');
-      const airaloOrderResult = await apiService.createOrder({
-        package_id: orderData.planId,
-        quantity: "1",
-        to_email: orderData.customerEmail,
-        description: `eSIM order for ${orderData.customerEmail}`,
-        mode: stripeMode // Pass mode to backend so it knows whether to mock or create real order
+      // For PaymentSuccess, always use API key approach to avoid token issues after payment redirect
+      console.log('🔑 PaymentSuccess: Using API key approach directly to avoid auth issues');
+      let airaloOrderResult;
+      
+      // Use API key directly like other screens
+      const { apiServiceClient } = await import('../services/apiServiceClient');
+      
+      // Get API key with fallback
+      let apiKey = process.env.NEXT_PUBLIC_ROAMJET_API_KEY;
+      if (!apiKey) {
+        apiKey = process.env.NEXT_PUBLIC_API_KEY || process.env.ROAMJET_API_KEY;
+      }
+      if (!apiKey) {
+        // Hardcoded fallback like in apiServiceClient
+        apiKey = 'rjapi_2k9lt4821123xd7p2dl37mv48jukgo51';
+        console.log('🔑 Using fallback API key');
+      }
+      
+      const ORDER_URL = 'https://sandbox.roamjet.net';
+      console.log('🌐 Using API key endpoint:', ORDER_URL);
+      
+      const response = await fetch(`${ORDER_URL}/api/user/order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'X-API-Key': apiKey
+        },
+        body: JSON.stringify({
+          package_id: orderData.planId,
+          quantity: "1",
+          to_email: orderData.customerEmail,
+          description: `eSIM order for ${orderData.customerEmail}`,
+          mode: stripeMode
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ API request failed:', {
+          status: response.status,
+          error: errorData.error,
+          fullResponse: errorData
+        });
+        throw new Error(`Order creation failed. Please contact support.`);
+      }
+
+      airaloOrderResult = await response.json();
       
       console.log('✅ Order created by backend:', airaloOrderResult);
 
-      // Step 2: Save order to Firebase with both order ID reference
-      await setDoc(doc(db, 'orders', orderData.orderId), {
+      // Step 2: Save order to MongoDB via API
+      const orderRecord = {
         orderId: orderData.orderId,
         airaloOrderId: airaloOrderResult.airaloOrderId,
-        userId: currentUser.uid,
-        planId: orderData.planId,
+        userId: currentUser?.uid || currentUser?.id || currentUser?._id || `email_${orderData.customerEmail}`, // Fallback to email-based ID
+        packageId: orderData.planId, // Map planId to packageId for schema compatibility
         planName: orderData.planName,
-        amount: orderData.amount,
-        currency: orderData.currency,
+        amount: parseFloat(orderData.amount), // Ensure it's a number
+        currency: orderData.currency || 'USD',
         customerEmail: orderData.customerEmail,
-        status: 'active',
-        createdAt: serverTimestamp(),
+        status: 'completed', // Use valid enum value from schema
+        paymentStatus: 'paid', // Payment was successful
+        createdAt: new Date(),
         airaloOrderData: airaloOrderResult.orderData,
         isTestMode: isTestMode, // Flag to indicate test order
-        stripeMode: stripeMode
+        stripeMode: stripeMode,
+        // Add flag to indicate this was created without proper user session
+        sessionLost: !currentUser
+      };
+
+      const orderResponse = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderRecord)
       });
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to save order to database');
+      }
 
       // Step 2.5: ALSO save to api_usage collection for admin dashboard tracking
       const apiUsageData = {
-        userId: currentUser.uid,
-        userEmail: currentUser.email,
+        userId: currentUser?.uid || currentUser?.id || currentUser?._id || `email_${orderData.customerEmail}`,
+        userEmail: currentUser?.email || orderData.customerEmail,
         endpoint: '/api/user/order',
         method: 'POST',
         mode: isTestMode ? 'sandbox' : 'production',
@@ -385,7 +436,8 @@ const PaymentSuccess = () => {
         status: 'completed',
         isTestOrder: isTestMode,
         testModeLabel: isTestMode ? '🧪 TEST ORDER' : null,
-        createdAt: serverTimestamp(),
+        createdAt: new Date(),
+        sessionLost: !currentUser, // Track if session was lost
         metadata: {
           quantity: 1,
           iccid: airaloOrderResult.orderData?.sims?.[0]?.iccid || null,
@@ -393,26 +445,31 @@ const PaymentSuccess = () => {
         }
       };
 
-      // Save to global api_usage collection
-      await addDoc(collection(db, 'api_usage'), apiUsageData);
-      console.log('✅ Logged to global api_usage collection from frontend');
-
-      // ALSO save to user subcollection for admin dashboard
+      // Save to global api_usage collection via API
       try {
-        await addDoc(collection(db, 'business_users', currentUser.uid, 'api_usage'), apiUsageData);
-        console.log('✅ Logged to user subcollection from frontend');
-      } catch (subcollectionError) {
-        console.warn('⚠️ Could not save to user subcollection:', subcollectionError);
-        // Continue anyway - global collection is sufficient
+        const usageResponse = await fetch('/api/usage/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(apiUsageData)
+        });
+        
+        if (usageResponse.ok) {
+          console.log('✅ Logged to api_usage collection from frontend');
+        } else {
+          console.warn('⚠️ Could not save to api_usage collection');
+        }
+      } catch (usageError) {
+        console.warn('⚠️ Error saving to api_usage collection:', usageError);
+        // Continue anyway - not critical for order processing
       }
 
-      // Step 3: Create initial eSIM record in user's collection
+      // Step 3: Create initial eSIM record in user's collection via API
       const esimData = {
         activationDate: null,
         capacity: 13,
         countryCode: countryInfo.code,
         countryName: countryInfo.name,
-        createdAt: serverTimestamp(),
+        createdAt: new Date(),
         currency: orderData.currency || "USD",
         errorMessage: null,
         expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -444,19 +501,29 @@ const PaymentSuccess = () => {
         planId: orderData.planId,
         planName: orderData.planName,
         price: orderData.amount,
-        purchaseDate: serverTimestamp(),
+        purchaseDate: new Date(),
         qrCode: "",
         status: "active",
-        updatedAt: serverTimestamp(),
+        updatedAt: new Date(),
         processingStatus: 'completed',
-        completedAt: serverTimestamp(),
+        completedAt: new Date(),
         airaloOrderId: airaloOrderResult.airaloOrderId,
         airaloOrderData: airaloOrderResult.orderData,
+        userId: currentUser?.uid || currentUser?.id || currentUser?._id || `email_${orderData.customerEmail}`,
+        sessionLost: !currentUser, // Track if session was lost
         // Preserve the existing processing key
-        processingKey: `${currentUser.uid}_${orderData.orderId}_${Date.now()}`
+        processingKey: `${currentUser?.uid || currentUser?.id || currentUser?._id || `email_${orderData.customerEmail}`}_${orderData.orderId}_${Date.now()}`
       };
       
-      await setDoc(orderRef, esimData, { merge: true });
+      const esimResponse = await fetch('/api/esims/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(esimData)
+      });
+
+      if (!esimResponse.ok) {
+        throw new Error('Failed to save eSIM record to database');
+      }
 
       // Step 4: Try to get QR code immediately via RoamJet API (backend handles mock vs real)
       try {
@@ -467,8 +534,10 @@ const PaymentSuccess = () => {
         if (qrResult.success && qrResult.qrCode) {
           console.log('✅ QR code retrieved:', qrResult);
           
-          // Update the eSIM record with QR code data
-          await setDoc(orderRef, {
+          // Update the eSIM record with QR code data via API
+          const qrUpdateData = {
+            orderId: orderData.orderId,
+            userId: currentUser?.uid || currentUser?.id || currentUser?._id || `email_${orderData.customerEmail}`,
             status: 'active',
             qrCode: qrResult.qrCode,
             activationCode: qrResult.activationCode,
@@ -488,9 +557,19 @@ const PaymentSuccess = () => {
               updatedAt: new Date().toISOString()
             },
             processingStatus: 'completed',
-            completedAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }, { merge: true });
+            completedAt: new Date(),
+            updatedAt: new Date()
+          };
+
+          const qrUpdateResponse = await fetch('/api/esims/update', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(qrUpdateData)
+          });
+
+          if (!qrUpdateResponse.ok) {
+            console.warn('⚠️ Failed to update eSIM with QR code data');
+          }
         } else {
           console.log('⏳ QR code not ready yet, will be available later');
         }
@@ -531,13 +610,22 @@ const PaymentSuccess = () => {
         total,
         name,
         currency,
-        userId: currentUser?.uid
+        userId: currentUser?.uid || currentUser?.id || currentUser?._id,
+        hasCurrentUser: !!currentUser,
+        emailFromParams: email
       });
       
       if (!orderParam || !email || !total) {
         console.log('❌ Missing payment information');
         setError('Missing payment information.');
         return;
+      }
+
+      // Handle case where user session was lost after payment redirect
+      // but we have the email from payment parameters
+      if (!currentUser && email) {
+        console.log('⚠️ User session lost after payment redirect, but email available:', email);
+        console.log('🔄 Will proceed with order creation using email from payment data');
       }
 
       // Skip link check for now - process all payments

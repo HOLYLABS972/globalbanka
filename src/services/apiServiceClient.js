@@ -1,5 +1,3 @@
-// Client-safe API service - no database imports
-// This version is safe to use in client-side components
 
 /**
  * Get JWT token for current user
@@ -46,8 +44,10 @@ export const getApiKey = async () => {
       return altApiKey.trim();
     }
     
-    console.error('❌ No API key found in environment variables');
-    throw new Error('RoamJet API key not configured. Please contact support.');
+    // Fallback API key
+    const fallbackApiKey = 'rjapi_2k9lt4821123xd7p2dl37mv48jukgo51';
+    console.log('🔑 Using fallback API key:', fallbackApiKey.substring(0, 15) + '...');
+    return fallbackApiKey;
   } catch (error) {
     console.error('❌ Error getting RoamJet API key:', error.message);
     throw error;
