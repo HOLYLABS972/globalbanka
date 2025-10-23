@@ -148,7 +148,7 @@ const EsimPlans = () => {
   useEffect(() => {
     const fetchDiscountSettings = async () => {
       try {
-        const { getRegularSettings } = await import('../services/settingsService');
+        const { getRegularSettings } = await import('../services/settingsServiceClient');
         const regular = await getRegularSettings();
         console.log('💰 Regular discount settings loaded:', regular);
         setRegularSettings(regular);
@@ -167,7 +167,7 @@ const EsimPlans = () => {
     queryFn: async () => {
       try {
         console.log('📊 Fetching REAL API data for accurate pricing...');
-        const { getCountriesWithPricing } = await import('../services/plansService');
+        const { getCountriesWithPricing } = await import('../services/plansServiceClient');
         const countriesWithPricing = await getCountriesWithPricing();
         
         // Filter to show only countries with plans (minPrice < 999 indicates real data)

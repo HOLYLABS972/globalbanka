@@ -194,7 +194,7 @@ const PlanSelectionBottomSheet = ({
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const { getRegularSettings } = await import('../services/settingsService');
+        const { getRegularSettings } = await import('../services/settingsServiceClient');
         const regular = await getRegularSettings();
         console.log('🎯 Bottom sheet loaded regular settings:', regular);
         setRegularSettings(regular);
