@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import authService from '../../../../src/services/authService';
+import authService from '../../../../../src/services/authService';
 
-export async function GET(request) {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request, { params }) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const { userId } = params;
 
     if (!userId) {
       return NextResponse.json(

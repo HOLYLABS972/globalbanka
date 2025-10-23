@@ -230,7 +230,7 @@ export function AuthProvider({ children }) {
         console.log('🔍 AuthContext: Loading user profile for:', currentUser.email);
         console.log('🆔 AuthContext: User ID:', currentUser.id);
         
-        const response = await fetch(`/api/auth/user?userId=${currentUser.id}`);
+        const response = await fetch(`/api/auth/user/${currentUser.id}`);
         const user = await response.json();
         
         if (response.ok) {
