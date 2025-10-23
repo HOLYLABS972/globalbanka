@@ -501,8 +501,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Indexes for better performance
-userSchema.index({ email: 1 });
+// Indexes for better performance (excluding fields that already have unique indexes)
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
 
@@ -513,14 +512,11 @@ dataPlanSchema.index({ enabled: 1 });
 dataPlanSchema.index({ country_codes: 1 });
 dataPlanSchema.index({ price: 1 });
 
-countrySchema.index({ code: 1 });
 countrySchema.index({ isActive: 1 });
 
-newsletterSchema.index({ email: 1 });
 newsletterSchema.index({ status: 1 });
 
 orderSchema.index({ userId: 1 });
-orderSchema.index({ orderId: 1 });
 orderSchema.index({ status: 1 });
 
 otpSchema.index({ email: 1, type: 1 });
