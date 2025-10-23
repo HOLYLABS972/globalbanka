@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   },
   provider: {
     type: String,
-    enum: ['local'],
+    enum: ['local', 'google'],
     default: 'local'
   },
   avatar: {

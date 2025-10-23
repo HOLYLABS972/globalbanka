@@ -139,7 +139,32 @@ export function AuthProvider({ children }) {
   }
 
   async function signInWithGoogle(googleUser) {
-    throw new Error('Google authentication is currently disabled');
+    try {
+      const response = await fetch('/api/auth/google/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user: googleUser }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Google authentication failed');
+      }
+
+      // Store auth data in localStorage
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      
+      setCurrentUser(data.user);
+      setUserProfile(data.user);
+      
+      return data.user;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async function verifyEmailOTP(otp) {

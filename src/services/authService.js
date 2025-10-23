@@ -177,9 +177,61 @@ class AuthService {
     }
   }
 
-  // Google OAuth login/signup - DISABLED
+  // Google OAuth login/signup
   async signInWithGoogle(googleUser) {
-    throw new Error('Google authentication is currently disabled');
+    try {
+      await connectDB();
+
+      // Check if user already exists
+      let user = await User.findOne({ email: googleUser.email });
+
+      if (!user) {
+        // Create new user
+        user = new User({
+          email: googleUser.email,
+          displayName: googleUser.name,
+          emailVerified: true,
+          provider: 'google',
+          avatar: googleUser.picture
+        });
+
+        await user.save();
+
+        // Add user to newsletter
+        try {
+          await this.addToNewsletter(user.email, user.displayName, 'google_signup');
+          console.log('✅ User automatically added to newsletter');
+        } catch (newsletterError) {
+          console.error('❌ Error adding user to newsletter:', newsletterError);
+          // Don't fail the signup if newsletter addition fails
+        }
+      } else {
+        // Update existing user's last login
+        user.lastLogin = new Date();
+        if (!user.emailVerified) {
+          user.emailVerified = true;
+        }
+        await user.save();
+      }
+
+      // Generate token
+      const token = this.generateToken(user._id);
+
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          displayName: user.displayName,
+          role: user.role,
+          emailVerified: user.emailVerified,
+          avatar: user.avatar
+        },
+        token
+      };
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      throw error;
+    }
   }
 
   // Reset password

@@ -45,9 +45,12 @@ export async function POST(request) {
 
     const userData = await userResponse.json();
 
-    // Create user object
-    const user = {
-      uid: userData.id,
+    // Import AuthService to handle Google sign-in
+    const { default: authService } = await import('../../../../../src/services/authService');
+    
+    // Create user object for AuthService
+    const googleUser = {
+      id: userData.id,
       email: userData.email,
       name: userData.name,
       picture: userData.picture,
@@ -55,7 +58,10 @@ export async function POST(request) {
       emailVerified: userData.verified_email,
     };
 
-    return NextResponse.json({ user });
+    // Use AuthService to handle Google sign-in
+    const result = await authService.signInWithGoogle(googleUser);
+    
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Google OAuth callback error:', error);
