@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../../src/contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
@@ -129,4 +129,34 @@ export default function GoogleCallbackPage() {
   }
 
   return null;
+}
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="text-center"
+      >
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          Loading...
+        </h2>
+        <p className="text-gray-600">
+          Please wait while we process your request.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <GoogleCallbackContent />
+    </Suspense>
+  );
 }
