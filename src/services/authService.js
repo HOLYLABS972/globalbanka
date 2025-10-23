@@ -78,6 +78,7 @@ class AuthService {
     try {
       console.log('🔍 Starting OTP verification for:', pendingSignupData.email);
       await connectDB();
+      const { User, OTP } = await import('../database/models');
 
       // Check if OTP has expired
       const now = Date.now();
@@ -158,6 +159,7 @@ class AuthService {
   async login(email, password) {
     try {
       await connectDB();
+      const { User } = await import('../database/models');
 
       const user = await User.findOne({ email, isActive: true });
       if (!user) {
@@ -196,6 +198,7 @@ class AuthService {
   async signInWithGoogle(googleUser) {
     try {
       await connectDB();
+      const { User } = await import('../database/models');
 
       // Check if user already exists
       let user = await User.findOne({ email: googleUser.email });
@@ -253,6 +256,7 @@ class AuthService {
   async resetPassword(email) {
     try {
       await connectDB();
+      const { User, OTP } = await import('../database/models');
 
       const user = await User.findOne({ email, isActive: true });
       if (!user) {
@@ -288,6 +292,7 @@ class AuthService {
   async verifyPasswordResetOTP(email, otp, newPassword) {
     try {
       await connectDB();
+      const { User, OTP } = await import('../database/models');
 
       // Verify OTP from database
       const otpRecord = await OTP.findOne({
@@ -326,6 +331,7 @@ class AuthService {
   async getUserById(userId) {
     try {
       await connectDB();
+      const { User } = await import('../database/models');
       const user = await User.findById(userId).select('-password');
       return user;
     } catch (error) {
@@ -338,6 +344,7 @@ class AuthService {
   async updateUserProfile(userId, updates) {
     try {
       await connectDB();
+      const { User } = await import('../database/models');
       const user = await User.findByIdAndUpdate(
         userId,
         { $set: updates },
@@ -355,6 +362,7 @@ class AuthService {
   async addToNewsletter(email, displayName, source) {
     try {
       await connectDB();
+      const { Newsletter } = await import('../database/models');
       
       // Check if email already exists in newsletter
       const existingSubscription = await Newsletter.findOne({ email });
