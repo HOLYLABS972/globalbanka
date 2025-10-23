@@ -76,14 +76,24 @@ class AuthService {
   // Verify email OTP and complete signup
   async verifyEmailOTP(otp, pendingSignupData) {
     try {
+      console.log('🔍 Starting OTP verification for:', pendingSignupData.email);
       await connectDB();
 
       // Check if OTP has expired
-      if (Date.now() > pendingSignupData.expiresAt) {
+      const now = Date.now();
+      console.log('🕐 Current time:', now, 'Expires at:', pendingSignupData.expiresAt);
+      if (now > pendingSignupData.expiresAt) {
+        console.error('❌ OTP expired');
         throw new Error('Verification OTP has expired');
       }
 
       // Verify OTP from database
+      console.log('🔍 Looking for OTP in database:', {
+        email: pendingSignupData.email,
+        otp: otp,
+        type: 'verification'
+      });
+
       const otpRecord = await OTP.findOne({
         email: pendingSignupData.email,
         otp,
@@ -92,7 +102,12 @@ class AuthService {
         expiresAt: { $gt: new Date() }
       });
 
+      console.log('🔍 OTP record found:', otpRecord ? 'Yes' : 'No');
+
       if (!otpRecord) {
+        // Let's check what OTPs exist for this email
+        const allOtps = await OTP.find({ email: pendingSignupData.email });
+        console.log('🔍 All OTPs for this email:', allOtps);
         throw new Error('Invalid verification OTP');
       }
 
