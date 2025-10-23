@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { paymentService } from '../services/paymentService';
-import { esimService } from '../services/esimService';
+// import { esimService } from '../services/esimService'; // Removed - causes client-side issues
 import { useAuth } from '../contexts/AuthContext';
 
 import { AlertCircle } from 'lucide-react';
@@ -38,6 +38,7 @@ const Checkout = ({ plan }) => {
           
           console.log('💳 Order data for payment:', orderData);
 
+          const { esimService } = await import('../services/esimService');
           const order = await esimService.createOrder(orderData);
           console.log('✅ Order created:', order.id);
 

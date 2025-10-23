@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { apiService } from '../services/apiService';
+// import { apiService } from '../services/apiService'; // Removed - causes client-side issues
 // import { configService } from '../services/configService'; // Removed - causes client-side issues
 
 const PaymentSuccess = () => {
@@ -342,6 +342,7 @@ const PaymentSuccess = () => {
       console.log(`📞 Creating order via API (${isTestMode ? 'TEST' : 'LIVE'} mode)`);
       console.log('🎯 Backend will handle:', isTestMode ? 'MOCK data' : 'REAL Airalo purchase');
       
+      const { apiService } = await import('../services/apiService');
       const airaloOrderResult = await apiService.createOrder({
         package_id: orderData.planId,
         quantity: "1",
@@ -460,6 +461,7 @@ const PaymentSuccess = () => {
       // Step 4: Try to get QR code immediately via RoamJet API (backend handles mock vs real)
       try {
         console.log('🔄 Attempting to retrieve QR code for order:', orderData.orderId);
+        const { apiService } = await import('../services/apiService');
         const qrResult = await apiService.getQrCode(orderData.orderId);
         
         if (qrResult.success && qrResult.qrCode) {

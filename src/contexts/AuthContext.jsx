@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import authService from '../services/authService';
+// import authService from '../services/authService'; // Removed - causes client-side issues
 
 const AuthContext = createContext();
 
@@ -41,6 +41,7 @@ export function AuthProvider({ children }) {
 
   async function signup(email, password, displayName) {
     try {
+      const authService = (await import('../services/authService')).default;
       const result = await authService.signup(email, password, displayName);
       return result;
     } catch (error) {
@@ -50,6 +51,7 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
+      const authService = (await import('../services/authService')).default;
       const result = await authService.login(email, password);
       
       // Store auth data in localStorage
@@ -80,6 +82,7 @@ export function AuthProvider({ children }) {
 
   async function resetPassword(email) {
     try {
+      const authService = (await import('../services/authService')).default;
       const result = await authService.resetPassword(email);
       return result;
     } catch (error) {
@@ -100,6 +103,7 @@ export function AuthProvider({ children }) {
       }
 
       const pendingSignup = JSON.parse(pendingSignupData);
+      const authService = (await import('../services/authService')).default;
       const result = await authService.verifyEmailOTP(otp, pendingSignup);
       
       // Store auth data in localStorage
@@ -120,6 +124,7 @@ export function AuthProvider({ children }) {
 
   async function verifyPasswordResetOTP(email, otp, newPassword) {
     try {
+      const authService = (await import('../services/authService')).default;
       const result = await authService.verifyPasswordResetOTP(email, otp, newPassword);
       return result;
     } catch (error) {
@@ -133,6 +138,7 @@ export function AuthProvider({ children }) {
         throw new Error('No user logged in');
       }
 
+      const authService = (await import('../services/authService')).default;
       const updatedUser = await authService.updateUserProfile(currentUser.id, updates);
       
       // Update stored user data
@@ -154,6 +160,7 @@ export function AuthProvider({ children }) {
         console.log('🔍 AuthContext: Loading user profile for:', currentUser.email);
         console.log('🆔 AuthContext: User ID:', currentUser.id);
         
+        const authService = (await import('../services/authService')).default;
         const user = await authService.getUserById(currentUser.id);
         console.log('📋 AuthContext: User profile loaded:', user);
         
@@ -174,6 +181,7 @@ export function AuthProvider({ children }) {
       const token = localStorage.getItem('authToken');
       if (token && currentUser) {
         try {
+          const authService = (await import('../services/authService')).default;
           await authService.verifyAuthToken(token);
         } catch (error) {
           console.error('Token verification failed:', error);
