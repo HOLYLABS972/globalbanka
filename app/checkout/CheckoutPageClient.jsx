@@ -100,10 +100,11 @@ export default function CheckoutPageClient() {
   useEffect(() => {
     const loadStripeConfig = async () => {
       try {
-        // Import configService dynamically
-        const { configService } = await import('../../src/services/configService');
-        const mode = await configService.getStripeMode();
-        const publishableKey = await configService.getStripePublishableKey(mode);
+        // Use environment variables instead of configService to avoid MongoDB connections
+        const mode = process.env.NEXT_PUBLIC_STRIPE_MODE || 'test';
+        const publishableKey = mode === 'live' 
+          ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE
+          : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST;
         
         if (publishableKey) {
           const stripe = await loadStripe(publishableKey);

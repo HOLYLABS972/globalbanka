@@ -5,13 +5,8 @@ import SimpleFooter from '../src/components/SimpleFooter'
 import './globals.css'
 import './rtl.css'
 
-// Initialize config service listeners for real-time API key updates
-if (typeof window !== 'undefined') {
-  import('../src/services/configService').then(({ configService }) => {
-    configService.listenToConfigChanges();
-    console.log('🔄 Config service listeners initialized for real-time updates');
-  });
-}
+// Config service listeners removed to avoid MongoDB connection errors on client side
+// Real-time API key updates are now handled via environment variables
 
 export const metadata = {
   title: {
