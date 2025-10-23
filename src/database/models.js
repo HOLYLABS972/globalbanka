@@ -522,14 +522,24 @@ orderSchema.index({ status: 1 });
 otpSchema.index({ email: 1, type: 1 });
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-export const User = mongoose.models.User || mongoose.model('User', userSchema);
-export const BusinessUser = mongoose.models.BusinessUser || mongoose.model('BusinessUser', businessUserSchema);
-export const DataPlan = mongoose.models.DataPlan || mongoose.model('DataPlan', dataPlanSchema);
-export const Country = mongoose.models.Country || mongoose.model('Country', countrySchema);
-export const Newsletter = mongoose.models.Newsletter || mongoose.model('Newsletter', newsletterSchema);
-export const Settings = mongoose.models.Settings || mongoose.model('Settings', settingsSchema);
-export const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
-export const OTP = mongoose.models.OTP || mongoose.model('OTP', otpSchema);
+// Safe model creation function
+function createModel(name, schema) {
+  try {
+    return mongoose.models[name] || mongoose.model(name, schema);
+  } catch (error) {
+    console.warn(`Model ${name} creation warning:`, error.message);
+    return mongoose.models[name] || mongoose.model(name, schema);
+  }
+}
+
+export const User = createModel('User', userSchema);
+export const BusinessUser = createModel('BusinessUser', businessUserSchema);
+export const DataPlan = createModel('DataPlan', dataPlanSchema);
+export const Country = createModel('Country', countrySchema);
+export const Newsletter = createModel('Newsletter', newsletterSchema);
+export const Settings = createModel('Settings', settingsSchema);
+export const Order = createModel('Order', orderSchema);
+export const OTP = createModel('OTP', otpSchema);
 
 export default {
   User,
