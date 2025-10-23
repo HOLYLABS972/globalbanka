@@ -6,8 +6,8 @@ import { Search } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import PlanSelectionBottomSheet from './PlanSelectionBottomSheet';
-import { getCountriesWithPricing } from '../services/plansService';
-import { getRegularSettings } from '../services/settingsService';
+// import { getCountriesWithPricing } from '../services/plansService'; // Removed - causes client-side issues
+// import { getRegularSettings } from '../services/settingsService'; // Removed - causes client-side issues
 import { useI18n } from '../contexts/I18nContext';
 import { detectPlatform, shouldRedirectToDownload, isMobileDevice } from '../utils/platformDetection';
 import { getMobileCountries } from '../data/mobileCountries';
@@ -148,6 +148,7 @@ const EsimPlans = () => {
   useEffect(() => {
     const fetchDiscountSettings = async () => {
       try {
+        const { getRegularSettings } = await import('../services/settingsService');
         const regular = await getRegularSettings();
         console.log('💰 Regular discount settings loaded:', regular);
         setRegularSettings(regular);
@@ -166,6 +167,7 @@ const EsimPlans = () => {
     queryFn: async () => {
       try {
         console.log('📊 Fetching REAL API data for accurate pricing...');
+        const { getCountriesWithPricing } = await import('../services/plansService');
         const countriesWithPricing = await getCountriesWithPricing();
         
         // Filter to show only countries with plans (minPrice < 999 indicates real data)

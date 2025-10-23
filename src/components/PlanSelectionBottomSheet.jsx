@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Globe, Star, Check, DollarSign, SortAsc, Smartphone } from 'lucide-react';
 import BottomSheet from './BottomSheet';
 import { useAuth } from '../contexts/AuthContext';
-import { getRegularSettings } from '../services/settingsService';
+// import { getRegularSettings } from '../services/settingsService'; // Removed - causes client-side issues
 import { useRouter, usePathname } from 'next/navigation';
 import { useI18n } from '../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageUtils';
@@ -194,6 +194,7 @@ const PlanSelectionBottomSheet = ({
   useEffect(() => {
     const loadSettings = async () => {
       try {
+        const { getRegularSettings } = await import('../services/settingsService');
         const regular = await getRegularSettings();
         console.log('🎯 Bottom sheet loaded regular settings:', regular);
         setRegularSettings(regular);

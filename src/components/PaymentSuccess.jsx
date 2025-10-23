@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
-import { configService } from '../services/configService';
+// import { configService } from '../services/configService'; // Removed - causes client-side issues
 
 const PaymentSuccess = () => {
   console.log('🚀 PaymentSuccess component mounting...');
@@ -103,6 +103,7 @@ const PaymentSuccess = () => {
   const createOrderRecord = async (orderData) => {
     try {
       // Check if we're in test mode
+      const { configService } = await import('../services/configService');
       const stripeMode = await configService.getStripeMode();
       const isTestMode = stripeMode === 'test' || stripeMode === 'sandbox';
       
