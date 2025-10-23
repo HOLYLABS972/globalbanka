@@ -25,9 +25,11 @@ const getAuthToken = async () => {
  */
 export const getApiKey = async () => {
   try {
-    // Debug environment variables
+    // Debug ALL environment variables to see what's available
+    console.log('🔍 All environment variables:', Object.keys(process.env));
     console.log('🔍 All NEXT_PUBLIC env vars:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC')));
     console.log('🔍 NEXT_PUBLIC_ROAMJET_API_KEY exists:', !!process.env.NEXT_PUBLIC_ROAMJET_API_KEY);
+    console.log('🔍 NEXT_PUBLIC_ROAMJET_API_KEY value:', process.env.NEXT_PUBLIC_ROAMJET_API_KEY);
     console.log('🔍 NEXT_PUBLIC_ROAMJET_API_KEY length:', process.env.NEXT_PUBLIC_ROAMJET_API_KEY?.length || 0);
     
     // Use environment variable only
