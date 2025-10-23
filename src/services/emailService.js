@@ -1,6 +1,6 @@
 // Email service for sending OTP and verification emails
 
-const EMAIL_API_BASE_URL = 'https://smtp.theholylabs.com/api/email/send';
+const EMAIL_API_BASE_URL = 'https://smtp.roamjet.net/api/email/send';
 const PROJECT_ID = 'FCOUZBcWQt5vtIDHrYkY';
 
 // Template IDs for different email types
