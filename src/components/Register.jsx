@@ -95,7 +95,7 @@ const Register = () => {
           className="max-w-sm w-full"
         >
           <div>
-            <h2 className="text-center text-3xl font-semibold text-eerie-black">
+            <h2 className="text-center text-3xl font-semibold text-eerie-black" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               {t('auth.register.title', 'Create your account')}
             </h2>
             <p className="mt-2 text-center text-sm text-cool-black">

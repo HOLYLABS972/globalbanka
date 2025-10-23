@@ -1,50 +1,26 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
-// Yandex Login component
+// Yandex Login component - Redirect-based authentication
 const YandexLogin = ({ onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleYandexLogin = async () => {
     setIsLoading(true);
     try {
-      // Yandex OAuth implementation
       const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID || 'your-yandex-app-id';
       const redirectUri = `${window.location.origin}/auth/yandex/callback`;
       
       const yandexAuthUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${yandexAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=login:email+login:info`;
       
-      // Open Yandex auth popup
-      const popup = window.open(yandexAuthUrl, 'yandex-auth', 'width=500,height=600,scrollbars=yes,resizable=yes');
-      
-      // Listen for popup completion and messages
-      const checkClosed = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(checkClosed);
-          setIsLoading(false);
-          toast.error('Yandex authentication cancelled');
-        }
-      }, 1000);
-
-      // Listen for messages from popup
-      const messageHandler = (event) => {
-        if (event.origin !== window.location.origin) return;
-        
-        if (event.data.type === 'YANDEX_AUTH_SUCCESS') {
-          clearInterval(checkClosed);
-          window.removeEventListener('message', messageHandler);
-          setIsLoading(false);
-          onSuccess(event.data.user);
-        }
-      };
-
-      window.addEventListener('message', messageHandler);
+      // Redirect to Yandex OAuth instead of popup
+      window.location.href = yandexAuthUrl;
       
     } catch (error) {
       console.error('Yandex login error:', error);
@@ -71,363 +47,94 @@ const YandexLogin = ({ onSuccess }) => {
   );
 };
 
-// Google Login component
+// Google Login component - Redirect-based authentication
 const GoogleLogin = ({ onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCredentialResponse = useCallback((response) => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    
     try {
-      // Decode the JWT token to get user information
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       
-      const userData = {
-        id: payload.sub,
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture,
-        provider: 'google'
-      };
+      if (!clientId) {
+        toast.error('Google Client ID not configured');
+        setIsLoading(false);
+        return;
+      }
 
-      onSuccess(userData);
+      // Create Google OAuth URL for redirect-based authentication
+      const redirectUri = `${window.location.origin}/auth/google/callback`;
+      const scope = 'openid email profile';
+      const responseType = 'code';
       
-    } catch (err) {
-      console.error('Error processing Google credential response:', err);
-      toast.error('Failed to process Google login');
-    } finally {
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${clientId}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+        `scope=${encodeURIComponent(scope)}&` +
+        `response_type=${responseType}&` +
+        `access_type=offline&` +
+        `prompt=consent`;
+
+      // Redirect to Google OAuth
+      window.location.href = googleAuthUrl;
+      
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      toast.error('Google authentication failed');
       setIsLoading(false);
     }
-  }, [onSuccess]);
-
-  const initializeGoogleSignIn = useCallback(() => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    
-    if (!clientId) {
-      toast.error('Google Client ID not configured');
-      return;
-    }
-    
-    if (window.google) {
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
-
-      // Render the sign-in button
-      const buttonElement = document.getElementById('google-signin-button');
-      if (buttonElement) {
-        window.google.accounts.id.renderButton(
-          buttonElement,
-          {
-            type: 'standard',
-            theme: 'outline',
-            size: 'large',
-            text: 'signin_with',
-            shape: 'rectangular',
-            width: '100%'
-          }
-        );
-      }
-    }
-  }, [handleCredentialResponse]);
-
-  useEffect(() => {
-    // Load Google Identity Services script
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = initializeGoogleSignIn;
-    document.head.appendChild(script);
-
-    return () => {
-      // Cleanup
-      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      if (existingScript) {
-        document.head.removeChild(existingScript);
-      }
-    };
-  }, [initializeGoogleSignIn]);
+  };
 
   return (
-    <div className="w-full">
-      <div id="google-signin-button" className="w-full"></div>
-    </div>
+    <button
+      onClick={handleGoogleSignIn}
+      disabled={isLoading}
+      className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+      ) : (
+        <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
+          <path
+            fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+          />
+        </svg>
+      )}
+      Continue with Google
+    </button>
   );
 };
 
-// Email Login component
+// Email Login component - Redirect to login page
 const EmailLogin = ({ onSuccess }) => {
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [emailData, setEmailData] = useState({
-    email: '',
-    userName: '',
-    otpCode: '',
-    enteredOtp: ''
-  });
-  const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailError, setEmailError] = useState(null);
-  const [otpVerified, setOtpVerified] = useState(false);
-
-  // Generate 6-digit OTP code
-  const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
-
-  // Send email with OTP
-  const sendEmail = async () => {
-    if (!emailData.email || !emailData.userName) {
-      setEmailError('Please fill in all required fields');
-      return;
-    }
-
-    setIsEmailLoading(true);
-    setEmailError(null);
-    setEmailSent(false);
-
-    try {
-      const otpCode = generateOTP();
-      
-      // Update state with generated OTP
-      setEmailData(prev => ({ ...prev, otpCode }));
-      
-      // Log the OTP to console as requested
-      console.log(`Generated OTP: ${otpCode}`);
-      console.log(`Sending email to: ${emailData.email}`);
-      
-      // Construct the API URL with parameters
-      const apiUrl = new URL('https://smtp.roamjet.net/api/email/send');
-      apiUrl.searchParams.set('email', emailData.email);
-      apiUrl.searchParams.set('project_id', 'u2LpTkbed1n7U4ff607n');
-      apiUrl.searchParams.set('template_id', 'rAASNbN1sSGi9hZZjA9m');
-      apiUrl.searchParams.set('user_name', emailData.userName);
-      apiUrl.searchParams.set('otp_code', otpCode);
-
-      console.log('API URL:', apiUrl.toString());
-
-      // Use hidden iframe to bypass CORS and actually send the email
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = apiUrl.toString();
-      
-      iframe.onload = () => {
-        setEmailSent(true);
-        console.log('Email sent successfully!');
-        document.body.removeChild(iframe);
-      };
-      
-      iframe.onerror = () => {
-        setEmailError('Failed to send email. Please try again.');
-        document.body.removeChild(iframe);
-      };
-      
-      document.body.appendChild(iframe);
-    } catch (err) {
-      setEmailError(err instanceof Error ? err.message : 'Failed to send email');
-      console.error('Email sending error:', err);
-    } finally {
-      setIsEmailLoading(false);
-    }
-  };
-
-  // Handle form input changes
-  const handleEmailInputChange = (field, value) => {
-    setEmailData(prev => ({ ...prev, [field]: value }));
-    setEmailError(null);
-    // Only reset emailSent if we're changing email or userName, not OTP
-    if (field === 'email' || field === 'userName') {
-      setEmailSent(false);
-    }
-    setOtpVerified(false);
-  };
-
-  // Verify OTP
-  const verifyOTP = () => {
-    if (emailData.enteredOtp === emailData.otpCode) {
-      setOtpVerified(true);
-      setEmailError(null);
-      
-      // Create user with email verification data
-      const verifiedUser = {
-        id: 'email-' + Date.now(),
-        name: emailData.userName,
-        email: emailData.email,
-        picture: `https://via.placeholder.com/80x80/007acc/ffffff?text=${emailData.userName.charAt(0).toUpperCase()}`,
-        provider: 'email'
-      };
-      
-      onSuccess(verifiedUser);
-      
-      // Close email verification dialog
-      setShowEmailVerification(false);
-      
-      // Reset email data
-      setEmailData({
-        email: '',
-        userName: '',
-        otpCode: '',
-        enteredOtp: ''
-      });
-      setEmailSent(false);
-      setEmailError(null);
-      
-    } else {
-      setEmailError('Invalid OTP code. Please try again.');
-    }
-  };
-
-  const openEmailVerification = () => {
-    setShowEmailVerification(true);
-    setEmailError(null);
-    setEmailSent(false);
-    setOtpVerified(false);
-  };
-
-  const closeEmailVerification = () => {
-    setShowEmailVerification(false);
-    setEmailData({
-      email: '',
-      userName: '',
-      otpCode: '',
-      enteredOtp: ''
-    });
-    setEmailError(null);
-    setEmailSent(false);
-    setOtpVerified(false);
+  const router = useRouter();
+  
+  const handleEmailLogin = () => {
+    // Redirect to the login page instead of showing modal
+    router.push('/login');
   };
 
   return (
-    <>
-      <button
-        onClick={openEmailVerification}
-        className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-      >
-        <Mail className="h-5 w-5 mr-2" />
-        Continue with Email
-      </button>
-
-      {/* Email Verification Modal */}
-      {showEmailVerification && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg p-6 w-full max-w-md"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">📧 Email Verification</h3>
-              <button
-                onClick={closeEmailVerification}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {!emailSent ? (
-                <div>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Enter your details to receive an OTP code via email:
-                  </p>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address:
-                      </label>
-                      <input
-                        type="email"
-                        value={emailData.email}
-                        onChange={(e) => handleEmailInputChange('email', e.target.value)}
-                        placeholder="Enter your email"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Your Name:
-                      </label>
-                      <input
-                        type="text"
-                        value={emailData.userName}
-                        onChange={(e) => handleEmailInputChange('userName', e.target.value)}
-                        placeholder="Enter your name"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  {emailError && (
-                    <div className="text-red-600 text-sm mt-2">
-                      {emailError}
-                    </div>
-                  )}
-
-                  <button
-                    onClick={sendEmail}
-                    disabled={isEmailLoading || !emailData.email || !emailData.userName}
-                    className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  >
-                    {isEmailLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Sending OTP...
-                      </>
-                    ) : (
-                      'Send OTP Code'
-                    )}
-                  </button>
-                </div>
-              ) : !otpVerified ? (
-                <div>
-                  <div className="text-green-600 text-sm mb-4">
-                    ✅ OTP sent to {emailData.email}
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 mb-4">
-                    Enter the 6-digit code you received:
-                  </p>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      OTP Code:
-                    </label>
-                    <input
-                      type="text"
-                      value={emailData.enteredOtp}
-                      onChange={(e) => handleEmailInputChange('enteredOtp', e.target.value)}
-                      placeholder="Enter 6-digit code"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
-                      maxLength={6}
-                    />
-                  </div>
-
-                  {emailError && (
-                    <div className="text-red-600 text-sm mt-2">
-                      {emailError}
-                    </div>
-                  )}
-
-                  <button
-                    onClick={verifyOTP}
-                    disabled={emailData.enteredOtp.length !== 6}
-                    className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Verify & Sign In
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </>
+    <button
+      onClick={handleEmailLogin}
+      className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+    >
+      <Mail className="h-5 w-5 mr-2" />
+      Continue with Email
+    </button>
   );
 };
 
