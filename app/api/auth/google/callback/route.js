@@ -6,26 +6,37 @@ export async function POST(request) {
 
     // Handle Google Identity Services (One Tap) credential
     if (credential) {
-      // Decode the JWT token to get user information
-      const payload = JSON.parse(atob(credential.split('.')[1]));
-      
-      // Import AuthService to handle Google sign-in
-      const { default: authService } = await import('../../../../../src/services/authService');
-      
-      // Create user object for AuthService
-      const googleUser = {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture,
-        provider: 'google',
-        emailVerified: payload.email_verified,
-      };
+      try {
+        // Validate JWT format
+        const parts = credential.split('.');
+        if (parts.length !== 3) {
+          throw new Error('Invalid JWT format');
+        }
+        
+        // Decode the JWT token to get user information
+        const payload = JSON.parse(atob(parts[1]));
+        
+        // Import AuthService to handle Google sign-in
+        const { default: authService } = await import('../../../../../src/services/authService');
+        
+        // Create user object for AuthService
+        const googleUser = {
+          id: payload.sub,
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+          provider: 'google',
+          emailVerified: payload.email_verified,
+        };
 
-      // Use AuthService to handle Google sign-in
-      const result = await authService.signInWithGoogle(googleUser);
-      
-      return NextResponse.json(result);
+        // Use AuthService to handle Google sign-in
+        const result = await authService.signInWithGoogle(googleUser);
+        
+        return NextResponse.json(result);
+      } catch (jwtError) {
+        console.error('JWT parsing error:', jwtError);
+        throw new Error('Invalid Google credential format');
+      }
     }
 
     // Handle traditional OAuth flow (fallback)
