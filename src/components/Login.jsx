@@ -92,37 +92,39 @@ const Login = () => {
     setPassword('');
   };
 
-  const handleCredentialResponse = useCallback((response) => {
+  const handleCredentialResponse = useCallback(async (response) => {
     setLoading(true);
     
     try {
-      // Decode the JWT token to get user information
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      
-      const userData = {
-        id: payload.sub,
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture,
-      };
-
-      // Use the AuthContext to handle Google sign-in
-      signInWithGoogle(userData).then(() => {
-        toast.success(t('auth.login.googleSignInSuccess', 'Successfully signed in with Google'));
-        router.push('/dashboard');
-      }).catch((error) => {
-        console.error('Google sign-in error:', error);
-        toast.error(error.message || t('auth.login.googleSignInFailed', 'Failed to sign in with Google'));
-      }).finally(() => {
-        setLoading(false);
+      // Send the credential directly to our API
+      const apiResponse = await fetch('/api/auth/google/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ credential: response.credential }),
       });
+
+      const data = await apiResponse.json();
+
+      if (!apiResponse.ok) {
+        throw new Error(data.error || 'Google authentication failed');
+      }
+
+      // Store auth data in localStorage
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      
+      toast.success(t('auth.login.googleSignInSuccess', 'Successfully signed in with Google'));
+      router.push('/dashboard');
       
     } catch (err) {
-      console.error('Error processing credential response:', err);
-      toast.error(t('auth.login.googleSignInFailed', 'Failed to sign in with Google'));
+      console.error('Google sign-in error:', err);
+      toast.error(err.message || t('auth.login.googleSignInFailed', 'Failed to sign in with Google'));
+    } finally {
       setLoading(false);
     }
-  }, [signInWithGoogle, router, t]);
+  }, [router, t]);
 
   const initializeGoogleSignIn = useCallback(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;

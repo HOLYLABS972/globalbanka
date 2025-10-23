@@ -5,11 +5,21 @@
 /* Google Sign-in Button Styling */
 #google-signin-button {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 #google-signin-button iframe {
   border-radius: 8px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+#google-signin-button > div {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 @layer base {
