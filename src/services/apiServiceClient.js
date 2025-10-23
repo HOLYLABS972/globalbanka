@@ -25,13 +25,26 @@ const getAuthToken = async () => {
  */
 export const getApiKey = async () => {
   try {
+    // Debug environment variables
+    console.log('🔍 All NEXT_PUBLIC env vars:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC')));
+    console.log('🔍 NEXT_PUBLIC_ROAMJET_API_KEY exists:', !!process.env.NEXT_PUBLIC_ROAMJET_API_KEY);
+    console.log('🔍 NEXT_PUBLIC_ROAMJET_API_KEY length:', process.env.NEXT_PUBLIC_ROAMJET_API_KEY?.length || 0);
+    
     // Use environment variable only
     const roamjetApiKey = process.env.NEXT_PUBLIC_ROAMJET_API_KEY;
-    if (roamjetApiKey) {
+    if (roamjetApiKey && roamjetApiKey.trim()) {
       console.log('🔑 Using RoamJet API key from environment:', roamjetApiKey.substring(0, 15) + '...');
-      return roamjetApiKey;
+      return roamjetApiKey.trim();
     }
     
+    // Check for alternative environment variable names
+    const altApiKey = process.env.NEXT_PUBLIC_API_KEY || process.env.ROAMJET_API_KEY;
+    if (altApiKey && altApiKey.trim()) {
+      console.log('🔑 Using alternative API key from environment:', altApiKey.substring(0, 15) + '...');
+      return altApiKey.trim();
+    }
+    
+    console.error('❌ No API key found in environment variables');
     throw new Error('RoamJet API key not configured. Please contact support.');
   } catch (error) {
     console.error('❌ Error getting RoamJet API key:', error.message);
