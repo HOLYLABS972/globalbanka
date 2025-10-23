@@ -78,16 +78,21 @@ export const paymentService = {
     try {
       console.log('🛒 Creating checkout session:', orderData);
       
+      // Try the payment server with proper headers
       const response = await fetch(`${SERVER_PAYMENTS_URL}/api/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': window.location.origin,
         },
+        mode: 'cors',
+        credentials: 'omit',
         body: JSON.stringify(orderData),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
@@ -97,6 +102,12 @@ export const paymentService = {
       return { sessionId, url };
     } catch (error) {
       console.error('❌ Error creating checkout session:', error);
+      
+      // If CORS error, provide helpful message
+      if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+        throw new Error('Payment service is not configured for this domain. Please contact support.');
+      }
+      
       throw error;
     }
   },

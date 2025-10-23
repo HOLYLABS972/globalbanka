@@ -300,12 +300,27 @@ const SharePackagePage = () => {
       
       console.log('💳 Order data for payment:', orderData);
       
-      // Redirect to payment directly
-      await paymentService.createCheckoutSession(orderData);
+      // Create checkout session
+      const result = await paymentService.createCheckoutSession(orderData);
+      
+      if (result.sessionId && result.url) {
+        console.log('✅ Redirecting to payment:', result.url);
+        
+        // Redirect to actual Stripe checkout
+        window.location.href = result.url;
+      } else {
+        throw new Error('Invalid payment session response');
+      }
       
     } catch (error) {
       console.error('❌ Payment failed:', error);
-      toast.error('Failed to process payment');
+      
+      // Show user-friendly error message
+      if (error.message.includes('not configured for this domain')) {
+        toast.error('Payment system configuration issue. Please contact support.');
+      } else {
+        toast.error('Failed to process payment. Please try again.');
+      }
     }
   };
 
