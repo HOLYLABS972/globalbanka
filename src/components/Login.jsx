@@ -105,7 +105,7 @@ const Login = () => {
       }
 
       // Create Google OAuth URL for redirect-based authentication
-      const redirectUri = `${window.location.origin}/auth/google/callback`;
+      const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/google/callback`;
       const scope = 'openid email profile';
       const responseType = 'code';
       
