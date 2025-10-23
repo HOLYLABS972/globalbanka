@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Edit3, Phone, User, Mail, Save, X } from 'lucide-react';
+import { Settings, Edit3, User, Mail, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../../utils/languageUtils';
@@ -23,15 +23,12 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
   const isRTL = getLanguageDirection(currentLanguage) === 'rtl';
   
   const [editingName, setEditingName] = useState(false);
-  const [editingPhone, setEditingPhone] = useState(false);
   const [newName, setNewName] = useState(currentUser?.displayName || '');
-  const [newPhone, setNewPhone] = useState(userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || '');
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Sync state when user data changes
   useEffect(() => {
     setNewName(currentUser?.displayName || userProfile?.displayName || '');
-    setNewPhone(userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || '');
   }, [currentUser, userProfile]);
 
   const handleUpdateName = async () => {
@@ -87,63 +84,9 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
     }
   };
 
-  const handleUpdatePhone = async () => {
-    setIsUpdating(true);
-    try {
-      const userId = currentUser.id || currentUser.uid || currentUser._id;
-      console.log('🔍 Updating phone for user:', userId, 'New phone:', newPhone.trim());
-      
-      // Update user profile via local API
-      const response = await fetch('/api/auth/update-profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userId,
-          updates: {
-            phone: newPhone.trim()
-          }
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Update failed: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update phone number');
-      }
-
-      // Update local user data and refresh the display
-      if (typeof onLoadUserProfile === 'function') {
-        await onLoadUserProfile();
-      }
-      
-      // Also update the local state immediately
-      const updatedUser = { ...currentUser, phone: newPhone.trim() };
-      
-      setEditingPhone(false);
-      toast.success('Phone number updated successfully');
-    } catch (error) {
-      console.error('Error updating phone:', error);
-      toast.error('Failed to update phone number');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-
   const cancelNameEdit = () => {
     setNewName(currentUser?.displayName || '');
     setEditingName(false);
-  };
-
-  const cancelPhoneEdit = () => {
-    setNewPhone(userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || '');
-    setEditingPhone(false);
   };
 
   return (
@@ -224,82 +167,6 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
                       )}
                     </div>
 
-                    {/* Phone Number */}
-                    <div className="space-y-2">
-                      <label className={`block text-sm font-medium text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
-                        <Phone className={`w-4 h-4 inline ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                        {t('dashboard.phoneNumber', 'Phone Number')}
-                      </label>
-                      {editingPhone ? (
-                        <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-                          <input
-                            type="tel"
-                            value={newPhone}
-                            onChange={(e) => setNewPhone(e.target.value)}
-                            className={`flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tufts-blue focus:border-transparent ${isRTL ? 'text-right' : 'text-left'}`}
-                            placeholder={t('dashboard.enterYourPhone', 'Enter your phone number')}
-                            style={{ direction: isRTL ? 'rtl' : 'ltr' }}
-                          />
-                          <button
-                            onClick={handleUpdatePhone}
-                            disabled={isUpdating}
-                            className="p-3 bg-tufts-blue text-white rounded-lg hover:bg-cobalt-blue transition-colors disabled:opacity-50"
-                          >
-                            <Save className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={cancelPhoneEdit}
-                            className="p-3 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <span className="text-eerie-black">{newPhone || userProfile?.phone || userProfile?.phoneNumber || currentUser?.phone || t('dashboard.notSet', 'Not set')}</span>
-                          <button
-                            onClick={() => setEditingPhone(true)}
-                            className="text-tufts-blue hover:text-cobalt-blue transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Account Info */}
-                    <div className="space-y-2">
-                      <label className={`block text-sm font-medium text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
-                        {t('dashboard.accountCreated', 'Account Created')}
-                      </label>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <span className="text-eerie-black">
-                          {(userProfile?.createdAt || currentUser?.createdAt) ? 
-                            (() => {
-                              const dateValue = userProfile?.createdAt || currentUser?.createdAt;
-                              if (dateValue?.toDate) {
-                                return new Date(dateValue.toDate()).toLocaleDateString();
-                              } else if (dateValue) {
-                                return new Date(dateValue).toLocaleDateString();
-                              }
-                              return t('dashboard.unknown', 'Unknown');
-                            })() : 
-                            t('dashboard.unknown', 'Unknown')
-                          }
-                        </span>
-                        {!(userProfile?.createdAt || currentUser?.createdAt) && (
-                          <button 
-                            onClick={async () => {
-                              console.log('Manual refresh triggered');
-                              await onLoadUserProfile();
-                            }}
-                            className={`${isRTL ? 'mr-2' : 'ml-2'} text-sm text-tufts-blue hover:text-cobalt-blue underline transition-colors`}
-                          >
-                            {t('dashboard.refresh', 'Refresh')}
-                          </button>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
