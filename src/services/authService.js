@@ -1,61 +1,11 @@
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import connectDB from '../database/config';
 import { sendVerificationEmail, sendPasswordResetEmail } from './emailService';
 import { generateOTPWithTimestamp } from '../utils/otpUtils';
+import { User, OTP, Newsletter } from '../database/models';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
-
-// Define schemas directly here to avoid import issues
-const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: function() { return this.provider === 'local'; } },
-  displayName: { type: String, required: true, trim: true },
-  role: { type: String, enum: ['customer', 'admin', 'business'], default: 'customer' },
-  emailVerified: { type: Boolean, default: false },
-  provider: { type: String, enum: ['local', 'google'], default: 'local' },
-  avatar: { type: String },
-  phone: { type: String },
-  lastLogin: { type: Date },
-  isActive: { type: Boolean, default: true }
-}, { timestamps: true });
-
-const otpSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  otp: { type: String, required: true },
-  type: { type: String, enum: ['verification', 'password_reset'], required: true },
-  used: { type: Boolean, default: false },
-  expiresAt: { type: Date, required: true }
-}, { timestamps: true });
-
-const newsletterSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  displayName: { type: String, required: true },
-  source: { type: String, default: 'web' },
-  status: { type: String, enum: ['subscribed', 'unsubscribed'], default: 'subscribed' }
-}, { timestamps: true });
-
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
-
-// Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-// Get models
-function getModels() {
-  const User = mongoose.models.User || mongoose.model('User', userSchema);
-  const OTP = mongoose.models.OTP || mongoose.model('OTP', otpSchema);
-  const Newsletter = mongoose.models.Newsletter || mongoose.model('Newsletter', newsletterSchema);
-  return { User, OTP, Newsletter };
-}
 
 class AuthService {
   constructor() {
@@ -81,7 +31,6 @@ class AuthService {
   async signup(email, password, displayName) {
     try {
       await connectDB();
-      const { User, OTP } = getModels();
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });
@@ -119,7 +68,6 @@ class AuthService {
     try {
       console.log('🔍 Starting OTP verification for:', pendingSignupData.email);
       await connectDB();
-      const { User, OTP } = getModels();
 
       // Check if OTP has expired
       const now = Date.now();
@@ -200,7 +148,6 @@ class AuthService {
   async login(email, password) {
     try {
       await connectDB();
-      const { User } = getModels();
 
       const user = await User.findOne({ email, isActive: true });
       if (!user) {
@@ -239,7 +186,6 @@ class AuthService {
   async signInWithGoogle(googleUser) {
     try {
       await connectDB();
-      const { User } = getModels();
 
       // Check if user already exists
       let user = await User.findOne({ email: googleUser.email });
@@ -297,7 +243,6 @@ class AuthService {
   async resetPassword(email) {
     try {
       await connectDB();
-      const { User, OTP } = getModels();
 
       const user = await User.findOne({ email, isActive: true });
       if (!user) {
@@ -333,7 +278,6 @@ class AuthService {
   async verifyPasswordResetOTP(email, otp, newPassword) {
     try {
       await connectDB();
-      const { User, OTP } = getModels();
 
       // Verify OTP from database
       const otpRecord = await OTP.findOne({
@@ -372,7 +316,6 @@ class AuthService {
   async getUserById(userId) {
     try {
       await connectDB();
-      const { User } = getModels();
       const user = await User.findById(userId).select('-password');
       return user;
     } catch (error) {
@@ -385,7 +328,6 @@ class AuthService {
   async updateUserProfile(userId, updates) {
     try {
       await connectDB();
-      const { User } = getModels();
       const user = await User.findByIdAndUpdate(
         userId,
         { $set: updates },
@@ -428,7 +370,6 @@ class AuthService {
   async addToNewsletter(email, displayName, source) {
     try {
       await connectDB();
-      const { Newsletter } = getModels();
       
       // Check if email already exists in newsletter
       const existingSubscription = await Newsletter.findOne({ email });
