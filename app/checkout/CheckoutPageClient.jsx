@@ -102,11 +102,18 @@ export default function CheckoutPageClient() {
       try {
         // Use environment variables instead of configService to avoid MongoDB connections
         const mode = process.env.NEXT_PUBLIC_STRIPE_MODE || 'test';
-        const publishableKey = mode === 'live' 
+        let publishableKey = mode === 'live' 
           ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE
           : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST;
         
+        // Fallback to hardcoded test key if no environment key is found
+        if (!publishableKey && mode === 'test') {
+          publishableKey = 'pk_test_51QgvHMDAQpPJFhcuO3sh2pE1JSysFYHgJo781w5lzeDX6Qh9P026LaxpeilCyXx73TwCLHcF5O0VQU45jPZhLBK800G6bH5LdA';
+          console.log('🔑 Using fallback Stripe test key');
+        }
+        
         if (publishableKey) {
+          console.log(`🔑 Loading Stripe in ${mode.toUpperCase()} mode`);
           const stripe = await loadStripe(publishableKey);
           setStripePromise(stripe);
         } else {
