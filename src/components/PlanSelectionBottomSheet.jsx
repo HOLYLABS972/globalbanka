@@ -301,10 +301,22 @@ const PlanSelectionBottomSheet = ({
   const handlePlanSelect = (plan) => {
     console.log('🔍 DEBUG: handlePlanSelect called');
     console.log('🔍 DEBUG: currentUser:', currentUser);
+    console.log('🔍 DEBUG: loading:', loading);
     console.log('🔍 DEBUG: plan:', plan.name);
     
-    // Check if user is logged in
-    if (!currentUser) {
+    // Check if user is logged in - also check localStorage as backup
+    const authToken = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+    const isAuthenticated = currentUser || (authToken && userData);
+    
+    console.log('🔍 DEBUG: Auth check details:', {
+      currentUser: !!currentUser,
+      authToken: !!authToken,
+      userData: !!userData,
+      isAuthenticated
+    });
+    
+    if (!isAuthenticated) {
       console.log('🔐 User not logged in, redirecting to login');
       
       // Store the intended destination to redirect back after login
