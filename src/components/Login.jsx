@@ -473,21 +473,8 @@ const Login = () => {
             </form>
           )}
 
-          {/* Google OAuth button - show on both steps */}
+          {/* Social OAuth buttons - show on both steps */}
           <div className="mt-6 space-y-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-jordy-blue opacity-30" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-cool-black " style={{ fontFamily: 'Open Sans, sans-serif' }}>
-                  {t('auth.login.orContinueWith', 'Or continue with')}
-                </span>
-              </div>
-            </div>
-            
-            <div id="google-signin-button"></div>
-            
             {/* Yandex Login Button */}
             <button
               type="button"
@@ -503,6 +490,19 @@ const Login = () => {
               </svg>
               {t('auth.login.signInWithYandex', 'Sign in with Yandex')}
             </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-jordy-blue opacity-30" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-cool-black " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                  {t('auth.login.orContinueWith', 'Or continue with')}
+                </span>
+              </div>
+            </div>
+            
+            <div id="google-signin-button"></div>
           </div>
         </motion.div>
       </div>
