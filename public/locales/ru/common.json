@@ -311,7 +311,9 @@
       "admin": "Администратор"
     },
     "totalOrders": "Всего заказов",
-    "activeEsims": "Активные eSIM"
+    "activeEsims": "Активные eSIM",
+    "browseEsimPlans": "Просмотреть планы eSIM",
+    "viewPlans": "Посмотреть планы"
   },
   "plansManagement": {
     "errorLoadingPlans": "Ошибка загрузки планов: {{error}}",
