@@ -30,74 +30,30 @@ function YandexCallbackContent() {
         }
 
         if (code) {
-          // Exchange code for access token
-          const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
-          const yandexAppSecret = process.env.YANDEX_APP_SECRET;
-          const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
-
-          console.log('🔍 OAuth parameters:', {
-            code,
-            yandexAppId,
-            redirectUri,
-            hasSecret: !!yandexAppSecret,
-            secretLength: yandexAppSecret ? yandexAppSecret.length : 0
-          });
-
-          const tokenParams = {
-            grant_type: 'authorization_code',
-            code: code,
-            client_id: yandexAppId,
-            client_secret: yandexAppSecret,
-            redirect_uri: redirectUri,
-          };
+          console.log('🔍 Authorization code received:', code);
           
-          console.log('🔍 Token request parameters:', tokenParams);
-          
-          const tokenResponse = await fetch('https://oauth.yandex.ru/token', {
+          // Call our API route to exchange code for token
+          const response = await fetch('/api/auth/yandex/token', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Type': 'application/json',
             },
-            body: new URLSearchParams(tokenParams),
+            body: JSON.stringify({ code }),
           });
 
-          console.log('🔍 Token response status:', tokenResponse.status);
-          console.log('🔍 Token response ok:', tokenResponse.ok);
-          
-          const tokenData = await tokenResponse.json();
-          console.log('🔍 Token exchange response:', tokenData);
+          const data = await response.json();
+          console.log('🔍 API response:', data);
 
-          if (!tokenResponse.ok) {
-            console.error('🔍 Token exchange failed with status:', tokenResponse.status);
-            console.error('🔍 Token exchange error response:', tokenData);
-            throw new Error(`Token exchange failed: ${tokenData.error || tokenData.error_description || 'Unknown error'}`);
+          if (!response.ok) {
+            throw new Error(data.error || 'Token exchange failed');
           }
 
-          if (tokenData.access_token) {
-            // Get user info from Yandex
-            const userResponse = await fetch('https://login.yandex.ru/info', {
-              headers: {
-                'Authorization': `OAuth ${tokenData.access_token}`,
-              },
-            });
-
-            const userData = await userResponse.json();
-            console.log('🔍 Yandex user data received:', userData);
-
-            // Create user object
-            const user = {
-              id: userData.id,
-              name: userData.display_name || userData.real_name || userData.login,
-              email: userData.default_email,
-              picture: `https://avatars.yandex.net/get-yapic/${userData.default_avatar_id}/islands-200`,
-              provider: 'yandex'
-            };
+          if (data.user) {
+            const user = data.user;
             
-            console.log('🔍 Processed user object:', user);
-
             // Store user data
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('authToken', 'yandex-token'); // You might want to generate a proper token
+            localStorage.setItem('authToken', 'yandex-token');
             
             // Close popup and notify parent window
             if (window.opener) {
@@ -110,7 +66,7 @@ function YandexCallbackContent() {
               router.push('/dashboard');
             }
           } else {
-            throw new Error('Failed to get access token');
+            throw new Error('No user data received');
           }
         } else {
           throw new Error('No authorization code received');
