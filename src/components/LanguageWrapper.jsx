@@ -15,7 +15,7 @@ const LanguageWrapper = ({ children }) => {
     '/hebrew', '/arabic', '/russian', '/german', '/french', '/spanish', 
     // Other translated pages
     '/contact', '/login', '/register', '/dashboard', '/esim-plans', '/privacy-policy', '/terms-of-service', '/cookie-policy',
-    '/forgot-password', '/faq', '/device-compatibility'
+    '/forgot-password', '/faq', '/device-compatibility', '/verify-email'
   ];
 
   // Check for special pages that should always have i18n context

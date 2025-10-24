@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 
-export default function PaymentFailed() {
+function PaymentFailedContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [reason, setReason] = useState('');
@@ -80,5 +80,17 @@ export default function PaymentFailed() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentFailed() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <PaymentFailedContent />
+    </Suspense>
   );
 }
