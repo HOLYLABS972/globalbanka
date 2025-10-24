@@ -286,8 +286,8 @@ const SharePackagePage = () => {
     
     localStorage.setItem('selectedPackage', JSON.stringify(checkoutData));
     
-    // Call payment service directly instead of going to checkout page
-    const { paymentService } = await import('../../../src/services/paymentServiceClient');
+    // Call Robokassa payment service directly instead of going to checkout page
+    const { robokassaService } = await import('../../../src/services/robokassaService');
     
     try {
       // Generate unique order ID for each purchase
@@ -306,32 +306,29 @@ const SharePackagePage = () => {
       
       console.log('💳 Order data for payment:', orderData);
       
-      // Create checkout session
-      const result = await paymentService.createCheckoutSession(orderData);
+      // Create Robokassa checkout session
+      const result = await robokassaService.createCheckoutSession(orderData);
       
-      if (result.sessionId && result.url) {
-        console.log('✅ Redirecting to payment:', result.url);
-        
-        // Redirect to Stripe checkout with iframe detection (copied from esim-shop)
-        console.log('🔄 Redirecting to Stripe checkout for single order:', result.url);
+      if (result.paymentUrl) {
+        console.log('✅ Redirecting to Robokassa payment:', result.paymentUrl);
         
         // Check if we're in an iframe
         if (window !== window.top) {
           console.log('🔗 Detected iframe context - redirecting parent window');
           // Redirect the parent window instead of the iframe
           try {
-            window.top.location.href = result.url;
+            window.top.location.href = result.paymentUrl;
           } catch (error) {
             console.warn('⚠️ Cannot redirect parent window, trying alternative method');
             // Alternative: open in new window
-            window.open(result.url, '_blank');
+            window.open(result.paymentUrl, '_blank');
           }
         } else {
           console.log('🖥️ Normal window context - redirecting current window');
-          window.location.href = result.url;
+          window.location.href = result.paymentUrl;
         }
       } else {
-        throw new Error('Invalid payment session response');
+        throw new Error('Invalid Robokassa payment response - no paymentUrl received');
       }
       
     } catch (error) {
