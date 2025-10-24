@@ -480,7 +480,7 @@ const Login = () => {
               type="button"
               onClick={handleYandexLoginFallback}
               disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+              className="w-full flex items-center justify-center px-4 py-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors min-h-[56px]"
             >
               {/* Yandex Logo */}
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none">
