@@ -56,8 +56,15 @@ function YandexCallbackContent() {
             }),
           });
 
+          console.log('🔍 Token response status:', tokenResponse.status);
+          console.log('🔍 Token response ok:', tokenResponse.ok);
+          
           const tokenData = await tokenResponse.json();
           console.log('🔍 Token exchange response:', tokenData);
+
+          if (!tokenResponse.ok) {
+            throw new Error(`Token exchange failed: ${tokenData.error || tokenData.error_description || 'Unknown error'}`);
+          }
 
           if (tokenData.access_token) {
             // Get user info from Yandex
