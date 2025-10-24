@@ -128,6 +128,52 @@ const Login = () => {
     }
   }, [router, t]);
 
+  const handleYandexLogin = useCallback(() => {
+    const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
+    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
+    
+    if (!yandexAppId) {
+      toast.error('Yandex App ID not configured');
+      return;
+    }
+
+    // Open Yandex OAuth in popup
+    const popup = window.open(
+      `https://oauth.yandex.ru/authorize?response_type=code&client_id=${yandexAppId}&redirect_uri=${encodeURIComponent(redirectUri)}`,
+      'yandex-auth',
+      'width=500,height=600,scrollbars=yes,resizable=yes'
+    );
+
+    // Listen for messages from popup
+    const messageListener = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      if (event.data.type === 'YANDEX_AUTH_SUCCESS') {
+        const { user } = event.data;
+        
+        // Store user data
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('authToken', 'yandex-token'); // You might want to generate a proper token
+        
+        toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
+        router.push('/dashboard');
+        
+        popup.close();
+        window.removeEventListener('message', messageListener);
+      }
+    };
+
+    window.addEventListener('message', messageListener);
+
+    // Cleanup if popup is closed manually
+    const checkClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(checkClosed);
+        window.removeEventListener('message', messageListener);
+      }
+    }, 1000);
+  }, [router, t]);
+
   const initializeGoogleSignIn = useCallback(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     
@@ -345,6 +391,19 @@ const Login = () => {
             </div>
             
             <div id="google-signin-button"></div>
+            
+            {/* Yandex Login Button */}
+            <button
+              type="button"
+              onClick={handleYandexLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#FF0000">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+              </svg>
+              {t('auth.login.signInWithYandex', 'Sign in with Yandex')}
+            </button>
           </div>
         </motion.div>
       </div>

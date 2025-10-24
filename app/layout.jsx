@@ -122,6 +122,12 @@ export default function RootLayout({ children }) {
         <link rel="alternate" href="https://ru.romajet.net" hrefLang="ru" />
         <link rel="alternate" href="https://he.romajet.net" hrefLang="he" />
         
+        {/* Yandex Passport SDK for autofill functionality */}
+        <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script>
+        
+        {/* Yandex Passport SDK for token handling */}
+        <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-token-with-polyfills-latest.js"></script>
+        
         {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
