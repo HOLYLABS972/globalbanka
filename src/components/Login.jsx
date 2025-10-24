@@ -245,6 +245,10 @@ const Login = () => {
         // Small delay to ensure popup closes before redirect
         setTimeout(() => {
           console.log('🔍 Redirecting to homepage...');
+          console.log('🔍 Current URL:', window.location.href);
+          console.log('🔍 Search params:', new URLSearchParams(window.location.search));
+          
+          // Always redirect to homepage, ignore any returnUrl
           router.push('/');
         }, 100);
       } else if (event.data.type === 'YANDEX_AUTH_ERROR') {

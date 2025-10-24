@@ -70,14 +70,9 @@ function YandexCallbackContent() {
               // If not in popup, redirect to homepage
               toast.success(`Welcome, ${user.displayName || user.email}!`);
               
-              // Check for return URL parameter
-              const returnUrl = searchParams.get('returnUrl');
-              if (returnUrl) {
-                router.push(decodeURIComponent(returnUrl));
-              } else {
-                // Default redirect to homepage (same as Google)
-                router.push('/');
-              }
+              // Always redirect to homepage, ignore returnUrl to prevent 404s
+              console.log('🔍 Callback redirecting to homepage...');
+              router.push('/');
             }
           } else {
             throw new Error('No user data or token received');
