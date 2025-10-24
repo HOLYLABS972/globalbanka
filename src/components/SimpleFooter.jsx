@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useI18n } from '../contexts/I18nContext';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, LogIn, Mail, Smartphone, HelpCircle } from 'lucide-react';
+import { LogOut, LogIn, Mail, Smartphone, HelpCircle, LayoutDashboard } from 'lucide-react';
 
 export default function SimpleFooter() {
   const pathname = usePathname();
@@ -61,6 +61,7 @@ export default function SimpleFooter() {
                 className="flex items-center justify-center text-sm text-gray-600 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-gray-50"
                 title={t('navbar.dashboard', 'Dashboard')}
               >
+                <LayoutDashboard size={16} />
                 <span className="ml-1">{t('navbar.dashboard', 'Dashboard')}</span>
               </Link>
             )}
