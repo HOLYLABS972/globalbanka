@@ -24,3 +24,4 @@ export const getRegularSettings = async () => {
 export default {
   getRegularSettings
 };
+
