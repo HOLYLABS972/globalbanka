@@ -61,9 +61,13 @@ function YandexCallbackContent() {
             if (window.opener) {
               console.log('🔍 Sending message to parent window:', { type: 'YANDEX_AUTH_SUCCESS', user, token });
               window.opener.postMessage({ type: 'YANDEX_AUTH_SUCCESS', user, token }, window.location.origin);
-              window.close();
+              
+              // Small delay before closing to ensure message is sent
+              setTimeout(() => {
+                window.close();
+              }, 100);
             } else {
-              // If not in popup, redirect to share package page
+              // If not in popup, redirect to homepage
               toast.success(`Welcome, ${user.displayName || user.email}!`);
               
               // Check for return URL parameter

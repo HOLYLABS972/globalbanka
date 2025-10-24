@@ -226,17 +226,27 @@ const Login = () => {
       if (event.data.type === 'YANDEX_AUTH_SUCCESS') {
         const { user, token } = event.data;
         
+        console.log('🔍 Received Yandex auth success message:', { user, token });
+        
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('authToken', token);
         localStorage.setItem('userData', JSON.stringify(user));
         
         toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
         
-        // Redirect to homepage (same as Google)
-        router.push('/');
+        // Close popup first
+        if (popup && !popup.closed) {
+          popup.close();
+        }
         
-        popup.close();
+        // Remove listener
         window.removeEventListener('message', messageListener);
+        
+        // Small delay to ensure popup closes before redirect
+        setTimeout(() => {
+          console.log('🔍 Redirecting to homepage...');
+          router.push('/');
+        }, 100);
       } else if (event.data.type === 'YANDEX_AUTH_ERROR') {
         const { error } = event.data;
         console.error('Yandex authentication error from popup:', error);
