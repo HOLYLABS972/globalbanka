@@ -128,61 +128,51 @@ const Login = () => {
     }
   }, [router, t]);
 
-  const handleYandexLogin = useCallback(() => {
+  const initializeYandexLogin = useCallback(() => {
     const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
-    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
-    
-    console.log('Yandex App ID:', yandexAppId);
-    console.log('Redirect URI:', redirectUri);
     
     if (!yandexAppId) {
-      toast.error('Yandex App ID not configured');
-      console.error('Yandex App ID is missing');
+      console.error('Yandex App ID not configured');
       return;
     }
 
-    // Open Yandex OAuth in popup
-    const popup = window.open(
-      `https://oauth.yandex.ru/authorize?response_type=code&client_id=${yandexAppId}&redirect_uri=${encodeURIComponent(redirectUri)}`,
-      'yandex-auth',
-      'width=500,height=600,scrollbars=yes,resizable=yes'
-    );
-
-    // Listen for messages from popup
-    const messageListener = (event) => {
-      if (event.origin !== window.location.origin) return;
-      
-      if (event.data.type === 'YANDEX_AUTH_SUCCESS') {
-        const { user } = event.data;
-        
-        // Store user data
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('authToken', 'yandex-token'); // You might want to generate a proper token
-        
-        toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
-        router.push('/dashboard');
-        
-        popup.close();
-        window.removeEventListener('message', messageListener);
-      } else if (event.data.type === 'YANDEX_AUTH_ERROR') {
-        const { error } = event.data;
-        console.error('Yandex authentication error from popup:', error);
-        toast.error(t('auth.login.yandexSignInFailed', 'Failed to sign in with Yandex'));
-        
-        popup.close();
-        window.removeEventListener('message', messageListener);
+    // Initialize Yandex Passport SDK
+    if (window.YaSendSuggestToken) {
+      try {
+        window.YaSendSuggestToken('https://globalbanka.roamjet.net/login', {
+          client_id: yandexAppId,
+          response_type: 'code',
+          redirect_uri: 'https://globalbanka.roamjet.net/auth/yandex/callback',
+          scope: 'login:email login:info',
+          popup: true,
+          onSuccess: (data) => {
+            console.log('Yandex authentication success:', data);
+            // Handle successful authentication
+            const user = {
+              id: data.id,
+              name: data.display_name || data.real_name || data.login,
+              email: data.default_email,
+              picture: data.default_avatar_id ? `https://avatars.yandex.net/get-yapic/${data.default_avatar_id}/islands-200` : null,
+              provider: 'yandex'
+            };
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('authToken', 'yandex-token');
+            
+            toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
+            router.push('/dashboard');
+          },
+          onError: (error) => {
+            console.error('Yandex authentication error:', error);
+            toast.error(t('auth.login.yandexSignInFailed', 'Failed to sign in with Yandex'));
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing Yandex SDK:', error);
       }
-    };
-
-    window.addEventListener('message', messageListener);
-
-    // Cleanup if popup is closed manually
-    const checkClosed = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(checkClosed);
-        window.removeEventListener('message', messageListener);
-      }
-    }, 1000);
+    } else {
+      console.error('YaSendSuggestToken not available');
+    }
   }, [router, t]);
 
   const initializeGoogleSignIn = useCallback(() => {
@@ -235,6 +225,15 @@ const Login = () => {
       }
     };
   }, [initializeGoogleSignIn]);
+
+  useEffect(() => {
+    // Initialize Yandex SDK when component mounts
+    const timer = setTimeout(() => {
+      initializeYandexLogin();
+    }, 1000); // Wait for SDK to load
+
+    return () => clearTimeout(timer);
+  }, [initializeYandexLogin]);
 
 
   return (
@@ -403,19 +402,8 @@ const Login = () => {
             
             <div id="google-signin-button"></div>
             
-            {/* Yandex Login Button */}
-            <button
-              type="button"
-              onClick={handleYandexLogin}
-              disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-              style={{ display: 'block' }}
-            >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#FF0000">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-              </svg>
-              Sign in with Yandex
-            </button>
+            {/* Yandex Passport SDK Widget */}
+            <div id="yandex-login-button"></div>
           </div>
         </motion.div>
       </div>
