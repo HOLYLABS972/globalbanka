@@ -13,7 +13,7 @@ export default function SimpleFooter() {
   const { currentUser, logout } = useAuth();
   
   // Get language prefix from pathname
-  const langMatch = pathname.match(/^\/(ar|de|es|fr|he|ru)\//);
+  const langMatch = pathname.match(/^\/(ar|de|es|fr|he|ru)(?:\/|$)/);
   const langPrefix = langMatch ? `/${langMatch[1]}` : '';
   
   const handleLogout = async () => {
