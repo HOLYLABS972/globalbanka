@@ -239,6 +239,64 @@ class AuthService {
     }
   }
 
+  // Yandex OAuth login/signup
+  async signInWithYandex(yandexUser) {
+    try {
+      await connectDB();
+
+      // Check if user already exists
+      let user = await User.findOne({ email: yandexUser.email });
+
+      if (!user) {
+        // Create new user
+        user = new User({
+          email: yandexUser.email,
+          displayName: yandexUser.name,
+          emailVerified: true,
+          provider: 'yandex',
+          avatar: yandexUser.picture,
+          phone: yandexUser.phone
+        });
+
+        await user.save();
+
+        // Add user to newsletter
+        try {
+          await this.addToNewsletter(user.email, user.displayName, 'yandex_signup');
+          console.log('✅ User automatically added to newsletter');
+        } catch (newsletterError) {
+          console.error('❌ Error adding user to newsletter:', newsletterError);
+          // Don't fail the signup if newsletter addition fails
+        }
+      } else {
+        // Update existing user's last login
+        user.lastLogin = new Date();
+        if (!user.emailVerified) {
+          user.emailVerified = true;
+        }
+        await user.save();
+      }
+
+      // Generate token
+      const token = this.generateToken(user._id);
+
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          displayName: user.displayName,
+          role: user.role,
+          emailVerified: user.emailVerified,
+          avatar: user.avatar
+        },
+        token
+      };
+    } catch (error) {
+      console.error('Yandex sign-in error:', error);
+      throw error;
+    }
+  }
+
   // Reset password (send OTP via email)
   async resetPassword(email) {
     try {

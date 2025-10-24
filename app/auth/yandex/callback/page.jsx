@@ -48,25 +48,35 @@ function YandexCallbackContent() {
             throw new Error(data.error || 'Token exchange failed');
           }
 
-          if (data.user) {
+          if (data.user && data.token) {
             const user = data.user;
+            const token = data.token;
             
-            // Store user data
+            // Store user data and token
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('authToken', 'yandex-token');
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('userData', JSON.stringify(user));
             
             // Close popup and notify parent window
             if (window.opener) {
-              console.log('🔍 Sending message to parent window:', { type: 'YANDEX_AUTH_SUCCESS', user });
-              window.opener.postMessage({ type: 'YANDEX_AUTH_SUCCESS', user }, window.location.origin);
+              console.log('🔍 Sending message to parent window:', { type: 'YANDEX_AUTH_SUCCESS', user, token });
+              window.opener.postMessage({ type: 'YANDEX_AUTH_SUCCESS', user, token }, window.location.origin);
               window.close();
             } else {
-              // If not in popup, redirect to dashboard
-              toast.success(`Welcome, ${user.name}!`);
-              router.push('/dashboard');
+              // If not in popup, redirect to share package page
+              toast.success(`Welcome, ${user.displayName || user.email}!`);
+              
+              // Check for return URL parameter
+              const returnUrl = searchParams.get('returnUrl');
+              if (returnUrl) {
+                router.push(decodeURIComponent(returnUrl));
+              } else {
+                // Default redirect to share package page
+                router.push('/share-package');
+              }
             }
           } else {
-            throw new Error('No user data received');
+            throw new Error('No user data or token received');
           }
         } else {
           throw new Error('No authorization code received');

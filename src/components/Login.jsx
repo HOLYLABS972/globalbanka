@@ -224,13 +224,16 @@ const Login = () => {
       if (event.origin !== window.location.origin) return;
       
       if (event.data.type === 'YANDEX_AUTH_SUCCESS') {
-        const { user } = event.data;
+        const { user, token } = event.data;
         
         localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('authToken', 'yandex-token');
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(user));
         
         toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
-        router.push('/dashboard');
+        
+        // Redirect to share package page
+        router.push('/share-package');
         
         popup.close();
         window.removeEventListener('message', messageListener);

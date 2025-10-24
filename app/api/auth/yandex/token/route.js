@@ -60,18 +60,30 @@ export async function POST(request) {
       const userData = await userResponse.json();
       console.log('🔍 Yandex user data received:', userData);
 
-      // Create user object
+      // Create user object with better email handling
       const user = {
         id: userData.id,
         name: userData.display_name || userData.real_name || userData.login,
-        email: userData.default_email,
+        email: userData.default_email || userData.emails?.[0] || userData.email || null,
         picture: userData.default_avatar_id ? `https://avatars.yandex.net/get-yapic/${userData.default_avatar_id}/islands-200` : null,
-        provider: 'yandex'
+        provider: 'yandex',
+        // Additional fields for MongoDB
+        firstName: userData.first_name || null,
+        lastName: userData.last_name || null,
+        phone: userData.default_phone?.number || null,
+        birthday: userData.birthday || null,
+        gender: userData.sex || null
       };
 
       console.log('🔍 Processed user object:', user);
 
-      return NextResponse.json({ user });
+      // Import AuthService to handle Yandex sign-in
+      const { default: authService } = await import('../../../../../src/services/authService');
+      
+      // Use AuthService to handle Yandex sign-in
+      const result = await authService.signInWithYandex(user);
+      
+      return NextResponse.json(result);
     } else {
       return NextResponse.json({ error: 'Failed to get access token' }, { status: 400 });
     }
