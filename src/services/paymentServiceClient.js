@@ -128,6 +128,25 @@ export const paymentService = {
         throw new Error(result.error || 'Payment session creation failed');
       }
       
+      // Redirect to Stripe checkout with iframe detection (copied from esim-shop)
+      console.log('🔄 Redirecting to Stripe checkout for single order:', sessionUrl);
+      
+      // Check if we're in an iframe
+      if (window !== window.top) {
+        console.log('🔗 Detected iframe context - redirecting parent window');
+        // Redirect the parent window instead of the iframe
+        try {
+          window.top.location.href = sessionUrl;
+        } catch (error) {
+          console.warn('⚠️ Cannot redirect parent window, trying alternative method');
+          // Alternative: open in new window
+          window.open(sessionUrl, '_blank');
+        }
+      } else {
+        console.log('🖥️ Normal window context - redirecting current window');
+        window.location.href = sessionUrl;
+      }
+      
       return { 
         sessionId: sessionId,
         url: sessionUrl 
