@@ -35,6 +35,13 @@ function YandexCallbackContent() {
           const yandexAppSecret = process.env.YANDEX_APP_SECRET;
           const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
 
+          console.log('🔍 OAuth parameters:', {
+            code,
+            yandexAppId,
+            redirectUri,
+            hasSecret: !!yandexAppSecret
+          });
+
           const tokenResponse = await fetch('https://oauth.yandex.ru/token', {
             method: 'POST',
             headers: {
@@ -50,6 +57,7 @@ function YandexCallbackContent() {
           });
 
           const tokenData = await tokenResponse.json();
+          console.log('🔍 Token exchange response:', tokenData);
 
           if (tokenData.access_token) {
             // Get user info from Yandex
@@ -60,6 +68,7 @@ function YandexCallbackContent() {
             });
 
             const userData = await userResponse.json();
+            console.log('🔍 Yandex user data received:', userData);
 
             // Create user object
             const user = {
@@ -69,6 +78,8 @@ function YandexCallbackContent() {
               picture: `https://avatars.yandex.net/get-yapic/${userData.default_avatar_id}/islands-200`,
               provider: 'yandex'
             };
+            
+            console.log('🔍 Processed user object:', user);
 
             // Store user data
             localStorage.setItem('user', JSON.stringify(user));
