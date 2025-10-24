@@ -331,7 +331,18 @@ const PlanSelectionBottomSheet = ({
       flag: countryFlag
     });
     
-    router.push(`/share-package/${plan.id}?${params.toString()}`);
+    // Get language prefix from pathname to preserve language
+    const langMatch = pathname.match(/^\/(ar|de|es|fr|he|ru)(?:\/|$)/);
+    const langPrefix = langMatch ? `/${langMatch[1]}` : '';
+    
+    console.log('🔍 Language Debug:', {
+      pathname,
+      langMatch,
+      langPrefix,
+      finalUrl: `${langPrefix}/share-package/${plan.id}?${params.toString()}`
+    });
+    
+    router.push(`${langPrefix}/share-package/${plan.id}?${params.toString()}`);
   };
 
 

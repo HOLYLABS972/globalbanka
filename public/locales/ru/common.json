@@ -14,7 +14,8 @@
     "register": "Регистрация",
     "deviceCompatibility": "Совместимость",
     "privacyPolicy": "Конфиденциальность",
-    "termsOfService": "Условия"
+    "termsOfService": "Условия",
+    "faq": "Часто задаваемые вопросы"
   },
   "hero": {
     "announcement": "Доступно в более чем 200 странах",
@@ -369,7 +370,27 @@
   "common": {
     "close": "Закрыть"
   },
-  "sharePackage": null,
+  "sharePackage": {
+    "packageDetails": "Детали пакета",
+    "noPhoneNumber": "Этот eSIM не поставляется с номером",
+    "data": "Данные",
+    "validity": "Срок действия",
+    "price": "Цена",
+    "country": "Страна",
+    "getThisPackage": "Получить этот пакет",
+    "purchaseNow": "Купить сейчас",
+    "loading": "Загрузка...",
+    "howToUse": "Как использовать",
+    "instantActivation": "Мгновенная активация",
+    "instantActivationDesc": "Подключайтесь сразу после покупки",
+    "secureReliable": "Безопасно и надежно",
+    "secureReliableDesc": "Нам доверяют миллионы путешественников по всему миру",
+    "globalCoverage": "Глобальное покрытие",
+    "globalCoverageDesc": "Оставайтесь на связи, где бы вы ни были",
+    "packageNotFound": "Пакет не найден",
+    "packageNotFoundDesc": "Пакет, который вы ищете, не существует или был удален",
+    "loadingPackageInfo": "Загрузка информации о пакете..."
+  },
   "home": {
     "stayConnected": "Оставайтесь на связи",
     "noMatterWhere": "где бы вы ни находились"

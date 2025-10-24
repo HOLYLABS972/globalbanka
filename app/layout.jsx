@@ -1,6 +1,5 @@
 import Providers from '../src/components/Providers'
 import LanguageWrapper from '../src/components/LanguageWrapper'
-import SimpleNavbar from '../src/components/SimpleNavbar'
 import SimpleFooter from '../src/components/SimpleFooter'
 import './globals.css'
 import './rtl.css'
@@ -151,7 +150,6 @@ export default function RootLayout({ children }) {
         <Providers>
           <LanguageWrapper>
             <div className="bg-white flex flex-col min-h-screen">
-              <SimpleNavbar />
               <main className="flex-grow">
                 {children}
               </main>
