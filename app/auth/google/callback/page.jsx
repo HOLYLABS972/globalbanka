@@ -53,17 +53,19 @@ function GoogleCallbackContent() {
           
           toast.success(`Welcome, ${data.user.name || data.user.email}!`);
           
+          // Preserve current language preference
+          const currentLanguage = localStorage.getItem('roamjet-language') || 'en';
+          localStorage.setItem('roamjet-language', currentLanguage);
+          
           // Check for return URL parameter
           const returnUrl = searchParams.get('returnUrl');
           if (returnUrl) {
             router.push(decodeURIComponent(returnUrl));
           } else {
-            // Default redirect to homepage
-            router.push('/');
+            // Default redirect to homepage with correct language
+            const redirectPath = currentLanguage === 'en' ? '/' : `/${currentLanguage}/`;
+            router.push(redirectPath);
           }
-          
-          // Save English as preferred language
-          localStorage.setItem('roamjet-language', 'en');
         } else {
           throw new Error('No user data received');
         }

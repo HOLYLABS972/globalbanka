@@ -232,6 +232,10 @@ const Login = () => {
         localStorage.setItem('authToken', token);
         localStorage.setItem('userData', JSON.stringify(user));
         
+        // Preserve current language preference
+        const currentLanguage = localStorage.getItem('roamjet-language') || locale || 'en';
+        localStorage.setItem('roamjet-language', currentLanguage);
+        
         // Trigger custom event to notify AuthContext of login
         window.dispatchEvent(new CustomEvent('authStateChanged', { 
           detail: { user, token, action: 'login' } 
@@ -252,9 +256,11 @@ const Login = () => {
           console.log('🔍 Redirecting to homepage...');
           console.log('🔍 Current URL:', window.location.href);
           console.log('🔍 Search params:', new URLSearchParams(window.location.search));
+          console.log('🔍 Preserved language:', currentLanguage);
           
-          // Always redirect to homepage, ignore any returnUrl
-          router.push('/');
+          // Redirect to homepage with correct language
+          const redirectPath = currentLanguage === 'en' ? '/' : `/${currentLanguage}/`;
+          router.push(redirectPath);
         }, 100);
       } else if (event.data.type === 'YANDEX_AUTH_ERROR') {
         const { error } = event.data;

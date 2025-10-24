@@ -57,6 +57,10 @@ function YandexCallbackContent() {
             localStorage.setItem('authToken', token);
             localStorage.setItem('userData', JSON.stringify(user));
             
+            // Preserve current language preference
+            const currentLanguage = localStorage.getItem('roamjet-language') || 'en';
+            localStorage.setItem('roamjet-language', currentLanguage);
+            
             // Close popup and notify parent window
             if (window.opener) {
               console.log('🔍 Sending message to parent window:', { type: 'YANDEX_AUTH_SUCCESS', user, token });
@@ -70,9 +74,11 @@ function YandexCallbackContent() {
               // If not in popup, redirect to homepage
               toast.success(`Welcome, ${user.displayName || user.email}!`);
               
-              // Always redirect to homepage, ignore returnUrl to prevent 404s
+              // Always redirect to homepage with correct language, ignore returnUrl to prevent 404s
               console.log('🔍 Callback redirecting to homepage...');
-              router.push('/');
+              console.log('🔍 Preserved language:', currentLanguage);
+              const redirectPath = currentLanguage === 'en' ? '/' : `/${currentLanguage}/`;
+              router.push(redirectPath);
             }
           } else {
             throw new Error('No user data or token received');
