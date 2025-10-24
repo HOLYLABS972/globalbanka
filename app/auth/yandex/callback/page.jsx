@@ -39,7 +39,8 @@ function YandexCallbackContent() {
             code,
             yandexAppId,
             redirectUri,
-            hasSecret: !!yandexAppSecret
+            hasSecret: !!yandexAppSecret,
+            secretLength: yandexAppSecret ? yandexAppSecret.length : 0
           });
 
           const tokenParams = {
