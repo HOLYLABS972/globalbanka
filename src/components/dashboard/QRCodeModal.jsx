@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { QrCode, MoreVertical, Eye, Smartphone, Download, Trash2 } from 'lucide-react';
 import LPAQRCodeDisplay from './LPAQRCodeDisplay';
+import { useI18n } from '../../contexts/I18nContext';
+import { convertAndFormatPrice } from '../../services/currencyService';
 
 const QRCodeModal = ({ 
   show, 
@@ -13,6 +15,7 @@ const QRCodeModal = ({
   loadingEsimUsage 
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const { locale } = useI18n();
 
   if (!show || !selectedOrder) return null;
 
@@ -38,7 +41,9 @@ const QRCodeModal = ({
               <div className="mb-6">
                 <h4 className="font-medium text-eerie-black mb-2">{selectedOrder.planName || 'Unknown Plan'}</h4>
                 <p className="text-sm text-cool-black">Order #{selectedOrder.orderId || selectedOrder.id || 'Unknown'}</p>
-                <p className="text-sm text-cool-black">${Math.round(selectedOrder.amount || 0)}</p>
+                <p className="text-sm text-cool-black">
+                  {convertAndFormatPrice(selectedOrder.amount || 0, locale).formatted}
+                </p>
               </div>
 
               {/* QR Code Display - Clean and Simple */}

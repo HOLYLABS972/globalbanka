@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { useI18n } from '../../../src/contexts/I18nContext';
 import { getLanguageDirection } from '../../../src/utils/languageUtils';
+import { convertAndFormatPrice } from '../../../src/services/currencyService';
 import toast from 'react-hot-toast';
 import { apiService, getApiKey } from '../../../src/services/apiServiceClient';
 
@@ -273,7 +274,7 @@ const SharePackagePage = () => {
       packageDescription: packageData.description,
       price: finalPrice, // Use discounted price
       originalPrice: originalPrice, // Keep original price for reference
-      currency: packageData.currency || 'USD',
+      currency: convertAndFormatPrice(1, locale).currency,
       data: packageData.data,
       dataUnit: packageData.dataUnit || 'GB',
       period: packageData.validity || packageData.period || packageData.duration,
@@ -300,7 +301,7 @@ const SharePackagePage = () => {
         planName: packageData.name,
         customerEmail: currentUser.email,
         amount: finalPrice, // Use discounted price
-        currency: 'usd',
+        currency: convertAndFormatPrice(1, locale).currency.toLowerCase(),
         originalAmount: originalPrice // Include original amount for reference
       };
       
@@ -463,7 +464,7 @@ const SharePackagePage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white shadow-lg rounded-xl overflow-hidden"
+            className="bg-white shadow-lg rounded-xl overflow-hidden lg:col-span-1"
           >
           {/* Package Title */}
           <div className="bg-white p-4">
@@ -514,9 +515,11 @@ const SharePackagePage = () => {
                       return (
                         <div>
                           <div className="font-semibold text-red-600">
-                            ${finalPrice.toFixed(2)}
+                            {convertAndFormatPrice(finalPrice, locale).formatted}
                           </div>
-                          <div className="text-xs text-gray-500 line-through">${formatPrice(packageData.price)}</div>
+                          <div className="text-xs text-gray-500 line-through">
+                            {convertAndFormatPrice(parseFloat(packageData.price), locale).formatted}
+                          </div>
                         </div>
                       );
                     })()}
@@ -566,7 +569,7 @@ const SharePackagePage = () => {
           </div>
           </motion.div>
           
-          {/* Right Column - How to Use */}
+          {/* Right Column - How to Use (Desktop Only) */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -603,39 +606,44 @@ const SharePackagePage = () => {
             </div>
           </motion.div>
         </div>
-      </div>
-      
-      {/* How to Use Section - Mobile Only */}
-      <div className="lg:hidden bg-gray-50 py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8">{t('sharePackage.howToUse', 'How to Use')}</h3>
-            <div className="space-y-8">
-              <div className="flex flex-col items-center text-center">
-                <div className="bg-yellow-100 p-3 rounded-full mb-3">
-                  <Zap className="w-8 h-8 text-yellow-600" />
+        
+        {/* How to Use Section - Mobile Only (Below Main Content) */}
+        <div className="lg:hidden mt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white shadow-lg rounded-xl overflow-hidden"
+          >
+            <div className="p-6">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6 text-center">{t('sharePackage.howToUse', 'How to Use')}</h3>
+              <div className="space-y-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-yellow-100 p-3 rounded-full mb-3">
+                    <Zap className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.instantActivation', 'Instant Activation')}</h4>
+                  <p className="text-sm text-gray-600">{t('sharePackage.instantActivationDesc', 'Get connected immediately after purchase')}</p>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.instantActivation', 'Instant Activation')}</h4>
-                <p className="text-sm text-gray-600">{t('sharePackage.instantActivationDesc', 'Get connected immediately after purchase')}</p>
-              </div>
-              
-              <div className="flex flex-col items-center text-center">
-                <div className="bg-green-100 p-3 rounded-full mb-3">
-                  <Shield className="w-8 h-8 text-green-600" />
+                
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-green-100 p-3 rounded-full mb-3">
+                    <Shield className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.secureReliable', 'Secure & Reliable')}</h4>
+                  <p className="text-sm text-gray-600">{t('sharePackage.secureReliableDesc', 'Trusted by millions of travelers worldwide')}</p>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.secureReliable', 'Secure & Reliable')}</h4>
-                <p className="text-sm text-gray-600">{t('sharePackage.secureReliableDesc', 'Trusted by millions of travelers worldwide')}</p>
-              </div>
-              
-              <div className="flex flex-col items-center text-center">
-                <div className="bg-blue-100 p-3 rounded-full mb-3">
-                  <Globe className="w-8 h-8 text-blue-600" />
+                
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-blue-100 p-3 rounded-full mb-3">
+                    <Globe className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.globalCoverage', 'Global Coverage')}</h4>
+                  <p className="text-sm text-gray-600">{t('sharePackage.globalCoverageDesc', 'Stay connected wherever you go')}</p>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.globalCoverage', 'Global Coverage')}</h4>
-                <p className="text-sm text-gray-600">{t('sharePackage.globalCoverageDesc', 'Stay connected wherever you go')}</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

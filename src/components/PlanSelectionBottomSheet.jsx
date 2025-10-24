@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useI18n } from '../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageUtils';
+import { convertAndFormatPrice } from '../services/currencyService';
 
 const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
   const { t, locale } = useI18n();
@@ -106,13 +107,21 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
         <div className={isRTL ? 'text-left' : 'text-right'}>
           {hasDiscount ? (
             <div>
-              <div className="text-2xl font-bold text-red-600">${discountedPrice.toFixed(2)}</div>
-              <div className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {convertAndFormatPrice(discountedPrice, locale).formatted}
+              </div>
+              <div className="text-sm text-gray-500 line-through">
+                {convertAndFormatPrice(originalPrice, locale).formatted}
+              </div>
             </div>
           ) : (
-            <div className="text-2xl font-bold text-green-600">${originalPrice.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {convertAndFormatPrice(originalPrice, locale).formatted}
+            </div>
           )}
-          <div className="text-xs text-gray-500">{plan.currency || 'USD'}</div>
+          <div className="text-xs text-gray-500">
+            {convertAndFormatPrice(originalPrice, locale).currency}
+          </div>
         </div>
       </div>
 

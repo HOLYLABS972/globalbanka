@@ -1,6 +1,10 @@
 import React from 'react';
+import { useI18n } from '../../contexts/I18nContext';
+import { convertAndFormatPrice } from '../../services/currencyService';
 
 const EsimDetailsModal = ({ esimDetails, onClose }) => {
+  const { locale } = useI18n();
+  
   if (!esimDetails) return null;
 
   return (
@@ -101,7 +105,9 @@ const EsimDetailsModal = ({ esimDetails, onClose }) => {
                     </div>
                     <div>
                       <span className="font-medium text-gray-600">Price:</span>
-                      <p className="text-gray-900">{esimDetails.simable.currency} {esimDetails.simable.price}</p>
+                      <p className="text-gray-900">
+                        {convertAndFormatPrice(parseFloat(esimDetails.simable.price) || 0, locale).formatted}
+                      </p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-600">Status:</span>

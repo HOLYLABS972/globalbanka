@@ -3,6 +3,7 @@ import { Globe, QrCode } from 'lucide-react';
 import { useI18n } from '../../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../../utils/languageUtils';
 import { usePathname } from 'next/navigation';
+import { convertAndFormatPrice } from '../../services/currencyService';
 
 // Helper function to get flag emoji from country code
 const getFlagEmoji = (countryCode) => {
@@ -90,7 +91,9 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
                         </div>
                         <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
                           <div className={isRTL ? 'text-left' : 'text-right'}>
-                            <p className="font-medium text-eerie-black">${Math.round(order.amount || 0)}</p>
+                            <p className="font-medium text-eerie-black">
+                              {convertAndFormatPrice(order.amount || 0, locale).formatted}
+                            </p>
                             <div className={`hidden md:flex items-center ${isRTL ? 'justify-start space-x-reverse space-x-2' : 'justify-end space-x-2'}`}>
                               <div className={`w-2 h-2 rounded-full ${
                                 order.status === 'active' ? 'bg-green-500' :

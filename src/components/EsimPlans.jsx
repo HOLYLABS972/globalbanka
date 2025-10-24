@@ -14,6 +14,7 @@ import { getMobileCountries } from '../data/mobileCountries';
 import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageUtils';
 import { translateCountries } from '../utils/countryTranslations';
 import smartCountryService from '../services/smartCountryService';
+import { convertAndFormatPrice } from '../services/currencyService';
 
 // Helper function to get flag emoji from country code
 const getFlagEmoji = (countryCode) => {
@@ -494,11 +495,17 @@ const EsimPlans = () => {
                               const hasDiscount = finalPrice < originalPrice;
                               return hasDiscount ? (
                                 <div>
-                                  <div className="text-lg font-semibold text-green-600">${finalPrice.toFixed(2)}</div>
-                                  <div className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</div>
+                                  <div className="text-lg font-semibold text-green-600">
+                                    {convertAndFormatPrice(finalPrice, locale).formatted}
+                                  </div>
+                                  <div className="text-sm text-gray-500 line-through">
+                                    {convertAndFormatPrice(originalPrice, locale).formatted}
+                                  </div>
                                 </div>
                               ) : (
-                                <div className="text-lg font-semibold text-gray-900">${originalPrice.toFixed(2)}</div>
+                                <div className="text-lg font-semibold text-gray-900">
+                                  {convertAndFormatPrice(originalPrice, locale).formatted}
+                                </div>
                               );
                             })() : (
                               <div className="text-lg font-medium text-gray-500">No plans</div>
@@ -544,11 +551,17 @@ const EsimPlans = () => {
                               const hasDiscount = finalPrice < originalPrice;
                               return hasDiscount ? (
                                 <div>
-                                  <div className="text-sm font-semibold text-green-600">${finalPrice.toFixed(2)}</div>
-                                  <div className="text-xs text-gray-500 line-through">${originalPrice.toFixed(2)}</div>
+                                  <div className="text-sm font-semibold text-green-600">
+                                    {convertAndFormatPrice(finalPrice, locale).formatted}
+                                  </div>
+                                  <div className="text-xs text-gray-500 line-through">
+                                    {convertAndFormatPrice(originalPrice, locale).formatted}
+                                  </div>
                                 </div>
                               ) : (
-                                <div className="text-sm font-semibold text-gray-900">${originalPrice.toFixed(2)}</div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                  {convertAndFormatPrice(originalPrice, locale).formatted}
+                                </div>
                               );
                             })() : (
                               <div className="text-sm font-medium text-gray-500">No plans</div>
