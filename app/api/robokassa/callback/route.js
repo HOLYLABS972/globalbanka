@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
+// Force dynamic rendering for this API route (handles callbacks with dynamic parameters)
+export const dynamic = 'force-dynamic';
+
 // Robokassa configuration
 const ROBOKASSA_CONFIG = {
   merchantLogin: process.env.ROBOKASSA_MERCHANT_LOGIN || 'your_merchant_login',

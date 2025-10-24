@@ -54,6 +54,17 @@ export default function SimpleFooter() {
           
           {/* Right side - User info and Login/Logout */}
           <div className="flex items-center gap-4">
+            {/* Dashboard Button (only show when logged in) */}
+            {currentUser && (
+              <Link
+                href={`${langPrefix}/dashboard`}
+                className="flex items-center justify-center text-sm text-gray-600 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-gray-50"
+                title={t('navbar.dashboard', 'Dashboard')}
+              >
+                <span className="ml-1">{t('navbar.dashboard', 'Dashboard')}</span>
+              </Link>
+            )}
+            
             {/* User Information */}
             {currentUser ? (
               <div className="flex items-center gap-3">
@@ -64,20 +75,20 @@ export default function SimpleFooter() {
                 <button
                   onClick={handleLogout}
                   className="flex items-center justify-center text-sm text-gray-600 hover:text-red-600 transition-colors px-2 py-1 rounded hover:bg-gray-50"
-                  title="Logout"
+                  title={t('navbar.logout', 'Logout')}
                 >
                   <LogOut size={16} />
-                  <span className="ml-1">Logout</span>
+                  <span className="ml-1">{t('navbar.logout', 'Logout')}</span>
                 </button>
               </div>
             ) : (
               <Link 
                 href={`${langPrefix}/login`}
                 className="flex items-center justify-center text-sm text-gray-600 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-gray-50"
-                title="Login"
+                title={t('navbar.login', 'Login')}
               >
                 <LogIn size={16} />
-                <span className="ml-1">Login</span>
+                <span className="ml-1">{t('navbar.login', 'Login')}</span>
               </Link>
             )}
           </div>
