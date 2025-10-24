@@ -33,6 +33,14 @@ const Login = () => {
   };
 
   const currentLanguage = getCurrentLanguage();
+  
+  // Debug language detection
+  console.log('🔍 Login component language detection:', {
+    locale,
+    pathname,
+    currentLanguage,
+    savedLanguage: typeof window !== 'undefined' ? localStorage.getItem('roamjet-language') : 'N/A'
+  });
 
   const getLocalizedUrl = (path) => {
     if (currentLanguage === 'en') {
@@ -71,13 +79,14 @@ const Login = () => {
       if (returnUrl) {
         router.push(decodeURIComponent(returnUrl));
       } else {
-        // Default redirect to homepage (not dashboard)
-        router.push('/');
+        // Default redirect to homepage with correct language
+        const redirectPath = currentLanguage === 'en' ? '/' : `/${currentLanguage}/`;
+        router.push(redirectPath);
       }
       
-      // Save English as preferred language
+      // Preserve current language preference
       if (typeof window !== 'undefined') {
-        localStorage.setItem('roamjet-language', 'en');
+        localStorage.setItem('roamjet-language', currentLanguage);
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -232,8 +241,7 @@ const Login = () => {
         localStorage.setItem('authToken', token);
         localStorage.setItem('userData', JSON.stringify(user));
         
-        // Preserve current language preference
-        const currentLanguage = localStorage.getItem('roamjet-language') || locale || 'en';
+        // Preserve current language preference (use component-level currentLanguage)
         localStorage.setItem('roamjet-language', currentLanguage);
         
         // Trigger custom event to notify AuthContext of login

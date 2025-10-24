@@ -184,8 +184,10 @@
       "fillAllFields": "Пожалуйста, заполните все поля",
       "loginSuccessful": "Вход выполнен успешно!",
       "loginFailed": "Ошибка входа",
-      "googleSignInSuccessful": "Вход через Google выполнен успешно!",
-      "googleSignInFailed": "Ошибка входа через Google"
+      "signInWithYandex": "Войти через Яндекс",
+      "yandexSignInSuccess": "Вход через Яндекс выполнен успешно!",
+      "yandexSignInFailed": "Ошибка входа через Яндекс",
+      "continueButton": "Продолжить"
     },
     "register": {
       "title": "Создайте свой аккаунт",
