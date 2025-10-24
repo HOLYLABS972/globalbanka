@@ -42,18 +42,22 @@ function YandexCallbackContent() {
             hasSecret: !!yandexAppSecret
           });
 
+          const tokenParams = {
+            grant_type: 'authorization_code',
+            code: code,
+            client_id: yandexAppId,
+            client_secret: yandexAppSecret,
+            redirect_uri: redirectUri,
+          };
+          
+          console.log('🔍 Token request parameters:', tokenParams);
+          
           const tokenResponse = await fetch('https://oauth.yandex.ru/token', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: new URLSearchParams({
-              grant_type: 'authorization_code',
-              code: code,
-              client_id: yandexAppId,
-              client_secret: yandexAppSecret,
-              redirect_uri: redirectUri,
-            }),
+            body: new URLSearchParams(tokenParams),
           });
 
           console.log('🔍 Token response status:', tokenResponse.status);
@@ -63,6 +67,8 @@ function YandexCallbackContent() {
           console.log('🔍 Token exchange response:', tokenData);
 
           if (!tokenResponse.ok) {
+            console.error('🔍 Token exchange failed with status:', tokenResponse.status);
+            console.error('🔍 Token exchange error response:', tokenData);
             throw new Error(`Token exchange failed: ${tokenData.error || tokenData.error_description || 'Unknown error'}`);
           }
 
