@@ -25,7 +25,7 @@ function YandexCallbackContent() {
           // Exchange code for access token
           const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
           const yandexAppSecret = process.env.YANDEX_APP_SECRET;
-          const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/login`;
+          const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
 
           const tokenResponse = await fetch('https://oauth.yandex.ru/token', {
             method: 'POST',
@@ -64,9 +64,11 @@ function YandexCallbackContent() {
 
             // Store user data
             localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('authToken', 'yandex-token'); // You might want to generate a proper token
             
             // Close popup and notify parent window
             if (window.opener) {
+              console.log('🔍 Sending message to parent window:', { type: 'YANDEX_AUTH_SUCCESS', user });
               window.opener.postMessage({ type: 'YANDEX_AUTH_SUCCESS', user }, window.location.origin);
               window.close();
             } else {
