@@ -103,11 +103,11 @@ const PaymentSuccess = () => {
   const createOrderRecord = async (orderData) => {
     try {
       // We're always in test mode for PaymentSuccess to avoid client-side MongoDB imports
-      const stripeMode = 'test';
+      const robokassaMode = 'test';
       const isTestMode = true;
       
       console.log('🛒 Creating RoamJet order...');
-      console.log('🔍 Stripe Mode:', stripeMode, '| Test Mode:', isTestMode);
+      console.log('🔍 Robokassa Mode:', robokassaMode, '| Test Mode:', isTestMode);
       
       // Extract country info from plan name (e.g., "kargi-mobile-7days-1gb" -> "kargi")
       const getCountryFromPlan = (planId) => {
@@ -373,7 +373,7 @@ const PaymentSuccess = () => {
           quantity: "1",
           to_email: orderData.customerEmail,
           description: `eSIM order for ${orderData.customerEmail}`,
-          mode: stripeMode
+          mode: robokassaMode
         }),
       });
 
@@ -406,7 +406,7 @@ const PaymentSuccess = () => {
         createdAt: new Date(),
         airaloOrderData: airaloOrderResult.orderData,
         isTestMode: isTestMode, // Flag to indicate test order
-        stripeMode: stripeMode,
+        robokassaMode: robokassaMode,
         // Add flag to indicate this was created without proper user session
         sessionLost: !currentUser
       };

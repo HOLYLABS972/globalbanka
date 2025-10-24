@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
 import Checkout from '../../src/components/Checkout'
 import Loading from '../../src/components/Loading'
 
@@ -12,7 +10,6 @@ export default function CheckoutPageClient() {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [stripePromise, setStripePromise] = useState(null);
 
   useEffect(() => {
     const loadPlan = async () => {
@@ -96,37 +93,6 @@ export default function CheckoutPageClient() {
     loadPlan();
   }, [searchParams]);
 
-  // Load Stripe configuration
-  useEffect(() => {
-    const loadStripeConfig = async () => {
-      try {
-        // Use environment variables instead of configService to avoid MongoDB connections
-        const mode = process.env.NEXT_PUBLIC_STRIPE_MODE || 'test';
-        let publishableKey = mode === 'live' 
-          ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE
-          : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST;
-        
-        // Fallback to hardcoded test key if no environment key is found
-        if (!publishableKey && mode === 'test') {
-          publishableKey = 'pk_test_51QgvHMDAQpPJFhcuO3sh2pE1JSysFYHgJo781w5lzeDX6Qh9P026LaxpeilCyXx73TwCLHcF5O0VQU45jPZhLBK800G6bH5LdA';
-          console.log('🔑 Using fallback Stripe test key');
-        }
-        
-        if (publishableKey) {
-          console.log(`🔑 Loading Stripe in ${mode.toUpperCase()} mode`);
-          const stripe = await loadStripe(publishableKey);
-          setStripePromise(stripe);
-        } else {
-          console.error('No Stripe publishable key found');
-        }
-      } catch (err) {
-        console.error('Error loading Stripe config:', err);
-      }
-    };
-
-    loadStripeConfig();
-  }, []);
-
   if (loading) {
     return <Loading />;
   }
@@ -153,26 +119,7 @@ export default function CheckoutPageClient() {
     );
   }
 
-  if (!stripePromise) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 text-center">
-          <div className="text-blue-500 text-6xl mb-4">💳</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Loading Payment System
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Please wait while we set up your payment...
-          </p>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <Elements stripe={stripePromise}>
-      <Checkout plan={plan} />
-    </Elements>
+    <Checkout plan={plan} />
   );
 }

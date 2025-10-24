@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { paymentService } from '../services/paymentService';
+import { robokassaService } from '../services/robokassaService';
 // import { esimService } from '../services/esimService'; // Removed - causes client-side issues
 import { useAuth } from '../contexts/AuthContext';
 
@@ -17,7 +17,7 @@ const Checkout = ({ plan }) => {
   useEffect(() => {
     // Simple check - if user is logged in and plan exists, redirect to payment
     if (currentUser && plan) {
-      console.log('🚀 Redirecting to payment for plan:', plan.name);
+      console.log('🚀 Redirecting to Robokassa payment for plan:', plan.name);
       console.log('👤 User email:', currentUser.email);
       
       // Create order and redirect immediately
@@ -33,10 +33,10 @@ const Checkout = ({ plan }) => {
             planName: plan.name,
             customerEmail: currentUser.email,
             amount: parseFloat(plan.price) || 0,
-            currency: 'usd'
+            currency: 'RUB' // Robokassa primarily uses RUB
           };
           
-          console.log('💳 Order data for payment:', orderData);
+          console.log('💳 Order data for Robokassa payment:', orderData);
 
           const { esimService } = await import('../services/esimService');
           const order = await esimService.createOrder(orderData);
@@ -48,14 +48,14 @@ const Checkout = ({ plan }) => {
             planId: plan.id,
             customerEmail: currentUser.email,
             amount: plan.price,
-            currency: 'usd'
+            currency: 'RUB'
           }));
 
-          // Redirect to payment
-          await paymentService.createCheckoutSession(orderData);
+          // Redirect to Robokassa payment
+          await robokassaService.createCheckoutSession(orderData);
           
         } catch (err) {
-          console.error('❌ Payment redirect failed:', err);
+          console.error('❌ Robokassa payment redirect failed:', err);
           setError('Failed to redirect to payment');
         }
       };

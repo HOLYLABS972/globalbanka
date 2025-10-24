@@ -128,11 +128,10 @@ class ConfigService {
           discountPercentage: 20,
           minimumPrice: 0.5
         },
-        stripe: {
-          publishableKeyTest: '',
-          secretKeyTest: '',
-          publishableKeyLive: '',
-          secretKeyLive: '',
+        robokassa: {
+          merchantLogin: '',
+          passOne: '',
+          passTwo: '',
           mode: 'test'
         }
       };
