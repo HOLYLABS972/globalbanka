@@ -71,8 +71,8 @@ function YandexCallbackContent() {
               if (returnUrl) {
                 router.push(decodeURIComponent(returnUrl));
               } else {
-                // Default redirect to share package page
-                router.push('/share-package');
+                // Default redirect to homepage (same as Google)
+                router.push('/');
               }
             }
           } else {

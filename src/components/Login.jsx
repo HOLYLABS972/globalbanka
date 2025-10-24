@@ -232,8 +232,8 @@ const Login = () => {
         
         toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
         
-        // Redirect to share package page
-        router.push('/share-package');
+        // Redirect to homepage (same as Google)
+        router.push('/');
         
         popup.close();
         window.removeEventListener('message', messageListener);
