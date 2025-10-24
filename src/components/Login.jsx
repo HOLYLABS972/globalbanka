@@ -228,9 +228,14 @@ const Login = () => {
         
         console.log('🔍 Received Yandex auth success message:', { user, token });
         
-        localStorage.setItem('user', JSON.stringify(user));
+        // Store auth data in localStorage
         localStorage.setItem('authToken', token);
         localStorage.setItem('userData', JSON.stringify(user));
+        
+        // Trigger custom event to notify AuthContext of login
+        window.dispatchEvent(new CustomEvent('authStateChanged', { 
+          detail: { user, token, action: 'login' } 
+        }));
         
         toast.success(t('auth.login.yandexSignInSuccess', 'Successfully signed in with Yandex'));
         

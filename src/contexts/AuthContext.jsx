@@ -37,6 +37,27 @@ export function AuthProvider({ children }) {
     };
 
     initializeAuth();
+
+    // Listen for auth state changes from external sources (like Yandex login)
+    const handleAuthStateChange = (event) => {
+      const { user, token, action } = event.detail;
+      
+      if (action === 'login') {
+        console.log('🔍 AuthContext: Received login event from external source');
+        setCurrentUser(user);
+        setUserProfile(user);
+      } else if (action === 'logout') {
+        console.log('🔍 AuthContext: Received logout event from external source');
+        setCurrentUser(null);
+        setUserProfile(null);
+      }
+    };
+
+    window.addEventListener('authStateChanged', handleAuthStateChange);
+
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChange);
+    };
   }, []);
 
   async function signup(email, password, displayName, referralCode) {
