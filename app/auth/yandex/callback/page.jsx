@@ -17,7 +17,15 @@ function YandexCallbackContent() {
         if (error) {
           console.error('Yandex OAuth error:', error);
           toast.error('Yandex authentication failed');
-          router.push('/auth');
+          
+          // Handle popup communication for errors too
+          if (window.opener) {
+            console.log('🔍 Sending error message to parent window:', { type: 'YANDEX_AUTH_ERROR', error });
+            window.opener.postMessage({ type: 'YANDEX_AUTH_ERROR', error }, window.location.origin);
+            window.close();
+          } else {
+            router.push('/auth');
+          }
           return;
         }
 
@@ -85,7 +93,15 @@ function YandexCallbackContent() {
       } catch (error) {
         console.error('Yandex callback error:', error);
         toast.error('Yandex authentication failed');
-        router.push('/auth');
+        
+        // Handle popup communication for catch errors too
+        if (window.opener) {
+          console.log('🔍 Sending catch error message to parent window:', { type: 'YANDEX_AUTH_ERROR', error: error.message });
+          window.opener.postMessage({ type: 'YANDEX_AUTH_ERROR', error: error.message }, window.location.origin);
+          window.close();
+        } else {
+          router.push('/auth');
+        }
       }
     };
 

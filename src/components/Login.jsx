@@ -164,6 +164,13 @@ const Login = () => {
         
         popup.close();
         window.removeEventListener('message', messageListener);
+      } else if (event.data.type === 'YANDEX_AUTH_ERROR') {
+        const { error } = event.data;
+        console.error('Yandex authentication error from popup:', error);
+        toast.error(t('auth.login.yandexSignInFailed', 'Failed to sign in with Yandex'));
+        
+        popup.close();
+        window.removeEventListener('message', messageListener);
       }
     };
 
