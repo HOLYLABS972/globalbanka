@@ -130,7 +130,7 @@ const Login = () => {
 
   const handleYandexLogin = useCallback(() => {
     const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
-    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
+    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/login`;
     
     console.log('Yandex App ID:', yandexAppId);
     console.log('Redirect URI:', redirectUri);

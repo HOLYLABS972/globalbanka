@@ -25,7 +25,7 @@ function YandexCallbackContent() {
           // Exchange code for access token
           const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
           const yandexAppSecret = process.env.YANDEX_APP_SECRET;
-          const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
+          const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/login`;
 
           const tokenResponse = await fetch('https://oauth.yandex.ru/token', {
             method: 'POST',
