@@ -10,6 +10,7 @@ import { translateCountryName } from '../utils/countryTranslations';
 import toast from 'react-hot-toast';
 
 // Dashboard Components
+import Navbar from './Navbar';
 import DashboardHeader from './dashboard/DashboardHeader';
 import StatsCards from './dashboard/StatsCards';
 import RecentOrders from './dashboard/RecentOrders';
@@ -765,9 +766,13 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-[#1a202c] py-8" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#1a202c]" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Navbar */}
+      <Navbar />
+      
       {/* Header Section */}
-      <DashboardHeader 
+      <div className="py-8">
+        <DashboardHeader 
         currentUser={currentUser}
         userProfile={userProfile}
       />
@@ -793,6 +798,7 @@ const Dashboard = () => {
 
       {/* Spacing after dashboard */}
       <div className="h-20"></div>
+      </div>
 
       {/* QR Code Modal */}
       <QRCodeModal 
