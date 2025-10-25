@@ -18,10 +18,19 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const { signup } = useAuth();
-  const { t, locale } = useI18n();
+  const { t, locale: contextLocale, changeLanguage } = useI18n();
+  // Force Russian locale for register page
+  const locale = 'ru';
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+
+  // Force Russian locale on mount
+  React.useEffect(() => {
+    if (contextLocale !== 'ru') {
+      changeLanguage('ru');
+    }
+  }, [contextLocale, changeLanguage]);
 
   // Get current language for localized URLs
   const getCurrentLanguage = () => {
@@ -86,7 +95,7 @@ const Register = () => {
 
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-[#1a202c]">
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-4 lg:px-16 xl:px-16">
         <motion.div
@@ -95,14 +104,14 @@ const Register = () => {
           className="max-w-sm w-full"
         >
           <div>
-            <h2 className="text-center text-3xl font-semibold text-eerie-black" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <h2 className="text-center text-3xl font-semibold text-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               {t('auth.register.title', 'Create your account')}
             </h2>
-            <p className="mt-2 text-center text-sm text-cool-black">
+            <p className="mt-2 text-center text-sm text-white">
               {t('auth.register.subtitle', 'Or')}{' '}
               <Link
                 href={getLocalizedUrl('/login')}
-                className="font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
+                className="font-semibold text-blue-400 hover:text-blue-300 transition-colors"
               >
                 {t('auth.register.signInExisting', 'sign in to your existing account')}
               </Link>
@@ -117,7 +126,7 @@ const Register = () => {
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-cool-black opacity-60" />
+                    <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     id="displayName"
@@ -139,7 +148,7 @@ const Register = () => {
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-cool-black opacity-60" />
+                    <Mail className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     id="email"
@@ -161,7 +170,7 @@ const Register = () => {
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-cool-black opacity-60" />
+                    <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     id="password"
@@ -180,9 +189,9 @@ const Register = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-cool-black opacity-60" />
+                      <EyeOff className="h-5 w-5 text-gray-400" />
                     ) : (
-                      <Eye className="h-5 w-5 text-cool-black opacity-60" />
+                      <Eye className="h-5 w-5 text-gray-400" />
                     )}
                   </button>
                 </div>
@@ -210,8 +219,8 @@ const Register = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <div className="absolute inset-0">
           <img
-            className="absolute inset-0 h-full w-full object-cover mix-blend-multiply"
-            src=" /images/logo_icon/vwvw.avif"
+            className="absolute inset-0 h-full w-full object-cover"
+            src="/images/logo_icon/vwvw.avif"
             alt="Travel background"
           />
         </div>

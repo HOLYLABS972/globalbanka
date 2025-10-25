@@ -12,7 +12,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { detectPlatform, shouldRedirectToDownload, isMobileDevice } from '../utils/platformDetection';
 import { getMobileCountries } from '../data/mobileCountries';
 import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageUtils';
-import { translateCountries } from '../utils/countryTranslations';
+import { translateCountries, translateCountryName } from '../utils/countryTranslations';
 import smartCountryService from '../services/smartCountryService';
 import { convertAndFormatPrice } from '../services/currencyService';
 
@@ -71,7 +71,9 @@ const matchesCountrySearch = (countryName, searchTerm) => {
 
 
 const EsimPlans = () => {
-  const { t, locale } = useI18n();
+  const { t, locale: contextLocale } = useI18n();
+  // Force Russian locale for main page
+  const locale = 'ru';
   const { currentUser, userProfile, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -81,6 +83,7 @@ const EsimPlans = () => {
   console.log('🔍 EsimPlans: currentUser:', currentUser);
   console.log('🔍 EsimPlans: userProfile:', userProfile);
   console.log('🔍 EsimPlans: loading:', loading);
+  console.log('🌐 EsimPlans: locale:', locale);
   
   // Determine if this is the dedicated plans page or landing page
   const isPlansPage = pathname === '/esim-plans' || pathname.includes('/esim-plans') || 
@@ -462,11 +465,11 @@ const EsimPlans = () => {
                 <>
                   {/* Desktop Records Layout */}
                   <div className="hidden sm:block max-w-4xl mx-auto">
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-gray-800/90 backdrop-blur-md rounded-lg shadow-lg border border-gray-700/50 overflow-hidden">
                       {(isPlansPage || searchTerm ? filteredCountries : filteredCountries.slice(0, 8)).map((country, index) => (
                         <button
                           key={country.id}
-                          className="w-full px-6 py-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between"
+                          className="w-full px-6 py-4 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors duration-200 flex items-center justify-between"
                           onClick={() => handleCountrySelect(country)}
                         >
                           <div className="flex items-center space-x-4">
@@ -482,8 +485,8 @@ const EsimPlans = () => {
                               )}
                             </div>
                             <div className="text-left">
-                              <h3 className="text-lg font-semibold text-gray-900">{country.name}</h3>
-                              <p className="text-sm text-gray-500">1GB • 7 Days</p>
+                              <h3 className="text-lg font-semibold text-white">{translateCountryName(country.code, country.name, locale)}</h3>
+                              <p className="text-sm text-gray-400">1GB • 7 Days</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -495,7 +498,7 @@ const EsimPlans = () => {
                               const hasDiscount = finalPrice < originalPrice;
                               return hasDiscount ? (
                                 <div>
-                                  <div className="text-lg font-semibold text-green-600">
+                                  <div className="text-lg font-semibold text-green-400">
                                     {convertAndFormatPrice(finalPrice, locale).formatted}
                                   </div>
                                   <div className="text-sm text-gray-500 line-through">
@@ -503,7 +506,7 @@ const EsimPlans = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="text-lg font-semibold text-gray-900">
+                                <div className="text-lg font-semibold text-white">
                                   {convertAndFormatPrice(originalPrice, locale).formatted}
                                 </div>
                               );
@@ -518,11 +521,11 @@ const EsimPlans = () => {
                   
                   {/* Mobile Records Layout */}
                   <div className="sm:hidden">
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-gray-800/90 backdrop-blur-md rounded-lg shadow-lg border border-gray-700/50 overflow-hidden">
                       {(isPlansPage || searchTerm ? filteredCountries : filteredCountries.slice(0, 8)).map((country, index) => (
                         <button
                           key={country.id}
-                          className="w-full px-3 py-2 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between"
+                          className="w-full px-3 py-2 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors duration-200 flex items-center justify-between"
                           onClick={() => handleCountrySelect(country)}
                         >
                           <div className="flex items-center space-x-3">
@@ -538,8 +541,8 @@ const EsimPlans = () => {
                               )}
                             </div>
                             <div className="text-left">
-                              <h3 className="text-sm font-semibold text-gray-900">{country.name}</h3>
-                              <p className="text-xs text-gray-500">1GB • 7 Days</p>
+                              <h3 className="text-sm font-semibold text-white">{translateCountryName(country.code, country.name, locale)}</h3>
+                              <p className="text-xs text-gray-400">1GB • 7 Days</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -551,7 +554,7 @@ const EsimPlans = () => {
                               const hasDiscount = finalPrice < originalPrice;
                               return hasDiscount ? (
                                 <div>
-                                  <div className="text-sm font-semibold text-green-600">
+                                  <div className="text-sm font-semibold text-green-400">
                                     {convertAndFormatPrice(finalPrice, locale).formatted}
                                   </div>
                                   <div className="text-xs text-gray-500 line-through">

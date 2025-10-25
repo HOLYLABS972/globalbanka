@@ -32,13 +32,13 @@
   html {
     scroll-behavior: smooth;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    background-color: #FFFFFF;
+    background-color: #1a202c;
   }
   
   body {
-    @apply text-eerie-black;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
+    @apply text-white;
+    background: #1a202c !important;
+    background-color: #1a202c !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -51,7 +51,7 @@
     line-height: 56px;
     letter-spacing: -0.5px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    color: var(--eerie-black);
+    color: #ffffff;
   }
   
   h2 {
@@ -60,7 +60,7 @@
     line-height: 48px;
     letter-spacing: -0.5px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    color: var(--eerie-black);
+    color: #ffffff;
   }
   
   h3 {
@@ -69,7 +69,7 @@
     line-height: 40px;
     letter-spacing: -0.25px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    color: var(--eerie-black);
+    color: #ffffff;
   }
   
   h4 {
@@ -78,7 +78,7 @@
     line-height: 32px;
     letter-spacing: -0.25px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    color: var(--eerie-black);
+    color: #ffffff;
   }
   p {
     font-size: 18px;
@@ -86,7 +86,7 @@
     line-height: 24px;
     letter-spacing: -0.25px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    color: var(--eerie-black);
+    color: #e5e7eb;
   }
 
   table {
@@ -219,7 +219,7 @@
 
   .form-label {
     @apply block text-sm font-semibold mb-2;
-    color: var(--cool-black);
+    color: #ffffff !important;
     font-family: 'Open Sans', sans-serif;
   }
 

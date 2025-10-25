@@ -44,26 +44,26 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
   const currentLanguage = getCurrentLanguage();
   const isRTL = getLanguageDirection(currentLanguage) === 'rtl';
   return (
-    <section className="bg-white recent-orders" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="bg-[#1a202c] recent-orders" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
         <div className="relative">
-          <div className="absolute inset-px rounded-xl bg-white"></div>
+          <div className="absolute inset-px rounded-xl bg-gray-800/90 backdrop-blur-md"></div>
           <div className="relative flex h-full flex-col overflow-hidden rounded-xl">
             <div className="px-8 pt-8 pb-8">
               <div className="mb-6">
-                <h2 className={`text-lg font-medium tracking-tight text-eerie-black ${isRTL ? 'text-right' : 'text-left'}`}>
+                <h2 className={`text-lg font-medium tracking-tight text-white ${isRTL ? 'text-right' : 'text-left'}`}>
                   {t('dashboard.recentOrders', 'Recent Orders')}
                 </h2>
               </div>
 
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tufts-blue"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
                 </div>
               ) : orders.length === 0 ? (
                 <div className="text-center py-8">
-                  <Globe className="w-12 h-12 text-cool-black/40 mx-auto mb-4" />
-                  <p className="text-cool-black">{t('dashboard.noOrders', 'No orders yet')}</p>
+                  <Globe className="w-12 h-12 text-gray-400/40 mx-auto mb-4" />
+                  <p className="text-gray-300">{t('dashboard.noOrders', 'No orders yet')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -71,27 +71,27 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
                     order && (
                       <div
                         key={order.id || order.orderId || Math.random()}
-                        className={`flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 ${isRTL ? 'flex-row-reverse' : ''}`}
+                        className={`flex items-center justify-between p-4 border border-gray-700/50 rounded-lg hover:bg-gray-700/30 transition-colors duration-200 ${isRTL ? 'flex-row-reverse' : ''}`}
                       >
                         <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
                           <div className="text-2xl">
                             {getFlagEmoji(order.countryCode)}
                           </div>
                           <div>
-                            <p className={`font-medium text-eerie-black ${isRTL ? 'text-right' : 'text-left'}`}>
+                            <p className={`font-medium text-white ${isRTL ? 'text-right' : 'text-left'}`}>
                               {order.planName || t('dashboard.unknownPlan', 'Unknown Plan')}
                             </p>
-                            <p className={`hidden md:block text-sm text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
+                            <p className={`hidden md:block text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
                               {t('dashboard.orderNumber', 'Order #{{number}}', { number: order.orderId || order.id || t('dashboard.unknown', 'Unknown') })}
                             </p>
-                            <p className={`text-xs text-cool-black/60 ${isRTL ? 'text-right' : 'text-left'}`}>
+                            <p className={`text-xs text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
                               {order.countryName || order.countryCode || t('dashboard.unknownCountry', 'Unknown Country')}
                             </p>
                           </div>
                         </div>
                         <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
                           <div className={isRTL ? 'text-left' : 'text-right'}>
-                            <p className="font-medium text-eerie-black">
+                            <p className="font-medium text-white">
                               {convertAndFormatPrice(order.amount || 0, locale).formatted}
                             </p>
                             <div className={`hidden md:flex items-center ${isRTL ? 'justify-start space-x-reverse space-x-2' : 'justify-end space-x-2'}`}>
@@ -99,14 +99,14 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
                                 order.status === 'active' ? 'bg-green-500' :
                                 order.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-500'
                               }`}></div>
-                              <p className="text-sm text-cool-black capitalize">
+                              <p className="text-sm text-gray-300 capitalize">
                                 {t(`dashboard.status.${order.status}`, order.status || t('dashboard.unknown', 'unknown'))}
                               </p>
                             </div>
                           </div>
                           <button
                             onClick={() => onViewQRCode(order)}
-                            className={`flex items-center px-3 py-2 bg-tufts-blue/10 text-tufts-blue rounded-lg hover:bg-tufts-blue/20 transition-colors duration-200 ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+                            className={`flex items-center px-3 py-2 bg-blue-400/20 text-blue-400 rounded-lg hover:bg-blue-400/30 transition-colors duration-200 ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
                           >
                             <QrCode className="w-4 h-4" />
                             <span className="text-sm">{t('dashboard.viewQR', 'View QR')}</span>
@@ -119,7 +119,7 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
               )}
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-px rounded-xl shadow-sm ring-1 ring-black/5"></div>
+          <div className="pointer-events-none absolute inset-px rounded-xl shadow-sm ring-1 ring-gray-700/50"></div>
         </div>
       </div>
     </section>

@@ -6,7 +6,9 @@ import { getLanguageDirection, detectLanguageFromPath } from '../../utils/langua
 import { usePathname } from 'next/navigation';
 
 const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
-  const { t, locale } = useI18n();
+  const { t, locale: contextLocale } = useI18n();
+  // Force Russian locale for account settings
+  const locale = 'ru';
   const pathname = usePathname();
   
   // Get current language for RTL detection
@@ -90,15 +92,15 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
   };
 
   return (
-    <section className="bg-white py-16 account-settings" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="bg-[#1a202c] py-16 account-settings" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
         <div className="relative">
-          <div className="absolute inset-px rounded-xl bg-white"></div>
+          <div className="absolute inset-px rounded-xl bg-gray-800/90 backdrop-blur-md"></div>
           <div className="relative flex h-full flex-col overflow-hidden rounded-xl">
             <div className="px-8 pt-8 pb-8">
               <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} mb-8`}>
-                <Settings className="w-6 h-6 text-tufts-blue" />
-                <h2 className={`text-2xl font-medium tracking-tight text-eerie-black ${isRTL ? 'text-right' : 'text-left'}`}>
+                <Settings className="w-6 h-6 text-blue-400" />
+                <h2 className={`text-2xl font-medium tracking-tight text-white ${isRTL ? 'text-right' : 'text-left'}`}>
                   {t('dashboard.accountSettings', 'Account Settings')}
                 </h2>
               </div>
@@ -106,19 +108,19 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
               <div className="space-y-8">
                 {/* Personal Information */}
                 <div>
-                  <h3 className={`text-lg font-medium text-eerie-black mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <h3 className={`text-lg font-medium text-white mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
                     {t('dashboard.personalInformation', 'Personal Information')}
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Email */}
                     <div className="space-y-2">
-                      <label className={`block text-sm font-medium text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
+                      <label className={`block text-sm font-medium text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
                         <Mail className={`w-4 h-4 inline ${isRTL ? 'ml-2' : 'mr-2'}`} />
                         {t('dashboard.emailAddress', 'Email Address')}
                       </label>
-                      <div className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        <span className="text-eerie-black">{currentUser.email}</span>
-                        <span className="text-xs text-cool-black bg-gray-200 px-2 py-1 rounded">
+                      <div className={`flex items-center justify-between p-3 bg-gray-700/30 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <span className="text-white">{currentUser.email}</span>
+                        <span className="text-xs text-gray-300 bg-green-500/20 text-green-400 px-2 py-1 rounded">
                           {t('dashboard.verified', 'Verified')}
                         </span>
                       </div>
@@ -126,7 +128,7 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
 
                     {/* Name */}
                     <div className="space-y-2">
-                      <label className={`block text-sm font-medium text-cool-black ${isRTL ? 'text-right' : 'text-left'}`}>
+                      <label className={`block text-sm font-medium text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
                         <User className={`w-4 h-4 inline ${isRTL ? 'ml-2' : 'mr-2'}`} />
                         {t('dashboard.displayName', 'Display Name')}
                       </label>
@@ -136,30 +138,30 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
                             type="text"
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            className={`flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tufts-blue focus:border-transparent ${isRTL ? 'text-right' : 'text-left'}`}
+                            className={`flex-1 p-3 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent ${isRTL ? 'text-right' : 'text-left'}`}
                             placeholder={t('dashboard.enterYourName', 'Enter your name')}
                             style={{ direction: isRTL ? 'rtl' : 'ltr' }}
                           />
                           <button
                             onClick={handleUpdateName}
                             disabled={isUpdating}
-                            className="p-3 bg-tufts-blue text-white rounded-lg hover:bg-cobalt-blue transition-colors disabled:opacity-50"
+                            className="p-3 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50"
                           >
                             <Save className="w-4 h-4" />
                           </button>
                           <button
                             onClick={cancelNameEdit}
-                            className="p-3 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors"
+                            className="p-3 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
                           >
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
-                        <div className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <span className="text-eerie-black">{newName || currentUser.displayName || userProfile?.displayName || t('dashboard.notSet', 'Not set')}</span>
+                        <div className={`flex items-center justify-between p-3 bg-gray-700/30 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <span className="text-white">{newName || currentUser.displayName || userProfile?.displayName || t('dashboard.notSet', 'Not set')}</span>
                           <button
                             onClick={() => setEditingName(true)}
-                            className="text-tufts-blue hover:text-cobalt-blue transition-colors"
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
@@ -173,7 +175,7 @@ const AccountSettings = ({ currentUser, userProfile, onLoadUserProfile }) => {
               </div>
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-px rounded-xl shadow-sm ring-1 ring-black/5"></div>
+          <div className="pointer-events-none absolute inset-px rounded-xl shadow-sm ring-1 ring-gray-700/50"></div>
         </div>
       </div>
     </section>

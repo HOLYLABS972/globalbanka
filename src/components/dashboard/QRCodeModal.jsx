@@ -15,22 +15,24 @@ const QRCodeModal = ({
   loadingEsimUsage 
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const { locale } = useI18n();
+  const { locale: contextLocale } = useI18n();
+  // Force Russian locale for QR modal
+  const locale = 'ru';
 
   if (!show || !selectedOrder) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="relative max-w-md w-full mx-4">
-        <div className="absolute inset-px rounded-xl bg-white"></div>
+        <div className="absolute inset-px rounded-xl bg-gray-800/90 backdrop-blur-md"></div>
         <div className="relative flex h-full flex-col overflow-hidden rounded-xl">
           <div className="px-8 pt-8 pb-8">
             <div className="text-center">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-medium text-eerie-black">eSIM QR Code</h3>
+                <h3 className="text-xl font-medium text-white">eSIM QR Code</h3>
                 <button
                   onClick={onClose}
-                  className="text-cool-black hover:text-eerie-black transition-colors"
+                  className="text-gray-300 hover:text-white transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -39,15 +41,15 @@ const QRCodeModal = ({
               </div>
           
               <div className="mb-6">
-                <h4 className="font-medium text-eerie-black mb-2">{selectedOrder.planName || 'Unknown Plan'}</h4>
-                <p className="text-sm text-cool-black">Order #{selectedOrder.orderId || selectedOrder.id || 'Unknown'}</p>
-                <p className="text-sm text-cool-black">
+                <h4 className="font-medium text-white mb-2">{selectedOrder.planName || 'Unknown Plan'}</h4>
+                <p className="text-sm text-gray-300">Order #{selectedOrder.orderId || selectedOrder.id || 'Unknown'}</p>
+                <p className="text-sm text-gray-300">
                   {convertAndFormatPrice(selectedOrder.amount || 0, locale).formatted}
                 </p>
               </div>
 
               {/* QR Code Display - Clean and Simple */}
-              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <div className="bg-gray-700/30 p-6 rounded-lg mb-6">
                 {console.log('🔍 QR Code data for display:', selectedOrder.qrCode)}
                 {console.log('🔍 Full selectedOrder:', selectedOrder)}
                 {selectedOrder.qrCode && selectedOrder.qrCode.qrCode ? (
@@ -120,11 +122,11 @@ const QRCodeModal = ({
                     className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center"
                   >
                     <MoreVertical className="w-4 h-4 mr-2" />
-                    Actions
+                    Действия
                   </button>
                   
                   {showDropdown && (
-                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
                       {/* Open in Apple eSIM */}
                       {selectedOrder.qrCode && selectedOrder.qrCode.directAppleInstallationUrl && (
                         <button
@@ -132,10 +134,10 @@ const QRCodeModal = ({
                             setShowDropdown(false);
                             window.open(selectedOrder.qrCode.directAppleInstallationUrl, '_blank', 'noopener,noreferrer');
                           }}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center"
+                          className="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center"
                         >
-                          <Smartphone className="w-4 h-4 mr-3 text-orange-600" />
-                          <span className="text-gray-700">Open in Apple eSIM</span>
+                          <Smartphone className="w-4 h-4 mr-3 text-orange-400" />
+                          <span className="text-gray-300">Открыть в Apple eSIM</span>
                         </button>
                       )}
 
@@ -149,10 +151,10 @@ const QRCodeModal = ({
                             link.download = `esim-qr-${selectedOrder.orderId || selectedOrder.id}.png`;
                             link.click();
                           }}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center"
+                          className="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center"
                         >
-                          <Download className="w-4 h-4 mr-3 text-blue-600" />
-                          <span className="text-gray-700">Download QR Code</span>
+                          <Download className="w-4 h-4 mr-3 text-blue-400" />
+                          <span className="text-gray-300">Скачать QR код</span>
                         </button>
                       )}
 
@@ -160,14 +162,14 @@ const QRCodeModal = ({
                       <button
                         onClick={() => {
                           setShowDropdown(false);
-                          if (window.confirm('Are you sure you want to remove this eSIM? This action cannot be undone.')) {
+                          if (window.confirm('Вы уверены, что хотите удалить этот eSIM? Это действие нельзя отменить.')) {
                             onDelete();
                           }
                         }}
-                        className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center border-t border-gray-200"
+                        className="w-full px-4 py-3 text-left hover:bg-red-900/30 transition-colors flex items-center border-t border-gray-700"
                       >
-                        <Trash2 className="w-4 h-4 mr-3 text-red-600" />
-                        <span className="text-red-600 font-medium">Remove eSIM</span>
+                        <Trash2 className="w-4 h-4 mr-3 text-red-400" />
+                        <span className="text-red-400 font-medium">Удалить eSIM</span>
                       </button>
                     </div>
                   )}

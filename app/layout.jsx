@@ -1,6 +1,5 @@
 import Providers from '../src/components/Providers'
 import LanguageWrapper from '../src/components/LanguageWrapper'
-import SimpleFooter from '../src/components/SimpleFooter'
 import './globals.css'
 import './rtl.css'
 
@@ -103,7 +102,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -155,11 +154,10 @@ export default function RootLayout({ children }) {
       <body className="flex flex-col min-h-screen">
         <Providers>
           <LanguageWrapper>
-            <div className="bg-white flex flex-col min-h-screen">
+            <div className="bg-[#1a202c] flex flex-col min-h-screen">
               <main className="flex-grow">
                 {children}
               </main>
-              <SimpleFooter />
             </div>
           </LanguageWrapper>
         </Providers>

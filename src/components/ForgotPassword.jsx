@@ -114,7 +114,7 @@ const ForgotPassword = () => {
   };
 
   const handleBackToLogin = () => {
-    router.push('/login');
+    router.push('/');
   };
 
   const handleBackToEmail = () => {
@@ -129,7 +129,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="min-h-screen flex items-center justify-center bg-[#1a202c] py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -138,19 +138,19 @@ const ForgotPassword = () => {
         <div>
           <button
             onClick={handleBackToLogin}
-            className="flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-sm text-gray-400 hover:text-gray-200 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Login
+            Вернуться к входу
           </button>
           
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            {step === 1 ? 'Forgot Password?' 
-             : step === 2 ? 'Check Your Email' 
-             : step === 3 ? 'Set New Password'
-             : 'Password Reset Complete'}
+          <h2 className="text-center text-3xl font-extrabold text-white">
+            {step === 1 ? 'Забыли пароль?' 
+             : step === 2 ? 'Проверьте почту' 
+             : step === 3 ? 'Установите новый пароль'
+             : 'Пароль успешно изменен'}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-300">
             {step === 1 
               ? 'Enter your email address and we\'ll send you a reset code.'
               : step === 2 
@@ -165,8 +165,8 @@ const ForgotPassword = () => {
         {step === 1 ? (
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+                Email адрес
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -180,8 +180,8 @@ const ForgotPassword = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your email"
+                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Введите ваш email"
                 />
               </div>
             </div>

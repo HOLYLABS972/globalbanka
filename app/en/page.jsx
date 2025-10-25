@@ -1,12 +1,12 @@
 'use client';
 
 import React, { Suspense, useState, useEffect } from 'react';
-import Navbar from '../src/components/Navbar';
-import EsimPlans from '../src/components/EsimPlans';
-import CountrySearchBar from '../src/components/CountrySearchBar';
-import FAQ from '../src/components/FAQ';
-import DeviceCompatibility from '../src/components/DeviceCompatibility';
-import { useI18n } from '../src/contexts/I18nContext';
+import Navbar from '../../src/components/Navbar';
+import EsimPlans from '../../src/components/EsimPlans';
+import CountrySearchBar from '../../src/components/CountrySearchBar';
+import FAQ from '../../src/components/FAQ';
+import DeviceCompatibility from '../../src/components/DeviceCompatibility';
+import { useI18n } from '../../src/contexts/I18nContext';
 
 const DynamicTitle = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -26,13 +26,13 @@ const DynamicTitle = () => {
     return (
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-white mb-2">
-          Оставайтесь на связи
+          Stay Connected no matter
         </h1>
         <h1 className="text-2xl font-bold text-white mb-2">
-          где бы вы ни были
+          where you are
         </h1>
         <h1 className="text-2xl font-bold text-white">
-          с <span className="text-blue-400">GlobalEsim</span>
+          with <span className="text-blue-400">GlobalEsim</span>
         </h1>
       </div>
     );
@@ -42,10 +42,10 @@ const DynamicTitle = () => {
   return (
     <div className="text-center mb-8">
       <h1 className="text-4xl font-bold text-white mb-2">
-        Оставайтесь на связи где бы вы ни были
+        Stay Connected no matter
       </h1>
       <h1 className="text-4xl font-bold text-white">
-        с <span className="text-blue-400">GlobalEsim</span>
+        where you are with <span className="text-blue-400">GlobalEsim</span>
       </h1>
     </div>
   );
@@ -70,7 +70,7 @@ export default function HomePage() {
         <Suspense fallback={
           <div className="flex justify-center items-center min-h-64">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400"></div>
-            <p className="ml-4 text-gray-300">Загрузка тарифов...</p>
+            <p className="ml-4 text-gray-300">{t('plans.loading', 'Loading plans...')}</p>
           </div>
         }>
           <EsimPlans />
@@ -85,3 +85,4 @@ export default function HomePage() {
     </div>
   );
 }
+

@@ -28,7 +28,7 @@ export default function SimpleFooter() {
   };
   
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 mt-auto">
+    <footer className="bg-gray-900/90 backdrop-blur-md border-t border-gray-700/50 mt-auto">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-center items-center gap-4">
           {/* Links */}
@@ -37,7 +37,7 @@ export default function SimpleFooter() {
               href="https://esim.roamjet.net/device-compatibility"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors text-sm font-medium"
+              className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors text-sm font-medium"
             >
               <Smartphone size={16} />
               <span className="md:hidden">{t('navbar.deviceCompatibility', 'Compat')}</span>
@@ -47,7 +47,7 @@ export default function SimpleFooter() {
               href="https://esim.roamjet.net/faq"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors text-sm font-medium"
+              className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors text-sm font-medium"
             >
               <HelpCircle size={16} />
               {t('navbar.faq', 'FAQ')}
@@ -61,7 +61,7 @@ export default function SimpleFooter() {
               <div className="flex items-center gap-3">
                 <Link
                   href={`${langPrefix}/dashboard`}
-                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 transition-colors cursor-pointer"
                   title={t('navbar.dashboard', 'Dashboard')}
                 >
                   <Mail size={16} />
@@ -69,7 +69,7 @@ export default function SimpleFooter() {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center text-sm text-gray-600 hover:text-red-600 transition-colors px-2 py-1 rounded hover:bg-gray-50"
+                  className="flex items-center justify-center text-sm text-gray-400 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-gray-800"
                   title={t('navbar.logout', 'Logout')}
                 >
                   <LogOut size={16} />
@@ -79,7 +79,7 @@ export default function SimpleFooter() {
             ) : (
               <Link 
                 href={`${langPrefix}/login`}
-                className="flex items-center justify-center text-sm text-gray-600 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-gray-50"
+                className="flex items-center justify-center text-sm text-gray-400 hover:text-blue-400 transition-colors px-2 py-1 rounded hover:bg-gray-800"
                 title={t('navbar.login', 'Login')}
               >
                 <LogIn size={16} />

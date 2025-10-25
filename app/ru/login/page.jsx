@@ -1,15 +1,17 @@
-import { Suspense } from 'react';
-import Login from '../../../src/components/Login';
-import Loading from '../../../src/components/Loading';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function RussianLoginPage() {
-  return (
-    <div dir="ltr" lang="ru">
-      <Suspense fallback={<Loading />}>
-        <Login />
-      </Suspense>
-    </div>
-  );
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Redirect to main login page
+    router.replace('/login');
+  }, [router]);
+  
+  return null;
 }
 
 

@@ -17,10 +17,19 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: email, 2: password
   const { login, signInWithGoogle } = useAuth();
-  const { t, locale } = useI18n();
+  const { t, locale: contextLocale, changeLanguage } = useI18n();
+  // Force Russian locale for login page
+  const locale = 'ru';
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Force Russian locale on mount
+  React.useEffect(() => {
+    if (contextLocale !== 'ru') {
+      changeLanguage('ru');
+    }
+  }, [contextLocale, changeLanguage]);
 
   // Get current language for localized URLs
   const getCurrentLanguage = () => {
@@ -346,7 +355,7 @@ const Login = () => {
 
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-[#1a202c]">
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-4 lg:px-16 xl:px-16">
         <motion.div
@@ -355,14 +364,14 @@ const Login = () => {
           className="max-w-sm w-full"
         >
           <div>
-            <h2 className="text-center text-3xl font-semibold text-eerie-black" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <h2 className="text-center text-3xl font-semibold text-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
               {t('auth.login.title', 'Sign in to your account')}
             </h2>
-            <p className="mt-2 text-center text-sm text-cool-black">
+            <p className="mt-2 text-center text-sm text-gray-300">
               {t('auth.login.subtitle', 'Or')}{' '}
               <Link
-                href={getLocalizedUrl('/register')}
-                className="font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
+                href="/register"
+                className="font-semibold text-blue-400 hover:text-blue-300 transition-colors"
               >
                 {t('auth.login.createAccount', 'create a new account')}
               </Link>
@@ -378,7 +387,7 @@ const Login = () => {
                   </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-cool-black opacity-60" />
+                      <Mail className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       id="email"
@@ -410,10 +419,10 @@ const Login = () => {
               </div>
               
               <div className="text-center">
-                <Link
-                  href={getLocalizedUrl('/forgot-password')}
-                  className="text-sm font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
-                >
+                                  <Link
+                    href="/forgot-password"
+                    className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                  >
                   {t('auth.login.forgotPassword', 'Forgot your password?')}
                 </Link>
               </div>
@@ -422,10 +431,10 @@ const Login = () => {
             <form className="mt-8 space-y-6" onSubmit={handlePasswordSubmit}>
               <div className="space-y-4">
                 <div className="text-center">
-                  <p className="text-sm text-cool-black">
+                  <p className="text-sm text-gray-300">
                     {t('auth.login.enterPasswordFor', 'Enter password for')}
                   </p>
-                  <p className="font-medium text-eerie-black">{email}</p>
+                  <p className="font-medium text-white">{email}</p>
                 </div>
                 
                 <div>
@@ -434,7 +443,7 @@ const Login = () => {
                   </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-cool-black opacity-60" />
+                      <Lock className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       id="password"
@@ -453,9 +462,9 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-cool-black opacity-60" />
+                        <EyeOff className="h-5 w-5 text-gray-400" />
                       ) : (
-                        <Eye className="h-5 w-5 text-cool-black opacity-60" />
+                        <Eye className="h-5 w-5 text-gray-400" />
                       )}
                     </button>
                   </div>
@@ -465,8 +474,8 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <div className="text-sm">
                   <Link
-                    href={getLocalizedUrl('/forgot-password')}
-                    className="font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
+                    href="/forgot-password"
+                    className="font-semibold text-blue-400 hover:text-blue-300 transition-colors"
                   >
                     {t('auth.login.forgotPassword', 'Forgot your password?')}
                   </Link>
@@ -474,7 +483,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={handleBackToEmail}
-                  className="text-sm font-semibold text-tufts-blue hover:text-cobalt-blue transition-colors"
+                  className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
                 >
                   {t('auth.login.backToEmail', 'Back to email')}
                 </button>
@@ -534,8 +543,8 @@ const Login = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <div className="absolute inset-0">
           <img
-            className="absolute inset-0 h-full w-full object-cover mix-blend-multiply"
-            src=" /images/logo_icon/vwvw.avif"
+            className="absolute inset-0 h-full w-full object-cover"
+            src="/images/logo_icon/vwvw.avif"
             alt="Travel background"
           />
         </div>

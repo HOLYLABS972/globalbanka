@@ -20,8 +20,17 @@ import EsimUsageModal from './dashboard/EsimUsageModal';
 
 const Dashboard = () => {
   const { currentUser, userProfile, loadUserProfile, loading: authLoading } = useAuth();
-  const { t, locale } = useI18n();
+  const { t, locale: contextLocale, changeLanguage } = useI18n();
+  // Force Russian locale for dashboard
+  const locale = 'ru';
   const pathname = usePathname();
+
+  // Force Russian locale on mount
+  React.useEffect(() => {
+    if (contextLocale !== 'ru') {
+      changeLanguage('ru');
+    }
+  }, [contextLocale, changeLanguage]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -167,10 +176,10 @@ const Dashboard = () => {
   // Show loading spinner while auth is loading
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('dashboard.loadingDashboard', 'Loading dashboard...')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-white">{t('dashboard.loadingDashboard', 'Loading dashboard...')}</p>
         </div>
       </div>
     );
@@ -756,7 +765,7 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-white py-8" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#1a202c] py-8" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header Section */}
       <DashboardHeader 
         currentUser={currentUser}

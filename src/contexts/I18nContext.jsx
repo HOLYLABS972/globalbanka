@@ -95,7 +95,8 @@ export const I18nProvider = ({ children }) => {
         }
       }
       
-      let initialLocale = 'en';
+      // Default to Russian for main page
+      let initialLocale = 'ru';
       
       if (savedLanguage) {
         console.log('I18nContext: Found saved language:', savedLanguage);
@@ -113,6 +114,7 @@ export const I18nProvider = ({ children }) => {
         else if (pathname.startsWith('/de/') || pathname === '/de') initialLocale = 'de';
         else if (pathname.startsWith('/fr/') || pathname === '/fr') initialLocale = 'fr';
         else if (pathname.startsWith('/es/') || pathname === '/es') initialLocale = 'es';
+        else if (pathname.startsWith('/en/') || pathname === '/en') initialLocale = 'en';
         // Support old language routes for backward compatibility
         else if (pathname.startsWith('/hebrew/') || pathname === '/hebrew') initialLocale = 'he';
         else if (pathname.startsWith('/arabic/') || pathname === '/arabic') initialLocale = 'ar';

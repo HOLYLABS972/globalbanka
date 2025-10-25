@@ -39,7 +39,7 @@ export default function NotFound() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-alice-blue via-white to-jordy-blue/20 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#1a202c] flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
         {/* SVG Illustration */}
         <div className="mb-4 flex justify-center">
@@ -57,7 +57,7 @@ export default function NotFound() {
           {/* Main Heading */}
           <div className="space-y-3">
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-eerie-black">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white">
               {t('notFound.title', 'Oops! Page Not Found')}
             </h1>
           </div>
@@ -70,7 +70,7 @@ export default function NotFound() {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <button
                 onClick={handleGoBack}
-                className="flex items-center justify-center space-x-2 px-4 py-2 bg-white text-tufts-blue border-2 border-tufts-blue rounded-full font-semibold hover:bg-tufts-blue hover:text-white transition-all duration-200 shadow-md hover:shadow-lg w-full sm:w-auto"
+                className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-400/20 text-blue-400 border-2 border-blue-400 rounded-full font-semibold hover:bg-blue-400/30 transition-all duration-200 shadow-md hover:shadow-lg w-full sm:w-auto"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>{t('notFound.goBack', 'Go Back')}</span>
@@ -83,8 +83,8 @@ export default function NotFound() {
           
           {/* Footer Message */}
           <div className="pt-8">
-            <p className="text-sm text-cool-black">
-              {t('notFound.needHelp', 'Need help?')} <Link href={getLocalizedUrl('/contact')} className="text-tufts-blue hover:underline font-medium">{t('notFound.contactSupport', 'Contact our support team')}</Link>
+            <p className="text-sm text-gray-300">
+              {t('notFound.needHelp', 'Need help?')} <Link href={getLocalizedUrl('/contact')} className="text-blue-400 hover:underline font-medium">{t('notFound.contactSupport', 'Contact our support team')}</Link>
             </p>
           </div>
         </div>

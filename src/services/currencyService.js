@@ -96,6 +96,8 @@ export const convertAndFormatPrice = (usdAmount, locale) => {
   const convertedAmount = convertCurrency(usdAmount, targetCurrency);
   const formattedPrice = formatPrice(convertedAmount, targetCurrency);
   
+  console.log('💱 convertAndFormatPrice:', { usdAmount, locale, targetCurrency, convertedAmount, formattedPrice });
+  
   return {
     amount: convertedAmount,
     formatted: formattedPrice,
