@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -70,7 +70,7 @@ const matchesCountrySearch = (countryName, searchTerm) => {
 
 
 
-const EsimPlans = () => {
+const EsimPlansContent = () => {
   const { t, locale: contextLocale } = useI18n();
   // Force Russian locale for main page
   const locale = 'ru';
@@ -607,6 +607,19 @@ const EsimPlans = () => {
       filteredCountries={filteredCountries}
     />
     </>
+  );
+};
+
+// Wrapper component with Suspense
+const EsimPlans = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400"></div>
+      </div>
+    }>
+      <EsimPlansContent />
+    </Suspense>
   );
 };
 
