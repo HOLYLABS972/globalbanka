@@ -31,9 +31,9 @@ const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 bg-blue-400 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-              <span className="text-white font-bold text-lg">G</span>
+              <span className="text-white font-bold text-lg">E</span>
             </div>
-            <span className="text-white font-bold text-xl">GlobalEsim</span>
+            <span className="text-white font-bold text-xl">ESIM</span>
           </Link>
 
           {/* Right side - User info and Logout */}
