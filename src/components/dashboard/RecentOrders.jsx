@@ -74,27 +74,36 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
                         className={`flex items-center justify-between p-4 border border-gray-700/50 rounded-lg hover:bg-gray-700/30 transition-colors duration-200 ${isRTL ? 'flex-row-reverse' : ''}`}
                       >
                         <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
-                          <div className="text-2xl">
+                          <div className="text-2xl md:block hidden">
                             {getFlagEmoji(order.countryCode)}
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className={`font-medium text-white ${isRTL ? 'text-right' : 'text-left'}`}>
                               {order.planName || t('dashboard.unknownPlan', 'Unknown Plan')}
                             </p>
                             <p className={`hidden md:block text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
                               {t('dashboard.orderNumber', 'Order #{{number}}', { number: order.orderId || order.id || t('dashboard.unknown', 'Unknown') })}
                             </p>
-                            <p className={`text-xs text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+                            {/* Mobile: Price after name */}
+                            <p className={`md:hidden text-sm text-green-400 font-medium ${isRTL ? 'text-right' : 'text-left'}`}>
+                              {convertAndFormatPrice(order.amount || 0, locale).formatted}
+                            </p>
+                            {/* Mobile: Country after price */}
+                            <p className={`md:hidden text-xs text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+                              {getFlagEmoji(order.countryCode)} {order.countryName || order.countryCode || t('dashboard.unknownCountry', 'Unknown Country')}
+                            </p>
+                            {/* Desktop: Country */}
+                            <p className={`hidden md:block text-xs text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
                               {order.countryName || order.countryCode || t('dashboard.unknownCountry', 'Unknown Country')}
                             </p>
                           </div>
                         </div>
                         <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
-                          <div className={isRTL ? 'text-left' : 'text-right'}>
+                          <div className={`hidden md:block ${isRTL ? 'text-left' : 'text-right'}`}>
                             <p className="font-medium text-white">
                               {convertAndFormatPrice(order.amount || 0, locale).formatted}
                             </p>
-                            <div className={`hidden md:flex items-center ${isRTL ? 'justify-start space-x-reverse space-x-2' : 'justify-end space-x-2'}`}>
+                            <div className={`flex items-center ${isRTL ? 'justify-start space-x-reverse space-x-2' : 'justify-end space-x-2'}`}>
                               <div className={`w-2 h-2 rounded-full ${
                                 order.status === 'active' ? 'bg-green-500' :
                                 order.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-500'
@@ -109,7 +118,7 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
                             className={`flex items-center px-3 py-2 bg-blue-400/20 text-blue-400 rounded-lg hover:bg-blue-400/30 transition-colors duration-200 ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
                           >
                             <QrCode className="w-4 h-4" />
-                            <span className="text-sm">{t('dashboard.viewQR', 'View QR')}</span>
+                            <span className="text-sm hidden md:inline">{t('dashboard.viewQR', 'View QR')}</span>
                           </button>
                         </div>
                       </div>
