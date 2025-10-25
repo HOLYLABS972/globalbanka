@@ -272,9 +272,10 @@ const SharePackagePage = () => {
       packageId: packageId,
       packageName: packageData.name,
       packageDescription: packageData.description,
-      price: finalPrice, // Use discounted price
+      priceUSD: finalPrice, // Use discounted price in USD (for Stripe)
+      priceRUB: convertAndFormatPrice(finalPrice, locale).amount, // Display price in RUB
       originalPrice: originalPrice, // Keep original price for reference
-      currency: convertAndFormatPrice(1, locale).currency,
+      currency: 'USD', // Always store as USD for API
       data: packageData.data,
       dataUnit: packageData.dataUnit || 'GB',
       period: packageData.validity || packageData.period || packageData.duration,
@@ -287,61 +288,9 @@ const SharePackagePage = () => {
     
     localStorage.setItem('selectedPackage', JSON.stringify(checkoutData));
     
-    // Call Robokassa payment service directly instead of going to checkout page
-    const { robokassaService } = await import('../../../src/services/robokassaService');
-    
-    try {
-      // Generate unique order ID for each purchase
-      const uniqueOrderId = `${packageId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Create order data for payment service
-      const orderData = {
-        orderId: uniqueOrderId, // Unique order ID for each purchase
-        planId: packageId,
-        planName: packageData.name,
-        customerEmail: currentUser.email,
-        amount: finalPrice, // Use discounted price
-        currency: convertAndFormatPrice(1, locale).currency.toLowerCase(),
-        originalAmount: originalPrice // Include original amount for reference
-      };
-      
-      console.log('💳 Order data for payment:', orderData);
-      
-      // Create Robokassa checkout session
-      const result = await robokassaService.createCheckoutSession(orderData);
-      
-      if (result.paymentUrl) {
-        console.log('✅ Redirecting to Robokassa payment:', result.paymentUrl);
-        
-        // Check if we're in an iframe
-        if (window !== window.top) {
-          console.log('🔗 Detected iframe context - redirecting parent window');
-          // Redirect the parent window instead of the iframe
-          try {
-            window.top.location.href = result.paymentUrl;
-          } catch (error) {
-            console.warn('⚠️ Cannot redirect parent window, trying alternative method');
-            // Alternative: open in new window
-            window.open(result.paymentUrl, '_blank');
-          }
-        } else {
-          console.log('🖥️ Normal window context - redirecting current window');
-          window.location.href = result.paymentUrl;
-        }
-      } else {
-        throw new Error('Invalid Robokassa payment response - no paymentUrl received');
-      }
-      
-    } catch (error) {
-      console.error('❌ Payment failed:', error);
-      
-      // Show user-friendly error message
-      if (error.message.includes('not configured for this domain')) {
-        toast.error('Payment system configuration issue. Please contact support.');
-      } else {
-        toast.error('Failed to process payment. Please try again.');
-      }
-    }
+    // Redirect to checkout page which will use Stripe
+    console.log('🛒 Redirecting to checkout page with Stripe payment');
+    router.push('/checkout');
   };
 
   const formatPrice = (price) => {
@@ -392,10 +341,10 @@ const SharePackagePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a202c] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('sharePackage.loadingPackageInfo', 'Loading package information...')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-gray-300">Загрузка информации о тарифе...</p>
         </div>
       </div>
     );
@@ -403,25 +352,20 @@ const SharePackagePage = () => {
 
   if (!packageData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a202c] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gray-800/90 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4">
             <Globe size={24} className="text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('sharePackage.packageNotFound', 'Package Not Found')}</h3>
-          <p className="text-gray-600 mb-4">
-            {t('sharePackage.packageNotFoundDesc', 'The package you\'re looking for doesn\'t exist or has been removed')}
+          <h3 className="text-lg font-semibold text-white mb-2">Тариф не найден</h3>
+          <p className="text-gray-300 mb-4">
+            Тариф, который вы ищете, не существует или был удален
           </p>
           <button
-            onClick={() => {
-              // Get language prefix from pathname to preserve language
-              const langMatch = pathname.match(/^\/(ar|de|es|fr|he|ru)\//);
-              const langPrefix = langMatch ? `/${langMatch[1]}` : '';
-              router.push(`${langPrefix}/esim-plans`);
-            }}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
+            onClick={() => router.push('/')}
+            className="bg-blue-400 hover:bg-blue-500 text-white px-6 py-2 rounded-lg transition-colors"
           >
-            Browse Available Packages
+            Посмотреть доступные тарифы
           </button>
         </div>
       </div>
@@ -435,20 +379,20 @@ const SharePackagePage = () => {
   console.log('🔍 BALANCE INFO:', balanceInfo);
 
   return (
-    <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#1a202c]" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+      <div className="bg-gray-900/90 backdrop-blur-md shadow-sm border-b border-gray-700/50 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-800/50 rounded-full transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                <ArrowLeft className="w-5 h-5 text-gray-300" />
               </button>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-gray-900">{t('sharePackage.packageDetails', 'Package Details')}</h1>
+                <h1 className="text-xl font-bold text-white">Детали тарифа</h1>
               </div>
             </div>
           </div>
@@ -464,44 +408,44 @@ const SharePackagePage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white shadow-lg rounded-xl overflow-hidden lg:col-span-1"
+            className="bg-gray-800/90 backdrop-blur-md shadow-lg rounded-xl overflow-hidden lg:col-span-1 border border-gray-700/50"
           >
           {/* Package Title */}
-          <div className="bg-white p-4">
+          <div className="bg-gray-800/90 backdrop-blur-md p-4">
             <div className="text-center">
-              <h2 className="text-4xl font-bold text-black">{packageData.name}</h2>
-              <p className="text-gray-600 text-lg mt-2">{t('sharePackage.noPhoneNumber', 'This eSIM doesn\'t come with a number')}</p>
+              <h2 className="text-4xl font-bold text-white">{packageData.name}</h2>
+              <p className="text-gray-300 text-lg mt-2">Этот eSIM не включает номер телефона</p>
             </div>
           </div>
           
           {/* Package Stats */}
-          <div className="bg-white px-4 pb-4">
+          <div className="bg-gray-800/90 backdrop-blur-md px-4 pb-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-50 rounded-lg p-3">
+              <div className="bg-gray-700/50 backdrop-blur-sm rounded-lg p-3">
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-                  <Wifi className="w-5 h-5 text-gray-600" />
+                  <Wifi className="w-5 h-5 text-blue-400" />
                   <div className={isRTL ? 'text-right' : 'text-left'}>
-                    <div className="text-sm text-gray-600">{t('sharePackage.data', 'Data')}</div>
-                    <div className="font-semibold text-black">{formatData(packageData.data, packageData.dataUnit)}</div>
+                    <div className="text-sm text-gray-400">Данные</div>
+                    <div className="font-semibold text-white">{formatData(packageData.data, packageData.dataUnit)}</div>
                   </div>
                 </div>
               </div>
               
-              <div className="bg-gray-50 rounded-lg p-3">
+              <div className="bg-gray-700/50 backdrop-blur-sm rounded-lg p-3">
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-                  <Clock className="w-5 h-5 text-gray-600" />
+                  <Clock className="w-5 h-5 text-blue-400" />
                   <div className={isRTL ? 'text-right' : 'text-left'}>
-                    <div className="text-sm text-gray-600">{t('sharePackage.validity', 'Validity')}</div>
-                    <div className="font-semibold text-black">{packageData.validity || packageData.period || packageData.duration || 'N/A'} {packageData.validity_unit || 'days'}</div>
+                    <div className="text-sm text-gray-400">Срок действия</div>
+                    <div className="font-semibold text-white">{packageData.validity || packageData.period || packageData.duration || 'N/A'} {packageData.validity_unit || 'дней'}</div>
                   </div>
                 </div>
               </div>
               
-              <div className="bg-gray-50 rounded-lg p-3">
+              <div className="bg-gray-700/50 backdrop-blur-sm rounded-lg p-3">
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-                  <DollarSign className="w-5 h-5 text-gray-600" />
+                  <DollarSign className="w-5 h-5 text-blue-400" />
                   <div className={isRTL ? 'text-right' : 'text-left'}>
-                    <div className="text-sm text-gray-600">{t('sharePackage.price', 'Price')}</div>
+                    <div className="text-sm text-gray-400">Цена</div>
                     {(() => {
                       const originalPrice = parseFloat(packageData.price);
                       // Apply regular discount
@@ -514,11 +458,11 @@ const SharePackagePage = () => {
                       
                       return (
                         <div>
-                          <div className="font-semibold text-red-600">
-                            {convertAndFormatPrice(finalPrice, locale).formatted}
+                          <div className="font-semibold text-green-400">
+                            {convertAndFormatPrice(finalPrice, 'ru').formatted}
                           </div>
                           <div className="text-xs text-gray-500 line-through">
-                            {convertAndFormatPrice(parseFloat(packageData.price), locale).formatted}
+                            {convertAndFormatPrice(parseFloat(packageData.price), 'ru').formatted}
                           </div>
                         </div>
                       );
@@ -527,14 +471,14 @@ const SharePackagePage = () => {
                 </div>
               </div>
               
-              <div className="bg-gray-50 rounded-lg p-3">
+              <div className="bg-gray-700/50 backdrop-blur-sm rounded-lg p-3">
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                   <span className="text-2xl">
                     {urlCountryFlag || (packageData.country_code ? getCountryFlag(packageData.country_code) : '🌍')}
                   </span>
                   <div className={isRTL ? 'text-right' : 'text-left'}>
-                    <div className="text-sm text-gray-600">{t('sharePackage.country', 'Country')}</div>
-                    <div className="font-semibold text-black">{urlCountryCode || packageData.country_code || 'DE'}</div>
+                    <div className="text-sm text-gray-400">Страна</div>
+                    <div className="font-semibold text-white">{urlCountryCode || packageData.country_code || 'DE'}</div>
                   </div>
                 </div>
               </div>
@@ -546,67 +490,66 @@ const SharePackagePage = () => {
             <div className="max-w-2xl mx-auto">
               {/* Get Package Section */}
               <div className="text-center mb-8">
-                <h3 className={`text-2xl font-semibold text-gray-900 mb-4 ${isRTL ? 'text-right' : 'text-center'}`}>{t('sharePackage.getThisPackage', 'Get This Package')}</h3>
+                <h3 className={`text-2xl font-semibold text-white mb-4 ${isRTL ? 'text-right' : 'text-center'}`}>Получить этот тариф</h3>
                 <button
                   onClick={handlePurchase}
                   disabled={!packageData} // Only disable if package data is not loaded
                   className={`w-full max-w-md mx-auto flex items-center justify-center space-x-3 py-4 px-6 rounded-xl transition-colors font-medium text-lg shadow-lg ${
                     !packageData
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      ? 'bg-gray-600 cursor-not-allowed text-gray-300'
+                      : 'bg-blue-400 hover:bg-blue-500 text-white'
                   }`}
                 >
                   <Smartphone className="w-6 h-6" />
                   <span>
                     {!packageData
-                      ? t('sharePackage.loading', 'Loading...') 
-                      : t('sharePackage.purchaseNow', 'Purchase Now')}
+                      ? 'Загрузка...' 
+                      : 'Купить сейчас'}
                   </span>
                 </button>
               </div>
 
             </div>
           </div>
-          </motion.div>
-          
-          {/* Right Column - How to Use */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:block"
-          >
-            <div className="p-6">
-              <h3 className="text-2xl font-semibold text-gray-900 mb-6 text-center">{t('sharePackage.howToUse', 'How to Use')}</h3>
-              <div className="space-y-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="bg-yellow-100 p-3 rounded-full mb-3">
-                    <Zap className="w-8 h-8 text-yellow-600" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.instantActivation', 'Instant Activation')}</h4>
-                  <p className="text-sm text-gray-600">{t('sharePackage.instantActivationDesc', 'Get connected immediately after purchase')}</p>
+        </motion.div>
+        
+        {/* Right Column - How to Use */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="lg:block"
+        >
+          <div className="p-6">
+            <h3 className="text-2xl font-semibold text-white mb-6 text-center">Как использовать</h3>
+            <div className="space-y-6">
+              <div className="flex flex-col items-center text-center">
+                <div className="bg-yellow-400/20 backdrop-blur-sm p-3 rounded-full mb-3">
+                  <Zap className="w-8 h-8 text-yellow-400" />
                 </div>
-                
-                <div className="flex flex-col items-center text-center">
-                  <div className="bg-green-100 p-3 rounded-full mb-3">
-                    <Shield className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.secureReliable', 'Secure & Reliable')}</h4>
-                  <p className="text-sm text-gray-600">{t('sharePackage.secureReliableDesc', 'Trusted by millions of travelers worldwide')}</p>
+                <h4 className="font-semibold text-white mb-2">Мгновенная активация</h4>
+                <p className="text-sm text-gray-300">Подключайтесь сразу после покупки</p>
+              </div>
+              
+              <div className="flex flex-col items-center text-center">
+                <div className="bg-green-400/20 backdrop-blur-sm p-3 rounded-full mb-3">
+                  <Shield className="w-8 h-8 text-green-400" />
                 </div>
-                
-                <div className="flex flex-col items-center text-center">
-                  <div className="bg-blue-100 p-3 rounded-full mb-3">
-                    <Globe className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('sharePackage.globalCoverage', 'Global Coverage')}</h4>
-                  <p className="text-sm text-gray-600">{t('sharePackage.globalCoverageDesc', 'Stay connected wherever you go')}</p>
+                <h4 className="font-semibold text-white mb-2">Безопасно и надежно</h4>
+                <p className="text-sm text-gray-300">Доверяют миллионы путешественников по всему миру</p>
+              </div>
+              
+              <div className="flex flex-col items-center text-center">
+                <div className="bg-blue-400/20 backdrop-blur-sm p-3 rounded-full mb-3">
+                  <Globe className="w-8 h-8 text-blue-400" />
                 </div>
+                <h4 className="font-semibold text-white mb-2">Глобальное покрытие</h4>
+                <p className="text-sm text-gray-300">Оставайтесь на связи, где бы вы ни были</p>
               </div>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
         </div>
-        
       </div>
     </div>
   );

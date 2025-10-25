@@ -19,15 +19,15 @@ function PaymentFailedContent() {
   const getErrorMessage = (reason) => {
     switch (reason) {
       case 'invalid_signature':
-        return 'Payment verification failed. Please contact support if you were charged.';
+        return 'Не удалось проверить платёж. Если с вас списали деньги, пожалуйста, свяжитесь со службой поддержки.';
       case 'processing_error':
-        return 'There was an error processing your payment. Please try again.';
+        return 'Произошла ошибка при обработке вашего платежа. Пожалуйста, попробуйте снова.';
       case 'cancelled':
-        return 'Payment was cancelled. You can try again anytime.';
+        return 'Платёж был отменён. Вы можете попробовать снова в любое время.';
       case 'insufficient_funds':
-        return 'Payment failed due to insufficient funds. Please check your account balance.';
+        return 'Платёж не прошёл из-за недостатка средств. Пожалуйста, проверьте баланс вашего счета.';
       default:
-        return 'Payment was not completed. Please try again or contact support.';
+        return 'Платёж не был завершен. Пожалуйста, попробуйте снова или свяжитесь со службой поддержки.';
     }
   };
 
@@ -42,40 +42,40 @@ function PaymentFailedContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
-        <div className="text-red-500 text-6xl mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+      <div className="max-w-md mx-auto bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-700/50 p-8 text-center">
+        <div className="text-red-400 text-6xl mb-6">
           <AlertCircle className="w-16 h-16 mx-auto" />
         </div>
         
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Payment Failed
+        <h1 className="text-2xl font-bold text-white mb-4">
+          Платёж не прошёл
         </h1>
         
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-300 mb-6">
           {getErrorMessage(reason)}
         </p>
 
         <div className="space-y-4">
           <button
             onClick={handleRetryPayment}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full px-6 py-3 bg-blue-400 hover:bg-blue-500 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Try Again
+            Попробовать снова
           </button>
           
           <button
             onClick={handleContactSupport}
-            className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            className="w-full px-6 py-3 bg-gray-700/50 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors"
           >
-            Contact Support
+            Связаться с поддержкой
           </button>
         </div>
 
-        <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            <strong>Note:</strong> If you were charged but see this error, please contact our support team immediately with your order details.
+        <div className="mt-8 p-4 bg-yellow-400/20 backdrop-blur-sm border border-yellow-400/30 rounded-lg">
+          <p className="text-sm text-yellow-300">
+            <strong>Важно:</strong> Если с вас списали деньги, но вы видите эту ошибку, немедленно свяжитесь с нашей службой поддержки и предоставьте данные о заказе.
           </p>
         </div>
       </div>
@@ -86,8 +86,8 @@ function PaymentFailedContent() {
 export default function PaymentFailed() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400"></div>
       </div>
     }>
       <PaymentFailedContent />

@@ -55,7 +55,7 @@ export default function HomePage() {
   const { t } = useI18n();
   
   return (
-    <div>
+    <div className="bg-[#1a202c]">
       {/* Navbar */}
       <Navbar />
       

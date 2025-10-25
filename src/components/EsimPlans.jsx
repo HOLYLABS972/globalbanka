@@ -267,8 +267,21 @@ const EsimPlans = () => {
         const firebaseResults = [];
         
         for (const countryData of countries) {
-          // Check if country name matches search term (including aliases)
-          if (matchesCountrySearch(countryData.name, term)) {
+          // Translate country name to Russian for search
+          const translatedName = translateCountryName(countryData.code, countryData.name, 'ru');
+          
+          // Check if country name matches search term (including aliases and translations)
+          const matchesEnglish = matchesCountrySearch(countryData.name, term);
+          const matchesRussian = translatedName.toLowerCase().includes(term.toLowerCase());
+          
+          console.log(`🔍 Checking ${countryData.name}:`, {
+            translated: translatedName,
+            searchTerm: term,
+            matchesEnglish,
+            matchesRussian
+          });
+          
+          if (matchesEnglish || matchesRussian) {
             // Get plans for this country using API
             const plansResponse = await fetch(`${API_BASE_URL}/api/public/plans?country=${countryData.code}`);
             if (plansResponse.ok) {
@@ -437,17 +450,17 @@ const EsimPlans = () => {
           {/* Active Search Badge */}
           {searchTerm && (
             <div className="mb-6 flex justify-center items-center gap-3">
-              <span className="text-sm text-gray-600">
-                {t('search.searchingFor', 'Searching for:')} <span className="font-semibold text-cobalt-blue">{searchTerm}</span>
+              <span className="text-sm text-gray-300">
+                Поиск по: <span className="font-semibold text-blue-400">{searchTerm}</span>
               </span>
               <button
                 onClick={() => {
                   setSearchTerm('');
                   router.push(pathname);
                 }}
-                className="text-xs px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 transition-colors"
+                className="text-xs px-3 py-1 rounded-full bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-colors"
               >
-                {t('search.clearSearch', 'Clear')}
+                Очистить
               </button>
             </div>
           )}

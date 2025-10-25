@@ -6,7 +6,7 @@
 // Exchange rates (you can update these or fetch from an API)
 const EXCHANGE_RATES = {
   USD_TO_RUB: 95, // 1 USD = 95 RUB (approximate rate, update as needed)
-  RUB_TO_USD: 0.0105 // 1 RUB = 0.0105 USD
+  RUB_TO_USD: 1/95 // 1 RUB = 0.0105 USD (calculated from USD_TO_RUB)
 };
 
 // Currency symbols and formatting
@@ -54,6 +54,24 @@ export const convertCurrency = (usdAmount, targetCurrency) => {
     case 'USD':
     default:
       return usdAmount;
+  }
+};
+
+/**
+ * Convert from any currency back to USD
+ * @param {number} amount - Amount in source currency
+ * @param {string} fromCurrency - Source currency code ('RUB', 'USD')
+ * @returns {number} Amount in USD
+ */
+export const convertToUSD = (amount, fromCurrency) => {
+  if (!amount || isNaN(amount)) return 0;
+  
+  switch (fromCurrency) {
+    case 'RUB':
+      return parseFloat((amount * EXCHANGE_RATES.RUB_TO_USD).toFixed(2));
+    case 'USD':
+    default:
+      return amount;
   }
 };
 
@@ -137,6 +155,7 @@ export const fetchLiveExchangeRates = async () => {
 export default {
   getCurrencyForLocale,
   convertCurrency,
+  convertToUSD,
   formatPrice,
   getCurrencySymbol,
   convertAndFormatPrice,

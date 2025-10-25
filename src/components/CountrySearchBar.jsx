@@ -1,17 +1,31 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { useI18n } from '../contexts/I18nContext';
-import { translateCountryName } from '../utils/countryTranslations';
+import { translateCountryName, countryTranslations } from '../utils/countryTranslations';
 import smartCountryService from '../services/smartCountryService';
+
+// Helper function to convert Russian country name to English
+const convertRussianToEnglish = (russianName) => {
+  const russianTranslations = countryTranslations.ru;
+  // Find the country code that matches the Russian name
+  for (const [code, name] of Object.entries(russianTranslations)) {
+    if (name.toLowerCase() === russianName.toLowerCase()) {
+      // Return the English name
+      return countryTranslations.en[code] || russianName;
+    }
+  }
+  return russianName; // Return original if not found
+};
 
 const CountrySearchBar = ({ onSearch, showCountryCount = true }) => {
   const { t, locale: contextLocale } = useI18n();
   // Force Russian locale for main page
   const locale = 'ru';
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchValue, setSearchValue] = useState('');
   
   // Check if current locale is RTL
@@ -33,24 +47,33 @@ const CountrySearchBar = ({ onSearch, showCountryCount = true }) => {
     smartCountryService.preloadCountries();
   }, []);
 
+  // Read search parameter from URL and populate input
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch) {
+      setSearchValue(urlSearch);
+    }
+  }, [searchParams, searchValue]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     
-    // Build URL with language prefix if not English
-    const languagePrefix = locale && locale !== 'en' ? `/${locale}` : '';
-    
     if (searchValue.trim()) {
-      // Navigate to plans page with search parameter, preserving language
-      const searchUrl = `${languagePrefix}/esim-plans?search=${encodeURIComponent(searchValue.trim())}`;
+      // Convert Russian name to English for API search
+      const englishSearchTerm = convertRussianToEnglish(searchValue.trim());
+      console.log('🔍 Converting search:', searchValue.trim(), '→', englishSearchTerm);
+      
+      // Navigate to main page with English search parameter
+      const searchUrl = `/?search=${encodeURIComponent(englishSearchTerm)}`;
       router.push(searchUrl);
       
       // Also call onSearch callback if provided
       if (onSearch) {
-        onSearch(searchValue.trim());
+        onSearch(englishSearchTerm);
       }
     } else {
-      // Navigate to plans page, preserving language
-      router.push(`${languagePrefix}/esim-plans`);
+      // Navigate to main page
+      router.push('/');
     }
   };
 
@@ -97,14 +120,14 @@ const CountrySearchBar = ({ onSearch, showCountryCount = true }) => {
                 key={country.code}
                 type="button"
                 onClick={() => {
-                  setSearchValue(country.name); // Use English name for search
-                  // Build URL with language prefix if not English
-                  const languagePrefix = locale && locale !== 'en' ? `/${locale}` : '';
-                  // Navigate to plans page with search, preserving language
-                  const searchUrl = `${languagePrefix}/esim-plans?search=${encodeURIComponent(country.name)}`;
-                  router.push(searchUrl);
+                  // Convert Russian name to English for search
+                  const englishName = convertRussianToEnglish(translatedName);
+                  console.log('🔍 Popular country click:', translatedName, '→', englishName);
+                  
+                  // Don't update the input - just navigate with English name
+                  router.push(`/?search=${encodeURIComponent(englishName)}`);
                 }}
-                className="text-xs sm:text-sm px-3 py-1 rounded-full bg-gray-700/50 backdrop-blur-sm hover:bg-blue-400/20 border border-blue-400/30 hover:border-blue-400 transition-all duration-200 text-gray-300 hover:text-white font-medium"
+                className="bg-gray-700/50 backdrop-blur-sm hover:bg-gray-700/70 text-gray-300 hover:text-white border border-gray-600 hover:border-blue-400/50 px-4 py-2 rounded-full transition-all duration-200 text-sm font-medium"
               >
                 {translatedName}
               </button>

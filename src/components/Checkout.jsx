@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { robokassaService } from '../services/robokassaService';
+import { paymentService } from '../services/paymentServiceClient';
 // import { esimService } from '../services/esimService'; // Removed - causes client-side issues
 import { useAuth } from '../contexts/AuthContext';
 
@@ -15,96 +15,90 @@ const Checkout = ({ plan }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simple check - if user is logged in and plan exists, redirect to payment
-    if (currentUser && plan) {
-      console.log('🚀 Redirecting to Robokassa payment for plan:', plan.name);
-      console.log('👤 User email:', currentUser.email);
+    // Allow checkout without authentication - collect email instead
+    if (plan) {
+      console.log('🚀 Starting checkout for plan:', plan.name);
       
-      // Create order and redirect immediately
+      // Create order and redirect immediately (no auth required)
       const redirectToPayment = async () => {
         try {
           // Generate unique order ID
           const uniqueOrderId = `${plan.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           
-          // Create eSIM order
+          // Send email if user is logged in, otherwise let Stripe collect it
           const orderData = {
-            orderId: uniqueOrderId, // Unique order ID for each purchase
+            orderId: uniqueOrderId,
             planId: plan.id,
             planName: plan.name,
-            customerEmail: currentUser.email,
+            customerEmail: currentUser ? currentUser.email : null, // Send email if logged in, otherwise let Stripe collect it
             amount: parseFloat(plan.price) || 0,
-            currency: 'RUB' // Robokassa primarily uses RUB
+            currency: 'usd'
           };
           
-          console.log('💳 Order data for Robokassa payment:', orderData);
+          console.log('💳 Order data for payment:', orderData);
 
-          const { esimService } = await import('../services/esimService');
-          const order = await esimService.createOrder(orderData);
-          console.log('✅ Order created:', order.id);
-
-          // Store order info
+          // Store order info for payment success handling
           localStorage.setItem('pendingEsimOrder', JSON.stringify({
-            orderId: uniqueOrderId, // Use the unique order ID we generated
+            orderId: uniqueOrderId,
             planId: plan.id,
-            customerEmail: currentUser.email,
+            customerEmail: currentUser ? currentUser.email : null, // Store email if logged in
             amount: plan.price,
-            currency: 'RUB'
+            currency: 'usd'
           }));
 
-          // Redirect to Robokassa payment
-          await robokassaService.createCheckoutSession(orderData);
+          // Redirect to payment
+          await paymentService.createCheckoutSession(orderData);
           
         } catch (err) {
-          console.error('❌ Robokassa payment redirect failed:', err);
+          console.error('❌ Payment redirect failed:', err);
           setError('Failed to redirect to payment');
         }
       };
 
       redirectToPayment();
-    } else if (!currentUser) {
-      // Not logged in - redirect to login
-      router.push('/login');
     }
-  }, [plan, currentUser, router]);
+  }, [plan]);
 
   if (!plan) {
     return (
-      <div className="text-center py-8">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-gray-600">No plan selected for checkout</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <p className="text-gray-300">План не выбран</p>
+        </div>
       </div>
     );
   }
 
-  if (!currentUser) {
-    return (
-      <div className="text-center py-8">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-gray-600">Please log in to continue</p>
-      </div>
-    );
-  }
 
 
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-gray-600 mb-4">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Try Again
-        </button>
+      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <p className="text-gray-300 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
+          >
+            Попробовать снова
+          </button>
+        </div>
       </div>
     );
   }
 
-  // This component now only handles the redirect
-  // The actual checkout form is not needed since we redirect immediately
-  return null;
+  // Show loading while redirecting to payment
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+        <p className="text-gray-300">Перенаправление на оплату...</p>
+      </div>
+    </div>
+  );
 };
 
 export default Checkout;

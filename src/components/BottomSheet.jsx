@@ -79,21 +79,21 @@ const BottomSheet = ({
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={0.1}
             onDragEnd={handleDragEnd}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md rounded-t-3xl shadow-2xl border-t border-gray-700/50"
             style={{ maxHeight }}
           >
             {/* Drag Handle */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+              <div className="w-12 h-1.5 bg-gray-600 rounded-full" />
             </div>
 
             {/* Header */}
-            <div className="px-6 pb-4 border-b border-gray-100">
+            <div className="px-6 pb-4 border-b border-gray-700/50">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+                <h2 className="text-xl font-semibold text-white">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+                  className="p-2 text-gray-400 hover:text-gray-200 rounded-full hover:bg-gray-800/50 transition-colors"
                 >
                   <X size={20} />
                 </button>

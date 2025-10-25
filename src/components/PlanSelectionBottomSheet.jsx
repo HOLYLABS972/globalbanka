@@ -51,10 +51,10 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:border-green-300 hover:shadow-md ${
+      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:border-blue-400 hover:shadow-md ${
         isSelected 
-          ? 'border-green-500 bg-green-50 shadow-lg' 
-          : 'border-gray-200 bg-white'
+          ? 'border-blue-400 bg-blue-400/10 shadow-lg' 
+          : 'border-gray-700 bg-gray-800'
       }`}
       onClick={onClick}
     >
@@ -62,7 +62,7 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
       {plan.popular && (
         <div className={`absolute -top-2 ${isRTL ? '-left-2' : '-right-2'} bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-medium`}>
           <Star size={12} className={`inline ${isRTL ? 'ml-1' : 'mr-1'}`} />
-          {t('planSelection.popular', 'Popular')}
+              Популярный
         </div>
       )}
 
@@ -70,9 +70,9 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
       {/* Plan Header */}
       <div className={`flex items-start justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className={`flex items-start ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
-          <div className="flex-shrink-0 bg-blue-100 p-3 rounded-xl">
+          <div className="flex-shrink-0 bg-blue-400/20 p-3 rounded-xl">
             <svg 
-              className="w-8 h-8 text-blue-600" 
+              className="w-8 h-8 text-blue-400" 
               fill="currentColor" 
               viewBox="0 0 24 24"
             >
@@ -80,8 +80,8 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
             </svg>
           </div>
           <div>
-            <h3 className={`font-semibold text-gray-900 text-lg ${isRTL ? 'text-right' : 'text-left'}`}>{plan.name}</h3>
-            <p className={`text-sm text-gray-600 ${isRTL ? 'text-right' : 'text-left'}`}>{plan.description}</p>
+            <h3 className={`font-semibold text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}>{plan.name}</h3>
+            <p className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>{plan.description}</p>
             {plan.country_codes && plan.country_codes.length > 0 && (
               <div className={`flex items-center mt-1 ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
                 <span className="text-lg">
@@ -97,8 +97,8 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
                     }
                   }).join(' ')}
                 </span>
-                <span className={`text-xs text-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}>
-                  {plan.country_codes.length > 1 ? t('planSelection.countries', '{{count}} countries', { count: plan.country_codes.length }) : plan.country_codes[0]}
+                <span className={`text-xs text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  {plan.country_codes.length > 1 ? `${plan.country_codes.length} стран` : plan.country_codes[0]}
                 </span>
               </div>
             )}
@@ -107,7 +107,7 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
         <div className={isRTL ? 'text-left' : 'text-right'}>
           {hasDiscount ? (
             <div>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-green-400">
                 {convertAndFormatPrice(discountedPrice, locale).formatted}
               </div>
               <div className="text-sm text-gray-500 line-through">
@@ -115,11 +115,11 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
               </div>
             </div>
           ) : (
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-green-400">
               {convertAndFormatPrice(originalPrice, locale).formatted}
             </div>
           )}
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-400">
             {convertAndFormatPrice(originalPrice, locale).currency}
           </div>
         </div>
@@ -127,31 +127,31 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
 
       {/* Plan Features */}
       <div className="space-y-2 mb-4">
-        <div className={`flex items-center text-sm text-gray-700 ${isRTL ? 'text-right' : 'text-left'}`}>
+        <div className={`flex items-center text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
           {hasDiscount ? (
-            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium inline-flex items-center">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2 py-1 rounded-full font-medium inline-flex items-center">
               <DollarSign size={12} className={`${isRTL ? 'ml-1' : 'mr-1'}`} />
-              {t('planSelection.hotDeal', 'Hot Deal')}
+              Горячее предложение
             </div>
           ) : (
             <span>{plan.data} {plan.dataUnit}</span>
           )}
         </div>
         {plan.speed && (
-          <div className={`flex items-center text-sm text-gray-700 ${isRTL ? 'text-right' : 'text-left'}`}>
-            <span>{t('planSelection.upTo', 'Up to {{speed}}', { speed: plan.speed })}</span>
+          <div className={`flex items-center text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <span>До {plan.speed}</span>
           </div>
         )}
       </div>
 
       {/* Plan Benefits */}
       {plan.benefits && plan.benefits.length > 0 && (
-        <div className="border-t border-gray-100 pt-3">
+        <div className="border-t border-gray-700 pt-3">
           <div className="flex flex-wrap gap-2">
             {plan.benefits.map((benefit, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
+                className="inline-flex items-center px-2 py-1 bg-green-400/20 text-green-400 text-xs rounded-full"
               >
                 <Check size={12} className={`${isRTL ? 'ml-1' : 'mr-1'}`} />
                 {benefit}
@@ -371,7 +371,7 @@ const PlanSelectionBottomSheet = ({
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      title={t('planSelection.chooseYourPlan', 'Choose Your Plan')}
+      title="Выберите ваш тариф"
       maxHeight="85vh"
     >
       <div className="p-6" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -379,22 +379,22 @@ const PlanSelectionBottomSheet = ({
         {/* Available Plans or Countries */}
         {loadingPlans ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className={`text-gray-600 ${isRTL ? 'text-right' : 'text-left'}`}>{t('planSelection.loadingPlans', 'Loading available plans...')}</p>
-            <p className={`text-sm text-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}>{t('planSelection.pleaseWait', 'Please wait while we fetch the best options for you')}</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+            <p className={`text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>Загрузка доступных тарифов...</p>
+            <p className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>Пожалуйста, подождите, пока мы найдем лучшие варианты для вас</p>
           </div>
         ) : availablePlans.length > 0 ? (
           <div className="space-y-4">
             <div className={`flex items-center justify-between mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-                <Smartphone className="w-5 h-5 text-green-600" />
-                <h4 className={`font-semibold text-gray-900 text-lg ${isRTL ? 'text-right' : 'text-left'}`}>
-                  {t('planSelection.availablePlans', 'Available Plans ({{count}})', { count: availablePlans.length })}
+                <Smartphone className="w-5 h-5 text-blue-400" />
+                <h4 className={`font-semibold text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}>
+                  Доступные тарифы ({availablePlans.length})
                 </h4>
               </div>
-              <div className={`flex items-center text-sm text-gray-500 ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
+              <div className={`flex items-center text-sm text-gray-400 ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
                 <SortAsc className="w-4 h-4" />
-                <span>{t('planSelection.sortedByCheapest', 'Sorted by cheapest first')}</span>
+                <span>Сортировка по цене</span>
               </div>
             </div>
             
@@ -412,14 +412,14 @@ const PlanSelectionBottomSheet = ({
           <div className="space-y-6">
             <div className={`flex items-center justify-between mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-                <Smartphone className="w-5 h-5 text-green-600" />
-                <h4 className={`font-semibold text-gray-900 text-lg ${isRTL ? 'text-right' : 'text-left'}`}>
-                  {t('planSelection.availablePlans', 'Available Plans')}
+                <Smartphone className="w-5 h-5 text-blue-400" />
+                <h4 className={`font-semibold text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}>
+                  Доступные тарифы
                 </h4>
               </div>
-              <div className={`flex items-center text-sm text-gray-500 ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
+              <div className={`flex items-center text-sm text-gray-400 ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
                 <SortAsc className="w-4 h-4" />
-                <span>{t('planSelection.sortedByCheapest', 'Sorted by cheapest first')}</span>
+                <span>Сортировка по цене</span>
               </div>
             </div>
             
@@ -445,18 +445,15 @@ const PlanSelectionBottomSheet = ({
                   <div key={days} className="space-y-4">
                     {/* Divider and Header */}
                     {groupIndex > 0 && (
-                      <div className="border-t border-gray-200 my-6"></div>
+                      <div className="border-t border-gray-700 my-6"></div>
                     )}
                     
                     <div className="text-center">
-                      <h5 className="text-xl font-bold text-gray-900">
-                        {t('planSelection.dayPlans', '{{days}} Day{{plural}} Plans', { days, plural: days !== 1 ? 's' : '' })}
+                      <h5 className="text-xl font-bold text-white">
+                        Тарифы на {days} {days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'}
                       </h5>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {t('planSelection.countriesAvailable', '{{count}} countr{{plural}} available', { 
-                          count: countries.length, 
-                          plural: countries.length === 1 ? 'y' : 'ies' 
-                        })}
+                      <p className="text-sm text-gray-400 mt-1">
+                        Доступно {countries.length} {countries.length === 1 ? 'страна' : countries.length < 5 ? 'страны' : 'стран'}
                       </p>
                     </div>
                     
@@ -465,7 +462,7 @@ const PlanSelectionBottomSheet = ({
                       {countries.map((country) => (
                         <div key={`${days}-${country.id}`} className="col-span-1">
                           <button
-                            className="w-full bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 text-left border border-gray-200 hover:border-blue-300 hover:scale-105"
+                            className="w-full bg-gray-800 border border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 text-left hover:border-blue-400 hover:scale-105"
                             onClick={() => {
                               // This would trigger loading plans for the country
                               console.log('Selected country:', country.name, 'for', days, 'days');
@@ -478,7 +475,7 @@ const PlanSelectionBottomSheet = ({
                                     {country.flagEmoji}
                                   </span>
                                 ) : (
-                                  <div className="country-code-avatar w-10 h-10 bg-tufts-blue rounded-full flex items-center justify-center">
+                                  <div className="country-code-avatar w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center">
                                     <span className="text-white font-bold text-sm">
                                       {country.code || '??'}
                                     </span>
@@ -486,15 +483,15 @@ const PlanSelectionBottomSheet = ({
                                 )}
                               </div>
                               <div className="flex-1 text-left">
-                                <h6 className="font-semibold text-gray-900 text-sm mb-1">
+                                <h6 className="font-semibold text-white text-sm mb-1">
                                   {country.name}
                                 </h6>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-tufts-blue font-bold text-lg">
+                                  <span className="text-blue-400 font-bold text-lg">
                                     ${country.dayMinPrice ? country.dayMinPrice.toFixed(2) : (country.minPrice ? country.minPrice.toFixed(2) : '10.00')}
                                   </span>
-                                  <span className="text-xs text-gray-500">
-                                    {t('planSelection.plansCount', '{{count}} plans', { count: country.plansCount || 0 })}
+                                  <span className="text-xs text-gray-400">
+                                    {country.plansCount || 0} тарифов
                                   </span>
                                 </div>
                               </div>
@@ -510,15 +507,15 @@ const PlanSelectionBottomSheet = ({
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
               <Globe size={24} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('planSelection.noPlansAvailable', 'No Plans Available')}</h3>
-            <p className="text-gray-600 mb-4">
-              {t('planSelection.couldNotFind', 'We couldn\'t find any plans for your current selection')}
+            <h3 className="text-lg font-semibold text-white mb-2">Тарифы недоступны</h3>
+            <p className="text-gray-400 mb-4">
+              Мы не смогли найти тарифы для вашего выбора
             </p>
             <p className="text-sm text-gray-500">
-              {t('planSelection.tryAdjusting', 'Try adjusting your filters or selecting a different country')}
+              Попробуйте изменить фильтры или выбрать другую страну
             </p>
           </div>
         )}

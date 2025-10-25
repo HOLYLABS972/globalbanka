@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Checkout from '../../src/components/Checkout'
 import Loading from '../../src/components/Loading'
 
 export default function CheckoutPageClient() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +29,7 @@ export default function CheckoutPageClient() {
               id: packageData.packageId,
               name: packageData.packageName,
               description: packageData.packageDescription,
-              price: packageData.price,
+              price: packageData.priceUSD || packageData.price, // Use USD price for API
               currency: packageData.currency,
               data: packageData.data,
               dataUnit: packageData.dataUnit,
@@ -99,20 +100,20 @@ export default function CheckoutPageClient() {
 
   if (error || !plan) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+        <div className="max-w-md mx-auto bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl shadow-lg p-6 text-center">
           <div className="text-gray-400 text-6xl mb-4">📱</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            No Plan Selected
+          <h2 className="text-xl font-semibold text-white mb-2">
+            План не выбран
           </h2>
-          <p className="text-gray-600 mb-4">
-            Please select a plan from the plans page to continue with checkout.
+          <p className="text-gray-300 mb-4">
+            Пожалуйста, выберите план со страницы тарифов, чтобы продолжить оформление заказа.
           </p>
           <button
-            onClick={() => window.location.href = '/plans'}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => router.push('/')}
+            className="px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
           >
-            Browse Plans
+            Посмотреть планы
           </button>
         </div>
       </div>
