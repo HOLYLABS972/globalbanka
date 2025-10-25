@@ -8,6 +8,9 @@ import FAQ from '../src/components/FAQ';
 import DeviceCompatibility from '../src/components/DeviceCompatibility';
 import { useI18n } from '../src/contexts/I18nContext';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const DynamicTitle = () => {
   const [isMobile, setIsMobile] = useState(false);
 
