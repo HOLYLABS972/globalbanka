@@ -67,7 +67,9 @@ export default function HomePage() {
 
         {/* Search Bar */}
         <div className="text-center mb-8">
-          <CountrySearchBar showCountryCount={true} />
+          <Suspense fallback={<div className="h-20"></div>}>
+            <CountrySearchBar showCountryCount={true} />
+          </Suspense>
         </div>
         
         <Suspense fallback={

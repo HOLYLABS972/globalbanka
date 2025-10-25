@@ -20,7 +20,9 @@ export default function GermanPage() {
           </p>
           
           {/* Search Bar */}
-          <CountrySearchBar showCountryCount={true} />
+          <Suspense fallback={<div className="h-20"></div>}>
+            <CountrySearchBar showCountryCount={true} />
+          </Suspense>
         </div>
         
         <Suspense fallback={
