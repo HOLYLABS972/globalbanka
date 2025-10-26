@@ -101,7 +101,7 @@ const EsimDetailsModal = ({ esimDetails, onClose }) => {
                     </div>
                     <div>
                       <span className="font-medium text-gray-600">Validity:</span>
-                      <p className="text-gray-900">{esimDetails.simable.validity} days</p>
+                      <p className="text-gray-900">{esimDetails.simable.validity} дней</p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-600">Price:</span>

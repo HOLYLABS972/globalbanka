@@ -374,5 +374,11 @@
   "home": {
     "stayConnected": "Mantente conectado",
     "noMatterWhere": "sin importar dónde estés"
+  },
+  "units": {
+    "gb": "GB",
+    "mb": "MB",
+    "days": "días",
+    "day": "día"
   }
 }

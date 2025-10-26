@@ -187,7 +187,10 @@
       "signInWithYandex": "Войти через Яндекс",
       "yandexSignInSuccess": "Вход через Яндекс выполнен успешно!",
       "yandexSignInFailed": "Ошибка входа через Яндекс",
-      "continueButton": "Продолжить"
+      "continueButton": "Продолжить",
+      "enterPasswordFor": "Введите пароль для",
+      "fillEmailField": "Пожалуйста, введите адрес электронной почты",
+      "fillPasswordField": "Пожалуйста, введите пароль"
     },
     "register": {
       "title": "Создайте свой аккаунт",
@@ -398,5 +401,13 @@
   "home": {
     "stayConnected": "Оставайтесь на связи",
     "noMatterWhere": "где бы вы ни находились"
+  },
+  "units": {
+    "gb": "ГБ",
+    "mb": "МБ",
+    "days": "дней",
+    "day": "день",
+    "days2": "дня",
+    "days3": "дня"
   }
 }

@@ -206,3 +206,45 @@ export const getLocalizedBlogListUrl = (language = 'en') => {
   
   return '/blog';
 };
+
+/**
+ * Format data and duration with proper pluralization and translation
+ * @param {number} data - Data amount in GB
+ * @param {number} days - Number of days
+ * @param {object} t - Translation function from I18nContext
+ * @param {string} locale - Current locale
+ * @returns {string} - Formatted string like "1GB • 7 Days" or "1ГБ • 7 дней"
+ */
+export const formatDataAndDays = (data, days, t, locale) => {
+  console.log('🔧 formatDataAndDays called with:', { data, days, locale });
+  
+  // Get unit abbreviations
+  const gbUnit = t('units.gb', 'GB');
+  const daysUnit = days === 1 ? t('units.day', 'day') : t('units.days', 'days');
+  
+  console.log('🔧 formatDataAndDays units:', { gbUnit, daysUnit });
+  
+  // Handle Russian pluralization for days
+  if (locale === 'ru') {
+    let daysText;
+    const daysMod10 = days % 10;
+    const daysMod100 = days % 100;
+    
+    if (daysMod10 === 1 && daysMod100 !== 11) {
+      daysText = t('units.day', 'день');
+    } else if (daysMod10 >= 2 && daysMod10 <= 4 && (daysMod100 < 10 || daysMod100 >= 20)) {
+      daysText = t('units.days2', 'дня');
+    } else {
+      daysText = t('units.days', 'дней');
+    }
+    
+    const result = `${data}${gbUnit} • ${days} ${daysText}`;
+    console.log('🔧 formatDataAndDays result (Russian):', result);
+    return result;
+  }
+  
+  // For other languages, use simple pluralization
+  const result = `${data}${gbUnit} • ${days} ${daysUnit}`;
+  console.log('🔧 formatDataAndDays result (other):', result);
+  return result;
+};

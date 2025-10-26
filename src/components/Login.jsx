@@ -398,7 +398,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="input-field pl-12"
-                      placeholder={t('auth.login.emailPlaceholder', 'Enter your email')}
+                      placeholder="Введите ваш email"
                     />
                   </div>
                 </div>
@@ -432,7 +432,7 @@ const Login = () => {
               <div className="space-y-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-300">
-                    {t('auth.login.enterPasswordFor', 'Enter password for')}
+                    Введите пароль для
                   </p>
                   <p className="font-medium text-white">{email}</p>
                 </div>
@@ -454,7 +454,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="input-field pl-12 pr-12"
-                      placeholder={t('auth.login.passwordPlaceholder', 'Enter your password')}
+                      placeholder="Введите ваш пароль"
                     />
                     <button
                       type="button"
@@ -485,7 +485,7 @@ const Login = () => {
                   onClick={handleBackToEmail}
                   className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  {t('auth.login.backToEmail', 'Back to email')}
+                  Вернуться к email
                 </button>
               </div>
 

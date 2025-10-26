@@ -376,5 +376,11 @@
   "home": {
     "stayConnected": "Bleiben Sie verbunden",
     "noMatterWhere": "egal wo Sie sind"
+  },
+  "units": {
+    "gb": "GB",
+    "mb": "MB",
+    "days": "Tage",
+    "day": "Tag"
   }
 }

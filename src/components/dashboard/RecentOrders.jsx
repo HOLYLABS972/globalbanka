@@ -27,6 +27,25 @@ const getFlagEmoji = (countryCode) => {
   }
 };
 
+// Helper function to translate plan names to Russian
+const translatePlanName = (planName) => {
+  if (!planName) return planName;
+  
+  // Convert GB to ГБ and days to дней
+  let translated = planName
+    .replace(/GB/gi, 'ГБ')
+    .replace(/gb/gi, 'ГБ')
+    .replace(/gib/gi, 'ГБ')
+    .replace(/days?/gi, 'дней')
+    .replace(/day/gi, 'день')
+    .replace(/Minutes?/gi, 'минут')
+    .replace(/minute/gi, 'минута')
+    .replace(/Unlimited/gi, 'Безлимитный')
+    .replace(/unlimited/gi, 'Безлимитный');
+  
+  return translated;
+};
+
 const RecentOrders = ({ orders, loading, onViewQRCode }) => {
   const { t, locale, changeLanguage } = useI18n();
   const pathname = usePathname();
@@ -86,7 +105,7 @@ const RecentOrders = ({ orders, loading, onViewQRCode }) => {
                           </div>
                           <div className="flex-1">
                             <p className={`font-medium text-white ${isRTL ? 'text-right' : 'text-left'}`}>
-                              {order.planName || t('dashboard.unknownPlan', 'Unknown Plan')}
+                              {translatePlanName(order.planName) || t('dashboard.unknownPlan', 'Неизвестный план')}
                             </p>
                             <p className={`hidden md:block text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
                               {t('dashboard.orderNumber', 'Order #{{number}}', { number: order.orderId || order.id || t('dashboard.unknown', 'Unknown') })}

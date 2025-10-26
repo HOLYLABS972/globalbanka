@@ -24,7 +24,7 @@ const EsimUsageModal = ({ esimUsage, onClose }) => {
             <div className="space-y-6">
               {/* Status Overview */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-3">Status Overview</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">Обзор статуса</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="font-medium text-gray-600">Status:</span>
@@ -50,18 +50,18 @@ const EsimUsageModal = ({ esimUsage, onClose }) => {
 
               {/* Data Usage */}
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-3">Data Usage</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">Использование данных</h4>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Total Data:</span>
+                    <span className="text-sm font-medium text-gray-600">Всего данных:</span>
                     <span className="text-sm font-semibold text-gray-900">
-                      {esimUsage.is_unlimited ? 'Unlimited' : `${esimUsage.total} MB`}
+                      {esimUsage.is_unlimited ? 'Безлимитный' : `${esimUsage.total} МБ`}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Remaining Data:</span>
+                    <span className="text-sm font-medium text-gray-600">Осталось данных:</span>
                     <span className="text-sm font-semibold text-gray-900">
-                      {esimUsage.is_unlimited ? 'Unlimited' : `${esimUsage.remaining} MB`}
+                      {esimUsage.is_unlimited ? 'Безлимитный' : `${esimUsage.remaining} МБ`}
                     </span>
                   </div>
                   {!esimUsage.is_unlimited && (
@@ -76,7 +76,7 @@ const EsimUsageModal = ({ esimUsage, onClose }) => {
                   )}
                   {!esimUsage.is_unlimited && (
                     <div className="text-xs text-gray-500 text-center">
-                      {Math.round(((esimUsage.total - esimUsage.remaining) / esimUsage.total) * 100)}% used
+                      {Math.round(((esimUsage.total - esimUsage.remaining) / esimUsage.total) * 100)}% использовано
                     </div>
                   )}
                 </div>
@@ -85,15 +85,15 @@ const EsimUsageModal = ({ esimUsage, onClose }) => {
               {/* Voice Usage */}
               {esimUsage.total_voice > 0 && (
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-900 mb-3">Voice Usage</h4>
+                  <h4 className="font-semibold text-gray-900 mb-3">Использование голоса</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Total Voice:</span>
-                      <span className="text-sm font-semibold text-gray-900">{esimUsage.total_voice} minutes</span>
+                      <span className="text-sm font-medium text-gray-600">Всего минут:</span>
+                      <span className="text-sm font-semibold text-gray-900">{esimUsage.total_voice} минут</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Remaining Voice:</span>
-                      <span className="text-sm font-semibold text-gray-900">{esimUsage.remaining_voice} minutes</span>
+                      <span className="text-sm font-medium text-gray-600">Осталось минут:</span>
+                      <span className="text-sm font-semibold text-gray-900">{esimUsage.remaining_voice} минут</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 

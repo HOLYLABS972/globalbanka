@@ -15,6 +15,7 @@ import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageU
 import { translateCountries, translateCountryName } from '../utils/countryTranslations';
 import smartCountryService from '../services/smartCountryService';
 import { convertAndFormatPrice } from '../services/currencyService';
+import { formatDataAndDays } from '../utils/languageUtils';
 
 // Helper function to get flag emoji from country code
 const getFlagEmoji = (countryCode) => {
@@ -74,6 +75,8 @@ const EsimPlansContent = () => {
   const { t, locale: contextLocale } = useI18n();
   // Force Russian locale for main page
   const locale = 'ru';
+  
+  console.log('🏠 EsimPlans locale check:', { locale, contextLocale, tFunction: typeof t });
   const { currentUser, userProfile, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -499,7 +502,7 @@ const EsimPlansContent = () => {
                             </div>
                             <div className="text-left">
                               <h3 className="text-lg font-semibold text-white">{translateCountryName(country.code, country.name, locale)}</h3>
-                              <p className="text-sm text-gray-400">1GB • 7 Days</p>
+                              <p className="text-sm text-gray-400">1ГБ • 7 дней</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -555,7 +558,7 @@ const EsimPlansContent = () => {
                             </div>
                             <div className="text-left">
                               <h3 className="text-sm font-semibold text-white">{translateCountryName(country.code, country.name, locale)}</h3>
-                              <p className="text-xs text-gray-400">1GB • 7 Days</p>
+                              <p className="text-xs text-gray-400">1ГБ • 7 дней</p>
                             </div>
                           </div>
                           <div className="text-right">

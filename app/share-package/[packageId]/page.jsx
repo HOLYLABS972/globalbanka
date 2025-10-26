@@ -277,7 +277,7 @@ const SharePackagePage = () => {
       originalPrice: originalPrice, // Keep original price for reference
       currency: 'USD', // Always store as USD for API
       data: packageData.data,
-      dataUnit: packageData.dataUnit || 'GB',
+      dataUnit: 'ГБ',
       period: packageData.validity || packageData.period || packageData.duration,
       country_code: packageData.country_code,
       benefits: packageData.benefits || [],
@@ -305,17 +305,15 @@ const SharePackagePage = () => {
     return numericPrice.toFixed(2);
   };
 
-  const formatData = (data, unit = 'GB') => {
-    if (data === 'Unlimited' || data === -1) {
-      return 'Unlimited';
+  const formatData = (data, unit = 'ГБ') => {
+    if (data === 'Unlimited' || data === 'unlimited' || data === -1) {
+      return 'Безлимитный';
     }
     
-    // Handle cases where data might already contain the unit
-    if (typeof data === 'string' && data.includes(unit)) {
-      return data; // Return as-is if unit is already included
-    }
+    // Clean data if it has GB in it
+    const cleanData = typeof data === 'string' ? data.replace(/GB/gi, '').replace(/гб/gi, '').replace(/\s/g, '') : data;
     
-    return `${data} ${unit}`;
+    return `${cleanData} ${unit}`;
   };
 
   const getCountryFlag = (countryCode) => {

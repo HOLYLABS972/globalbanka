@@ -165,7 +165,7 @@ const EsimQrCode = ({ qrCodeData, orderDetails }) => {
       {/* Additional Info */}
       <div className="mt-6 text-center">
         <p className="text-xs text-gray-500">
-          Your eSIM will be valid for {orderDetails?.validity || '30'} days from activation
+          Ваш eSIM будет действителен в течение {orderDetails?.validity || '30'} дней с момента активации
         </p>
       </div>
     </motion.div>

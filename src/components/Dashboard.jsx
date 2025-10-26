@@ -617,8 +617,8 @@ const Dashboard = () => {
         data: {
           iccid: iccid,
           status: 'Active',
-          dataUsed: '0.5 GB',
-          dataRemaining: '2.5 GB',
+          dataUsed: '0.5 ГБ',
+          dataRemaining: '2.5 ГБ',
           expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
         }
       };
@@ -663,14 +663,14 @@ const Dashboard = () => {
         success: true,
         data: {
           iccid: iccid,
-          totalData: '3 GB',
-          usedData: '0.8 GB',
-          remainingData: '2.2 GB',
+          totalData: '3 ГБ',
+          usedData: '0.8 ГБ',
+          remainingData: '2.2 ГБ',
           usagePercentage: 27,
           dailyUsage: [
-            { date: '2024-01-01', usage: '0.1 GB' },
-            { date: '2024-01-02', usage: '0.3 GB' },
-            { date: '2024-01-03', usage: '0.4 GB' }
+            { date: '2024-01-01', usage: '0.1 ГБ' },
+            { date: '2024-01-02', usage: '0.3 ГБ' },
+            { date: '2024-01-03', usage: '0.4 ГБ' }
           ]
         }
       };

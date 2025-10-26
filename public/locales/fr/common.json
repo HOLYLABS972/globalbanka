@@ -378,5 +378,11 @@
   "home": {
     "stayConnected": "Restez connecté",
     "noMatterWhere": "peu importe où vous êtes"
+  },
+  "units": {
+    "gb": "Go",
+    "mb": "Mo",
+    "days": "jours",
+    "day": "jour"
   }
 }

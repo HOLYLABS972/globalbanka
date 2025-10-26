@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Globe, Star, Check, DollarSign, SortAsc, Smartphone } from 'lucide-react';
+import { Globe, Star, Check, SortAsc, Smartphone } from 'lucide-react';
 import BottomSheet from './BottomSheet';
 import { useAuth } from '../contexts/AuthContext';
 // import { getRegularSettings } from '../services/settingsService'; // Removed - causes client-side issues
@@ -10,19 +10,20 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useI18n } from '../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../utils/languageUtils';
 import { convertAndFormatPrice } from '../services/currencyService';
+import { formatDataAndDays } from '../utils/languageUtils';
 
 const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
   const { t, locale } = useI18n();
   const pathname = usePathname();
   
-  // Get current language for RTL detection
+  // Get current language - default to Russian unless explicitly on /en/ route
   const getCurrentLanguage = () => {
-    if (locale) return locale;
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem('roamjet-language');
-      if (savedLanguage) return savedLanguage;
+    // Check if we're on an English route
+    if (pathname.startsWith('/en/') || pathname === '/en') {
+      return 'en';
     }
-    return detectLanguageFromPath(pathname);
+    // For all other routes, default to Russian
+    return 'ru';
   };
 
   const currentLanguage = getCurrentLanguage();
@@ -37,13 +38,35 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
   const discountedPrice = Math.max(minimumPrice, originalPrice * (100 - discountPercentage) / 100);
   const hasDiscount = discountedPrice < originalPrice;
   
+  // Extract data and days from plan name or object - clean extraction
+  const extractedData = (() => {
+    if (plan.data) {
+      // If plan.data is a string like "1GB", extract just the number
+      const dataStr = String(plan.data);
+      const match = dataStr.match(/(\d+)/);
+      return match ? parseInt(match[1]) : 1;
+    }
+    // Extract from plan name
+    const nameMatch = plan.name?.match(/(\d+)\s*GB/i);
+    return nameMatch ? parseInt(nameMatch[1]) : 1;
+  })();
+  const extractedDays = plan.validity || plan.period || plan.duration || parseInt(plan.name?.match(/(\d+)\s*days?/i)?.[1]) || 7;
+  
   console.log('💳 PlanCard calculation:', {
     planName: plan.name,
     originalPrice,
     discountPercentage,
     discountedPrice,
     hasDiscount,
-    regularSettings
+    regularSettings,
+    locale: locale,
+    currentLanguage: currentLanguage,
+    extractedData,
+    extractedDays,
+    planData: plan.data,
+    planValidity: plan.validity,
+    planPeriod: plan.period,
+    planDuration: plan.duration
   });
 
   return (
@@ -80,7 +103,16 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
             </svg>
           </div>
           <div>
-            <h3 className={`font-semibold text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}>{plan.name}</h3>
+            <h3 className={`font-semibold text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}>
+              {(() => {
+                // Handle unlimited plans
+                if (plan.name?.toLowerCase().includes('unlimited') || plan.data === 'unlimited' || plan.data === 'Unlimited') {
+                  return `Безлимитный • ${extractedDays} ${extractedDays === 1 ? 'день' : extractedDays >= 2 && extractedDays <= 4 ? 'дня' : 'дней'}`;
+                }
+                // Handle regular plans
+                return `${extractedData}ГБ • ${extractedDays} ${extractedDays === 1 ? 'день' : extractedDays >= 2 && extractedDays <= 4 ? 'дня' : 'дней'}`;
+              })()}
+            </h3>
             <p className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>{plan.description}</p>
             {plan.country_codes && plan.country_codes.length > 0 && (
               <div className={`flex items-center mt-1 ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
@@ -108,19 +140,19 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
           {hasDiscount ? (
             <div>
               <div className="text-2xl font-bold text-green-400">
-                {convertAndFormatPrice(discountedPrice, locale).formatted}
+                {convertAndFormatPrice(discountedPrice, currentLanguage || locale || 'ru').formatted}
               </div>
               <div className="text-sm text-gray-500 line-through">
-                {convertAndFormatPrice(originalPrice, locale).formatted}
+                {convertAndFormatPrice(originalPrice, currentLanguage || locale || 'ru').formatted}
               </div>
             </div>
           ) : (
             <div className="text-2xl font-bold text-green-400">
-              {convertAndFormatPrice(originalPrice, locale).formatted}
+              {convertAndFormatPrice(originalPrice, currentLanguage || locale || 'ru').formatted}
             </div>
           )}
           <div className="text-xs text-gray-400">
-            {convertAndFormatPrice(originalPrice, locale).currency}
+            {convertAndFormatPrice(originalPrice, currentLanguage || locale || 'ru').currency}
           </div>
         </div>
       </div>
@@ -130,16 +162,35 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
         <div className={`flex items-center text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
           {hasDiscount ? (
             <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-2 py-1 rounded-full font-medium inline-flex items-center">
-              <DollarSign size={12} className={`${isRTL ? 'ml-1' : 'mr-1'}`} />
+              <span className={`${isRTL ? 'ml-1' : 'mr-1'} text-xs`}>{convertAndFormatPrice(1, currentLanguage || locale || 'ru').symbol}</span>
               Горячее предложение
             </div>
           ) : (
-            <span>{plan.data} {plan.dataUnit}</span>
+            <span>
+              {(() => {
+                const days = plan.validity || plan.period || plan.duration || 7;
+                const daysText = days === 1 ? 'день' : days >= 2 && days <= 4 ? 'дня' : 'дней';
+                
+                // Handle unlimited plans
+                if (plan.name?.toLowerCase().includes('unlimited') || plan.data === 'unlimited' || plan.data === 'Unlimited') {
+                  return `Безлимитный • ${days} ${daysText}`;
+                }
+                
+                // Handle regular plans with data
+                if (plan.data && plan.dataUnit) {
+                  const cleanData = String(plan.data).match(/(\d+)/)?.[1] || plan.data;
+                  return `${cleanData}ГБ • ${days} ${daysText}`;
+                }
+                
+                // Fallback to plan name
+                return plan.name;
+              })()}
+            </span>
           )}
         </div>
         {plan.speed && (
           <div className={`flex items-center text-sm text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
-            <span>До {plan.speed}</span>
+            <span>{t('planSelection.upTo', 'До', { speed: plan.speed })}</span>
           </div>
         )}
       </div>
@@ -186,14 +237,14 @@ const PlanSelectionBottomSheet = ({
   console.log('🔍 PlanSelectionBottomSheet: currentUser:', currentUser);
   console.log('🔍 PlanSelectionBottomSheet: loading:', loading);
   
-  // Get current language for RTL detection
+  // Get current language - default to Russian unless explicitly on /en/ route
   const getCurrentLanguage = () => {
-    if (locale) return locale;
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem('roamjet-language');
-      if (savedLanguage) return savedLanguage;
+    // Check if we're on an English route
+    if (pathname.startsWith('/en/') || pathname === '/en') {
+      return 'en';
     }
-    return detectLanguageFromPath(pathname);
+    // For all other routes, default to Russian
+    return 'ru';
   };
 
   const currentLanguage = getCurrentLanguage();
@@ -488,7 +539,7 @@ const PlanSelectionBottomSheet = ({
                                 </h6>
                                 <div className="flex items-center justify-between">
                                   <span className="text-blue-400 font-bold text-lg">
-                                    ${country.dayMinPrice ? country.dayMinPrice.toFixed(2) : (country.minPrice ? country.minPrice.toFixed(2) : '10.00')}
+                                    {convertAndFormatPrice(country.dayMinPrice || country.minPrice || 10, currentLanguage || locale || 'ru').formatted}
                                   </span>
                                   <span className="text-xs text-gray-400">
                                     {country.plansCount || 0} тарифов
