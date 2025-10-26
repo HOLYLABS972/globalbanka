@@ -475,7 +475,7 @@ const EsimPlansContent = () => {
               {countriesLoading && countries.length === 0 ? (
                 <div className="flex justify-center items-center min-h-64">
                   <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-tufts-blue"></div>
-                  <p className="ml-4 text-gray-600">{t('plans.loadingPlans', 'Loading countries...')}</p>
+                  <p className="ml-4 text-gray-600">{t('plans.loadingPlans', 'Загрузка стран...')}</p>
                 </div>
               ) : (
                 <>

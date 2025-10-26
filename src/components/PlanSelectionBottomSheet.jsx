@@ -431,7 +431,7 @@ const PlanSelectionBottomSheet = ({
         {loadingPlans ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-            <p className={`text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>Загрузка доступных тарифов...</p>
+            <p className={`text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>Загрузка пакетов...</p>
             <p className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>Пожалуйста, подождите, пока мы найдем лучшие варианты для вас</p>
           </div>
         ) : availablePlans.length > 0 ? (
