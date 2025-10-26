@@ -36,10 +36,13 @@ const translatePlanName = (planName) => {
     .replace(/GB/gi, 'ГБ')
     .replace(/gb/gi, 'ГБ')
     .replace(/gib/gi, 'ГБ')
-    .replace(/days?/gi, 'дней')
-    .replace(/day/gi, 'день')
+    .replace(/SMS/gi, 'СМС')
+    .replace(/Mins?/gi, 'Мин')
+    .replace(/Min/gi, 'Мин')
     .replace(/Minutes?/gi, 'минут')
     .replace(/minute/gi, 'минута')
+    .replace(/days?/gi, 'дней')
+    .replace(/day/gi, 'день')
     .replace(/Unlimited/gi, 'Безлимитный')
     .replace(/unlimited/gi, 'Безлимитный');
   

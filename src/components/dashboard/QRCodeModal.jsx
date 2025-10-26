@@ -41,7 +41,7 @@ const QRCodeModal = ({
               </div>
           
               <div className="mb-6">
-                <h4 className="font-medium text-white mb-2">{(selectedOrder.planName || '').replace(/GB/gi, 'ГБ').replace(/days?/gi, 'дней').replace(/Unlimited/gi, 'Безлимитный') || 'Неизвестный план'}</h4>
+                <h4 className="font-medium text-white mb-2">{(selectedOrder.planName || '').replace(/GB/gi, 'ГБ').replace(/Mins?/gi, 'Мин').replace(/Minutes?/gi, 'минут').replace(/days?/gi, 'дней').replace(/Unlimited/gi, 'Безлимитный') || 'Неизвестный план'}</h4>
                 <p className="text-sm text-gray-300">Order #{selectedOrder.orderId || selectedOrder.id || 'Unknown'}</p>
                 <p className="text-sm text-gray-300">
                   {convertAndFormatPrice(selectedOrder.amount || 0, locale).formatted}
