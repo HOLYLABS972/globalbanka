@@ -5,9 +5,16 @@ import { useI18n } from '../../contexts/I18nContext';
 import { getLanguageDirection, detectLanguageFromPath } from '../../utils/languageUtils';
 
 const StatsCards = ({ orders }) => {
-  const { t, locale } = useI18n();
+  const { t, locale, changeLanguage } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
+  
+  // Force Russian locale for dashboard
+  React.useEffect(() => {
+    if (locale !== 'ru') {
+      changeLanguage('ru');
+    }
+  }, [locale, changeLanguage]);
   
   // Get current language for RTL detection
   const getCurrentLanguage = () => {
@@ -64,7 +71,7 @@ const StatsCards = ({ orders }) => {
                 <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div>
                     <p className={`text-lg font-medium text-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
-                      {t('dashboard.totalOrders', 'Total Orders')}
+                      {t('dashboard.totalOrders', 'Всего заказов')}
                     </p>
                     <p className={`text-2xl font-bold text-white mt-2 flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
                       {isRTL ? (

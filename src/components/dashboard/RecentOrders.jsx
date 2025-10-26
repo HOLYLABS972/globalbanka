@@ -28,8 +28,15 @@ const getFlagEmoji = (countryCode) => {
 };
 
 const RecentOrders = ({ orders, loading, onViewQRCode }) => {
-  const { t, locale } = useI18n();
+  const { t, locale, changeLanguage } = useI18n();
   const pathname = usePathname();
+  
+  // Force Russian locale for dashboard
+  React.useEffect(() => {
+    if (locale !== 'ru') {
+      changeLanguage('ru');
+    }
+  }, [locale, changeLanguage]);
   
   // Get current language for RTL detection
   const getCurrentLanguage = () => {
