@@ -50,8 +50,8 @@ const Checkout = ({ plan }) => {
             currency: 'RUB'
           }));
 
-          // Redirect to Robokassa payment
-          await robokassaService.createCheckoutSession(orderData);
+          // Redirect to Robokassa payment (client-side, no server needed)
+          await robokassaService.createPayment(orderData);
           
         } catch (err) {
           console.error('❌ Payment redirect failed:', err);
