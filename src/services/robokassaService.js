@@ -144,6 +144,7 @@ const ROBOKASSA_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_ROBOKASSA_BASE_URL || 'https://auth.robokassa.ru/Merchant/Index.aspx'
 };
 
+
 // Server payments service URL - payments go to pay.roamjet.net
 const SERVER_PAYMENTS_URL = 'https://pay.roamjet.net';
 
@@ -188,6 +189,11 @@ function generatePaymentUrl(orderData) {
     Encoding: 'utf-8',
     SignatureValue: ''
   };
+
+  // Add IsTest parameter for test mode
+  if (ROBOKASSA_CONFIG.mode === 'test') {
+    params.IsTest = 1;
+  }
 
   // Add success and fail URLs if provided
   if (successUrl) {
