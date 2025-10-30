@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { paymentService } from '../services/paymentServiceClient';
+import { robokassaService } from '../services/robokassaService';
+import { convertCurrency } from '../services/currencyService';
 // import { esimService } from '../services/esimService'; // Removed - causes client-side issues
 import { useAuth } from '../contexts/AuthContext';
 
@@ -25,14 +26,17 @@ const Checkout = ({ plan }) => {
           // Generate unique order ID
           const uniqueOrderId = `${plan.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           
-          // Send email if user is logged in, otherwise let Stripe collect it
+          // Send email if user is logged in; Robokassa can also collect it
+          const amountUSD = parseFloat(plan.price) || 0;
+          const amountRUB = convertCurrency(amountUSD, 'RUB');
+
           const orderData = {
             orderId: uniqueOrderId,
             planId: plan.id,
             planName: plan.name,
-            customerEmail: currentUser ? currentUser.email : null, // Send email if logged in, otherwise let Stripe collect it
-            amount: parseFloat(plan.price) || 0,
-            currency: 'usd'
+            customerEmail: currentUser ? currentUser.email : null,
+            amount: amountRUB,
+            currency: 'RUB'
           };
           
           console.log('💳 Order data for payment:', orderData);
@@ -42,12 +46,12 @@ const Checkout = ({ plan }) => {
             orderId: uniqueOrderId,
             planId: plan.id,
             customerEmail: currentUser ? currentUser.email : null, // Store email if logged in
-            amount: plan.price,
-            currency: 'usd'
+            amount: amountRUB,
+            currency: 'RUB'
           }));
 
-          // Redirect to payment
-          await paymentService.createCheckoutSession(orderData);
+          // Redirect to Robokassa payment
+          await robokassaService.createCheckoutSession(orderData);
           
         } catch (err) {
           console.error('❌ Payment redirect failed:', err);
