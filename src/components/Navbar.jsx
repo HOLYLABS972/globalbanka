@@ -18,7 +18,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      router.push('/');
+      router.push('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }

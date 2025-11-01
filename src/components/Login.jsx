@@ -159,6 +159,11 @@ const Login = () => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('userData', JSON.stringify(data.user));
       
+      // Trigger auth state change event for AuthContext
+      window.dispatchEvent(new CustomEvent('authStateChanged', { 
+        detail: { user: data.user, token: data.token, action: 'login' } 
+      }));
+      
       toast.success(t('auth.login.googleSignInSuccess', 'Successfully signed in with Google'));
       router.push('/dashboard');
       

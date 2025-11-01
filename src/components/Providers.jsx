@@ -3,7 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '../contexts/AuthContext'
 import { Toaster } from 'react-hot-toast'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { initializeExchangeRates } from '../services/currencyService'
 
 export default function Providers({ children }) {
   // Create a new QueryClient instance for each render to avoid SSR issues
@@ -15,6 +16,11 @@ export default function Providers({ children }) {
       },
     },
   }))
+
+  // Initialize exchange rates on app startup
+  useEffect(() => {
+    initializeExchangeRates();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

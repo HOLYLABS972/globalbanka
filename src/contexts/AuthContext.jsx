@@ -132,6 +132,11 @@ export function AuthProvider({ children }) {
       
       setCurrentUser(null);
       setUserProfile(null);
+      
+      // Trigger auth state change event for components listening
+      window.dispatchEvent(new CustomEvent('authStateChanged', { 
+        detail: { action: 'logout' } 
+      }));
     } catch (error) {
       throw error;
     }

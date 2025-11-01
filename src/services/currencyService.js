@@ -1,13 +1,54 @@
 /**
  * Currency conversion service for displaying prices in different currencies
  * Supports USD to RUB conversion for Russian language users
+ * Exchange rates are loaded from MongoDB via API
  */
 
-// Exchange rates (you can update these or fetch from an API)
-const EXCHANGE_RATES = {
-  USD_TO_RUB: 95, // 1 USD = 95 RUB (approximate rate, update as needed)
-  RUB_TO_USD: 1/95 // 1 RUB = 0.0105 USD (calculated from USD_TO_RUB)
+// Exchange rates cache (will be loaded from MongoDB via API)
+let EXCHANGE_RATES = {
+  USD_TO_RUB: 95, // Default fallback
+  RUB_TO_USD: 1/95
 };
+
+// Cache for config
+let configCache = null;
+let configCacheTimestamp = null;
+const CONFIG_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Load exchange rates from MongoDB config via API
+async function loadExchangeRates() {
+  // Return cached if valid
+  if (configCache && configCacheTimestamp && (Date.now() - configCacheTimestamp < CONFIG_CACHE_DURATION)) {
+    return configCache;
+  }
+
+  try {
+    const response = await fetch('/api/config/get');
+    const data = await response.json();
+    
+    if (data.success && data.config) {
+      const usdToRubRate = data.config.usdToRubRate || 95;
+      
+      EXCHANGE_RATES = {
+        USD_TO_RUB: usdToRubRate,
+        RUB_TO_USD: 1 / usdToRubRate
+      };
+      
+      configCache = data.config;
+      configCacheTimestamp = Date.now();
+      
+      console.log('💱 Exchange rates loaded from config:', EXCHANGE_RATES);
+      
+      return data.config;
+    } else {
+      console.error('❌ Failed to load config from API');
+      return null;
+    }
+  } catch (error) {
+    console.error('❌ Error loading exchange rates from config:', error);
+    return null;
+  }
+}
 
 // Currency symbols and formatting
 const CURRENCY_CONFIG = {
@@ -40,7 +81,18 @@ export const getCurrencyForLocale = (locale) => {
 };
 
 /**
- * Convert USD amount to target currency
+ * Initialize exchange rates from MongoDB (call this on app startup)
+ */
+export const initializeExchangeRates = async () => {
+  try {
+    await loadExchangeRates();
+  } catch (error) {
+    console.error('❌ Error initializing exchange rates:', error);
+  }
+};
+
+/**
+ * Convert USD amount to target currency (synchronous, uses cached rates)
  * @param {number} usdAmount - Amount in USD
  * @param {string} targetCurrency - Target currency code ('RUB', 'USD')
  * @returns {number} Converted amount
@@ -125,11 +177,18 @@ export const convertAndFormatPrice = (usdAmount, locale) => {
 };
 
 /**
- * Update exchange rates (for future API integration)
- * @param {object} newRates - New exchange rates object
+ * Update exchange rates manually (calls MongoDB reload)
  */
-export const updateExchangeRates = (newRates) => {
-  Object.assign(EXCHANGE_RATES, newRates);
+export const updateExchangeRates = async () => {
+  await loadExchangeRates();
+};
+
+/**
+ * Clear exchange rates cache (useful when config is updated)
+ */
+export const clearExchangeRatesCache = () => {
+  configCache = null;
+  configCacheTimestamp = null;
 };
 
 /**
@@ -160,5 +219,7 @@ export default {
   getCurrencySymbol,
   convertAndFormatPrice,
   updateExchangeRates,
-  fetchLiveExchangeRates
+  fetchLiveExchangeRates,
+  initializeExchangeRates,
+  clearExchangeRatesCache
 };

@@ -781,7 +781,7 @@ export default function ConfigPage() {
         {activeTab === 'users' && (
           <div className="space-y-6">
             {/* Stats Cards and Download Button */}
-            <div className="flex items-start gap-4">
+            <div className="flex items-center gap-4">
               <div className="grid grid-cols-1 gap-4 max-w-xs">
                 <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
                   <div className="text-gray-400 text-sm mb-1">Customers</div>
@@ -789,12 +789,12 @@ export default function ConfigPage() {
                 </div>
               </div>
               
-              <div className="flex-1">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleDownloadPrices}
-                  className="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                 >
-                  <Download size={20} />
+                  <Download size={16} />
                   Download Prices Report
                 </button>
               </div>

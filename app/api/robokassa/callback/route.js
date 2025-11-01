@@ -16,7 +16,7 @@ async function getRobokassaConfig() {
     passOne: config?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE || '',
     passTwo: config?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO || '',
     mode: config?.robokassaMode || process.env.ROBOKASSA_MODE || 'test'
-  };
+};
 }
 
 /**

@@ -19,9 +19,8 @@ export default function SimpleFooter() {
   const handleLogout = async () => {
     try {
       await logout();
-      // Redirect to homepage with current language preserved
-      const redirectPath = langPrefix || '/';
-      router.push(redirectPath);
+      // Redirect to login page
+      router.push('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }

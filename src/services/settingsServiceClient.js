@@ -3,18 +3,43 @@
 // Default settings structure
 const defaultSettings = {
   regular: {
-    discountPercentage: 20,
+    discountPercentage: 0,
     minimumPrice: 0.5
   }
 };
 
-// Get regular settings (client-safe version)
+// Cache for settings
+let settingsCache = null;
+let settingsCacheTimestamp = null;
+const SETTINGS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Get regular settings (client-safe version, loads from MongoDB config)
 export const getRegularSettings = async () => {
+  // Return cached if valid
+  if (settingsCache && settingsCacheTimestamp && (Date.now() - settingsCacheTimestamp < SETTINGS_CACHE_DURATION)) {
+    console.log('📋 Using cached regular settings');
+    return settingsCache;
+  }
+
   try {
-    // Since the API endpoint doesn't exist yet, return default settings
-    // This prevents the 404 error while maintaining functionality
-    console.log('📋 Using default regular settings (API endpoint not available)');
-    return defaultSettings.regular;
+    const response = await fetch('/api/config/get');
+    const data = await response.json();
+    
+    if (data.success && data.config) {
+      const settings = {
+        discountPercentage: data.config.discountPercentage || 0,
+        minimumPrice: defaultSettings.regular.minimumPrice
+      };
+      
+      settingsCache = settings;
+      settingsCacheTimestamp = Date.now();
+      
+      console.log('📋 Regular settings loaded from MongoDB:', settings);
+      return settings;
+    } else {
+      console.log('📋 Using default regular settings (no config found)');
+      return defaultSettings.regular;
+    }
   } catch (error) {
     console.error('❌ Error getting regular settings:', error);
     return defaultSettings.regular;
