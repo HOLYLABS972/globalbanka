@@ -755,15 +755,43 @@ export default function ConfigPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">USD to RUB Exchange Rate</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={config.usdToRubRate}
-                  onChange={(e) => setConfig({...config, usdToRubRate: parseFloat(e.target.value) || 0})}
-                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="1.00"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={config.usdToRubRate}
+                    onChange={(e) => setConfig({...config, usdToRubRate: parseFloat(e.target.value) || 0})}
+                    className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1.00"
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const response = await fetch('/api/currency/fetch-rate');
+                        const data = await response.json();
+                        if (data.success) {
+                          setConfig({...config, usdToRubRate: data.rate});
+                          toast.success(`Live rate fetched: ${data.rate.toFixed(2)} RUB per USD`);
+                        } else {
+                          toast.error('Failed to fetch live rate');
+                        }
+                      } catch (error) {
+                        console.error('Error fetching live rate:', error);
+                        toast.error('Failed to fetch live rate');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <Globe size={18} />
+                    Fetch Live Rate
+                  </button>
+                </div>
                 <p className="text-xs text-gray-500 mt-1">Current exchange rate for USD to Russian Ruble</p>
               </div>
             </div>

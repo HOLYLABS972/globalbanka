@@ -14,8 +14,10 @@ let EXCHANGE_RATES = {
 let configCache = null;
 let configCacheTimestamp = null;
 const CONFIG_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+let lastAutoUpdateTimestamp = 0;
+const AUTO_UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
-// Load exchange rates from MongoDB config via API
+// Load exchange rates from MongoDB config via API and auto-update if stale
 async function loadExchangeRates() {
   // Return cached if valid
   if (configCache && configCacheTimestamp && (Date.now() - configCacheTimestamp < CONFIG_CACHE_DURATION)) {
@@ -27,7 +29,26 @@ async function loadExchangeRates() {
     const data = await response.json();
     
     if (data.success && data.config) {
-      const usdToRubRate = data.config.usdToRubRate || 95;
+      let usdToRubRate = data.config.usdToRubRate || 95;
+      
+      // Check if we should auto-update the rate (once per 24 hours)
+      const now = Date.now();
+      const shouldAutoUpdate = (now - lastAutoUpdateTimestamp) >= AUTO_UPDATE_INTERVAL;
+      
+      if (shouldAutoUpdate) {
+        console.log('🔄 Auto-updating currency rate (24h interval)...');
+        try {
+          const updateResponse = await fetch('/api/currency/fetch-rate');
+          const updateData = await updateResponse.json();
+          if (updateData.success && updateData.rate) {
+            usdToRubRate = updateData.rate;
+            lastAutoUpdateTimestamp = now;
+            console.log('✅ Currency rate auto-updated:', usdToRubRate);
+          }
+        } catch (updateError) {
+          console.warn('⚠️ Failed to auto-update currency rate:', updateError);
+        }
+      }
       
       EXCHANGE_RATES = {
         USD_TO_RUB: usdToRubRate,
