@@ -52,6 +52,37 @@ const Checkout = ({ plan }) => {
             currency: 'RUB'
           }));
 
+          // Create pending order in MongoDB
+          try {
+            const createOrderResponse = await fetch('/api/orders/create-pending', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                orderId: uniqueOrderId,
+                packageId: plan.id,
+                planName: plan.name,
+                customerEmail: currentUser ? currentUser.email : null,
+                amount: amountRUB,
+                currency: 'RUB',
+                description: plan.name,
+                userId: currentUser?.uid || currentUser?.id || currentUser?._id || null,
+                quantity: 1,
+                mode: 'production' // Will be set based on env later
+              })
+            });
+
+            if (createOrderResponse.ok) {
+              console.log('✅ Pending order created in MongoDB');
+            } else {
+              console.error('⚠️ Failed to create pending order in MongoDB, continuing anyway');
+            }
+          } catch (err) {
+            console.error('⚠️ Error creating pending order:', err);
+            // Don't block payment flow if order creation fails
+          }
+
           // Redirect to Robokassa payment (server-side for better security)
           await robokassaService.createCheckoutSession(orderData);
           

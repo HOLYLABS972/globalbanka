@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import connectDB from '../../../../src/database/config';
+import { Order } from '../../../../src/database/models';
 
 // Force dynamic rendering for this API route (handles callbacks with dynamic parameters)
 export const dynamic = 'force-dynamic';
@@ -165,11 +167,48 @@ export async function GET(request) {
       amount: amount
     });
 
+    // Fetch pending order from MongoDB
+    let orderDetails = null;
+    try {
+      await connectDB();
+      const order = await Order.findOne({ orderId: InvId.toString() });
+      
+      if (order) {
+        orderDetails = {
+          packageId: order.packageId,
+          customerEmail: order.customerEmail,
+          planName: order.description || order.packageId,
+          userId: order.userId
+        };
+        console.log('✅ Found pending order in MongoDB:', orderDetails);
+        
+        // Update order status to paid
+        order.paymentStatus = 'paid';
+        order.status = 'processing';
+        await order.save();
+        console.log('✅ Order marked as paid and processing');
+      } else {
+        console.error('⚠️ No pending order found for orderId:', InvId);
+      }
+    } catch (dbError) {
+      console.error('⚠️ Error fetching order from MongoDB:', dbError);
+      // Continue anyway - will try to get from localStorage on client
+    }
+
     // Redirect to success page with order information
     const successUrl = new URL('/payment-success', request.url);
     successUrl.searchParams.set('order', InvId);
     successUrl.searchParams.set('amount', amount.toString());
     successUrl.searchParams.set('payment_method', 'robokassa');
+    
+    // Add order details if available
+    if (orderDetails) {
+      successUrl.searchParams.set('plan_id', orderDetails.packageId);
+      successUrl.searchParams.set('email', orderDetails.customerEmail);
+      if (orderDetails.planName) {
+        successUrl.searchParams.set('name', orderDetails.planName);
+      }
+    }
 
     return NextResponse.redirect(successUrl);
 
