@@ -208,6 +208,7 @@ export async function GET(request) {
     successUrl.searchParams.set('order', InvId);
     successUrl.searchParams.set('amount', amount.toString());
     successUrl.searchParams.set('payment_method', 'robokassa');
+    successUrl.searchParams.set('currency', 'RUB'); // Always RUB for Robokassa
     
     // Add order details if available
     if (orderDetails) {

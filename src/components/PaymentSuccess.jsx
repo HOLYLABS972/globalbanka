@@ -102,9 +102,18 @@ const PaymentSuccess = () => {
   // Create order record via MongoDB API
   const createOrderRecord = async (orderData) => {
     try {
-      // We're always in test mode for PaymentSuccess to avoid client-side MongoDB imports
-      const robokassaMode = 'test';
-      const isTestMode = true;
+      // Load robokassa mode from MongoDB config
+      let robokassaMode = 'test';
+      try {
+        const configResponse = await fetch('/api/config/get');
+        const configData = await configResponse.json();
+        if (configData.success && configData.config) {
+          robokassaMode = configData.config.robokassaMode || 'test';
+        }
+      } catch (configError) {
+        console.warn('⚠️ Could not load robokassa mode from config, using test mode');
+      }
+      const isTestMode = robokassaMode === 'test';
       
       console.log('🛒 Creating RoamJet order...');
       console.log('🔍 Robokassa Mode:', robokassaMode, '| Test Mode:', isTestMode);
@@ -598,7 +607,7 @@ const PaymentSuccess = () => {
       const orderParam = searchParams.get('order_id') || searchParams.get('order');
       const planId = searchParams.get('plan_id');
       const email = searchParams.get('email');
-      const total = searchParams.get('total');
+      const total = searchParams.get('total') || searchParams.get('amount'); // Support both 'total' and 'amount'
       const name = searchParams.get('name');
       const currency = searchParams.get('currency');
       // const order_id = searchParams.get('order_id');

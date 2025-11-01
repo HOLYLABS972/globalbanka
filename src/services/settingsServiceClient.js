@@ -38,7 +38,7 @@ export const getRegularSettings = async () => {
       return settings;
     } else {
       console.log('📋 Using default regular settings (no config found)');
-      return defaultSettings.regular;
+    return defaultSettings.regular;
     }
   } catch (error) {
     console.error('❌ Error getting regular settings:', error);
