@@ -5,14 +5,14 @@ import crypto from 'crypto';
 
 export async function POST(request) {
   try {
-    // Load Robokassa config from MongoDB
+    // Load Robokassa config from MongoDB only
     await connectDB();
     const config = await AdminConfig.findOne();
     
-    const robokassaMerchantLogin = config?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN || '';
-    const robokassaPassOne = config?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE || '';
-    const robokassaMode = config?.robokassaMode || process.env.ROBOKASSA_MODE || 'test';
-    const robokassaBaseUrl = process.env.ROBOKASSA_BASE_URL || 'https://auth.robokassa.ru/Merchant/Index.aspx';
+    const robokassaMerchantLogin = config?.robokassaMerchantLogin || '';
+    const robokassaPassOne = config?.robokassaPassOne || '';
+    const robokassaMode = config?.robokassaMode || 'test';
+    const robokassaBaseUrl = 'https://auth.robokassa.ru/Merchant/Index.aspx';
     
     if (!robokassaMerchantLogin || !robokassaPassOne) {
       return NextResponse.json(

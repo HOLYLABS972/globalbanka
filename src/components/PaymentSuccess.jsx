@@ -356,19 +356,26 @@ const PaymentSuccess = () => {
       // Use API key directly like other screens
       const { apiServiceClient } = await import('../services/apiServiceClient');
       
-      // Get API key with fallback
-      let apiKey = process.env.NEXT_PUBLIC_ROAMJET_API_KEY;
-      if (!apiKey) {
-        apiKey = process.env.NEXT_PUBLIC_API_KEY || process.env.ROAMJET_API_KEY;
-      }
-      if (!apiKey) {
-        // Hardcoded fallback like in apiServiceClient
-        apiKey = 'rjapi_2k9lt4821123xd7p2dl37mv48jukgo51';
-        console.log('🔑 Using fallback API key');
+      // Load Roamjet config from MongoDB
+      let apiKey = '';
+      let ORDER_URL = 'https://sandbox.roamjet.net';
+      try {
+        const configResponse = await fetch('/api/config/get');
+        const configData = await configResponse.json();
+        if (configData.success && configData.config) {
+          apiKey = configData.config.roamjetApiKey || '';
+          const mode = configData.config.roamjetMode || 'sandbox';
+          ORDER_URL = mode === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net';
+        }
+      } catch (configError) {
+        console.warn('⚠️ Could not load Roamjet config from MongoDB', configError);
       }
       
-      const ORDER_URL = 'https://sandbox.roamjet.net';
-      console.log('🌐 Using API key endpoint:', ORDER_URL);
+      if (!apiKey) {
+        throw new Error('Roamjet API key not configured');
+      }
+      
+      console.log('🌐 Using API endpoint:', ORDER_URL);
       
       const response = await fetch(`${ORDER_URL}/api/user/order`, {
         method: 'POST',
@@ -406,18 +413,14 @@ const PaymentSuccess = () => {
         airaloOrderId: airaloOrderResult.airaloOrderId,
         userId: currentUser?.uid || currentUser?.id || currentUser?._id || `email_${orderData.customerEmail}`, // Fallback to email-based ID
         packageId: orderData.planId, // Map planId to packageId for schema compatibility
-        planName: orderData.planName,
+        description: orderData.planName, // Use description field for plan name
         amount: parseFloat(orderData.amount), // Ensure it's a number
         currency: orderData.currency || 'USD',
         customerEmail: orderData.customerEmail,
         status: 'completed', // Use valid enum value from schema
         paymentStatus: 'paid', // Payment was successful
-        createdAt: new Date(),
-        airaloOrderData: airaloOrderResult.orderData,
-        isTestMode: isTestMode, // Flag to indicate test order
-        robokassaMode: robokassaMode,
-        // Add flag to indicate this was created without proper user session
-        sessionLost: !currentUser
+        mode: isTestMode ? 'sandbox' : 'production', // Use mode field from schema
+        simDetails: airaloOrderResult.orderData // Store airalo order data in simDetails
       };
 
       const orderResponse = await fetch('/api/orders/create', {

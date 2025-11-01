@@ -426,13 +426,24 @@ export default function ConfigPage() {
                 <p className="text-gray-400">Manage system settings and users</p>
               </div>
             </div>
-            <button
-              onClick={() => handleChangePassword()}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <Key size={18} />
-              Change Password
-            </button>
+            <div className="flex items-center gap-3">
+              {activeTab === 'users' && (
+                <button
+                  onClick={handleDownloadPrices}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+                >
+                  <Download size={18} />
+                  Download Prices Report
+                </button>
+              )}
+              <button
+                onClick={() => handleChangePassword()}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <Key size={18} />
+                Change Password
+              </button>
+            </div>
           </div>
         </div>
 
@@ -780,17 +791,6 @@ export default function ConfigPage() {
 
         {activeTab === 'users' && (
           <div className="space-y-6">
-            {/* Download Button */}
-            <div className="flex items-center justify-end">
-              <button
-                onClick={handleDownloadPrices}
-                className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-              >
-                <Download size={16} />
-                Download Prices Report
-              </button>
-            </div>
-
             {/* Filters and Search */}
             <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-2xl p-6 shadow-xl">
               <div className="relative">

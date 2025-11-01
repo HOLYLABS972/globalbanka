@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import connectDB from '../../../../../src/database/config';
+import { AdminConfig } from '../../../../../src/database/models';
 
 export async function POST(request) {
   try {
@@ -41,6 +43,12 @@ export async function POST(request) {
 
     // Handle traditional OAuth flow (fallback)
     if (code) {
+      // Load Google config from MongoDB
+      await connectDB();
+      const config = await AdminConfig.findOne();
+      const googleClientId = config?.googleId || '';
+      const googleClientSecret = config?.googleSecret || '';
+      
       // Exchange code for access token
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -48,8 +56,8 @@ export async function POST(request) {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          client_secret: process.env.GOOGLE_CLIENT_SECRET,
+          client_id: googleClientId,
+          client_secret: googleClientSecret,
           code,
           grant_type: 'authorization_code',
           redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/google/callback`,

@@ -19,22 +19,22 @@ export async function loadAdminConfig() {
     await connectDB();
     const dbConfig = await AdminConfig.findOne();
     
-    // Merge DB config with env vars, DB takes priority
+    // Use MongoDB config only, no ENV fallback
     const roamjetMode = dbConfig?.roamjetMode || 'sandbox';
     const config = {
-      googleId: dbConfig?.googleId || process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      googleSecret: dbConfig?.googleSecret || process.env.GOOGLE_CLIENT_SECRET,
+      googleId: dbConfig?.googleId || '',
+      googleSecret: dbConfig?.googleSecret || '',
       googleAuthEnabled: dbConfig?.googleAuthEnabled ?? false,
-      yandexAppId: dbConfig?.yandexAppId || process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
-      yandexAppSecret: dbConfig?.yandexAppSecret || process.env.YANDEX_APP_SECRET,
+      yandexAppId: dbConfig?.yandexAppId || '',
+      yandexAppSecret: dbConfig?.yandexAppSecret || '',
       yandexAuthEnabled: dbConfig?.yandexAuthEnabled ?? false,
-      roamjetApiKey: dbConfig?.roamjetApiKey || process.env.ROAMJET_API_KEY || process.env.NEXT_PUBLIC_ROAMJET_API_KEY,
+      roamjetApiKey: dbConfig?.roamjetApiKey || '',
       roamjetMode,
       roamjetApiUrl: roamjetMode === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
-      robokassaMerchantLogin: dbConfig?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
-      robokassaPassOne: dbConfig?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
-      robokassaPassTwo: dbConfig?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
-      robokassaMode: dbConfig?.robokassaMode || process.env.ROBOKASSA_MODE || 'test',
+      robokassaMerchantLogin: dbConfig?.robokassaMerchantLogin || '',
+      robokassaPassOne: dbConfig?.robokassaPassOne || '',
+      robokassaPassTwo: dbConfig?.robokassaPassTwo || '',
+      robokassaMode: dbConfig?.robokassaMode || 'test',
       discountPercentage: dbConfig?.discountPercentage || 0,
       usdToRubRate: dbConfig?.usdToRubRate || 100
     };
@@ -45,32 +45,32 @@ export async function loadAdminConfig() {
     
     return config;
   } catch (error) {
-    console.error('❌ Error loading admin config, falling back to ENV:', error);
+    console.error('❌ Error loading admin config:', error);
     
-    // Fallback to ENV vars only
+    // Return minimal defaults on error, no ENV fallback
     const roamjetMode = 'sandbox';
-    const envConfig = {
-      googleId: process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      googleSecret: process.env.GOOGLE_CLIENT_SECRET,
+    const defaultConfig = {
+      googleId: '',
+      googleSecret: '',
       googleAuthEnabled: false,
-      yandexAppId: process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
-      yandexAppSecret: process.env.YANDEX_APP_SECRET,
+      yandexAppId: '',
+      yandexAppSecret: '',
       yandexAuthEnabled: false,
-      roamjetApiKey: process.env.ROAMJET_API_KEY || process.env.NEXT_PUBLIC_ROAMJET_API_KEY,
+      roamjetApiKey: '',
       roamjetMode,
       roamjetApiUrl: roamjetMode === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
-      robokassaMerchantLogin: process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
-      robokassaPassOne: process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
-      robokassaPassTwo: process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
-      robokassaMode: process.env.ROBOKASSA_MODE || 'test',
+      robokassaMerchantLogin: '',
+      robokassaPassOne: '',
+      robokassaPassTwo: '',
+      robokassaMode: 'test',
       discountPercentage: 0,
       usdToRubRate: 100
     };
     
-    configCache = envConfig;
+    configCache = defaultConfig;
     cacheTimestamp = Date.now();
     
-    return envConfig;
+    return defaultConfig;
   }
 }
 

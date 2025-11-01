@@ -6,16 +6,16 @@ import { Order, AdminConfig } from '../../../../src/database/models';
 // Force dynamic rendering for this API route (handles callbacks with dynamic parameters)
 export const dynamic = 'force-dynamic';
 
-// Load Robokassa config from MongoDB or fallback to env
+// Load Robokassa config from MongoDB only
 async function getRobokassaConfig() {
   await connectDB();
   const config = await AdminConfig.findOne();
   
   return {
-    merchantLogin: config?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN || '',
-    passOne: config?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE || '',
-    passTwo: config?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO || '',
-    mode: config?.robokassaMode || process.env.ROBOKASSA_MODE || 'test'
+    merchantLogin: config?.robokassaMerchantLogin || '',
+    passOne: config?.robokassaPassOne || '',
+    passTwo: config?.robokassaPassTwo || '',
+    mode: config?.robokassaMode || 'test'
 };
 }
 
