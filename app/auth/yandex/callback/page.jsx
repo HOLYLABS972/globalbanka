@@ -57,6 +57,11 @@ function YandexCallbackContent() {
             localStorage.setItem('authToken', token);
             localStorage.setItem('userData', JSON.stringify(user));
             
+            // Trigger auth state change event for AuthContext
+            window.dispatchEvent(new CustomEvent('authStateChanged', { 
+              detail: { user, token, action: 'login' } 
+            }));
+            
             // Preserve current language preference
             const currentLanguage = localStorage.getItem('roamjet-language') || 'en';
             localStorage.setItem('roamjet-language', currentLanguage);
@@ -71,14 +76,11 @@ function YandexCallbackContent() {
                 window.close();
               }, 100);
             } else {
-              // If not in popup, redirect to homepage
+              // If not in popup, redirect to dashboard
               toast.success(`Welcome, ${user.displayName || user.email}!`);
               
-              // Always redirect to homepage with correct language, ignore returnUrl to prevent 404s
-              console.log('🔍 Callback redirecting to homepage...');
-              console.log('🔍 Preserved language:', currentLanguage);
-              const redirectPath = currentLanguage === 'en' ? '/' : `/${currentLanguage}/`;
-              router.push(redirectPath);
+              console.log('🔍 Callback redirecting to dashboard...');
+              router.push('/dashboard');
             }
           } else {
             throw new Error('No user data or token received');

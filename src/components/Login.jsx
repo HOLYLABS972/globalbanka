@@ -299,14 +299,13 @@ const Login = () => {
         
         // Small delay to ensure popup closes before redirect
         setTimeout(() => {
-          console.log('🔍 Redirecting to homepage...');
+          console.log('🔍 Redirecting to dashboard...');
           console.log('🔍 Current URL:', window.location.href);
           console.log('🔍 Search params:', new URLSearchParams(window.location.search));
           console.log('🔍 Preserved language:', currentLanguage);
           
-          // Redirect to homepage with correct language
-          const redirectPath = currentLanguage === 'en' ? '/' : `/${currentLanguage}/`;
-          router.push(redirectPath);
+          // Redirect to dashboard
+          router.push('/dashboard');
         }, 100);
       } else if (event.data.type === 'YANDEX_AUTH_ERROR') {
         const { error } = event.data;

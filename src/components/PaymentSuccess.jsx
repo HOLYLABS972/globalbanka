@@ -669,15 +669,16 @@ const PaymentSuccess = () => {
       console.log('📦 Extracted plan ID:', { orderParam, actualPlanId });
 
       // Prepare order data - use orderParam as the consistent orderId
+      const userId = currentUser?.uid || currentUser?.id || currentUser?._id || `email_${email}`;
       const orderData = {
         planId: actualPlanId, // Use extracted plan ID
         planName: decodeURIComponent(name || 'eSIM Plan'),
         amount: Math.round(parseFloat(total || 0)),
         currency: currency || 'usd',
         customerEmail: email,
-        customerId: currentUser.uid,
+        customerId: userId,
         orderId: orderParam, // Use the order parameter as the consistent ID
-        userId: currentUser.uid
+        userId: userId
       };
       
       console.log('🎯 Order data prepared:', orderData);
@@ -689,14 +690,17 @@ const PaymentSuccess = () => {
         console.log('✅ Order created successfully, skipping link marking');
         // Process referral commission (this also updates referral usage stats)
         try {
-          console.log('💰 Processing referral commission for user:', currentUser.uid);
-          console.log('💰 Commission data:', {
-            userId: currentUser.uid,
-            amount: orderData.amount,
-            transactionId: orderResult.orderId,
-            planId: orderData.planId,
-            planName: orderData.planName
-          });
+          const userUid = currentUser?.uid || currentUser?.id || currentUser?._id;
+          if (userUid) {
+            console.log('💰 Processing referral commission for user:', userUid);
+            console.log('💰 Commission data:', {
+              userId: userUid,
+              amount: orderData.amount,
+              transactionId: orderResult.orderId,
+              planId: orderData.planId,
+              planName: orderData.planName
+            });
+          }
         } catch (commissionError) {
           console.error('❌ Commission processing failed:', commissionError);
         }
@@ -725,21 +729,24 @@ const PaymentSuccess = () => {
       return;
     }
 
-    // If no user after auth loads, they're not logged in
-    if (!currentUser) {
-      console.log('❌ No user found after auth loaded');
+    // Get email from URL parameters as fallback
+    const emailFromUrl = searchParams.get('email');
+    
+    // If no user after auth loads and no email in URL, show error
+    if (!currentUser && !emailFromUrl) {
+      console.log('❌ No user found after auth loaded and no email in URL');
       setError('Please log in to complete your purchase.');
       setProcessing(false);
       return;
     }
 
-    // Process payment if we have a user and haven't processed yet
-    if (currentUser && !hasProcessed.current) {
-      console.log('✅ User authenticated, processing payment...');
+    // Process payment if we have payment data and haven't processed yet
+    if (!hasProcessed.current) {
+      console.log('✅ Processing payment...');
       hasProcessed.current = true;
       handlePaymentSuccess();
     }
-  }, [authLoading, currentUser, handlePaymentSuccess]);
+  }, [authLoading, currentUser, searchParams, handlePaymentSuccess]);
 
   // Show loading while auth is loading
   if (authLoading) {

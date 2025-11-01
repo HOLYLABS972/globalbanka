@@ -1,7 +1,14 @@
 import mongoose from 'mongoose';
 
-// MongoDB configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Vercel-Admin-atlas-teal-garden:9h38ZfhOukRfHyts@atlas-teal-garden.ulmgxtg.mongodb.net/?retryWrites=true&w=majority';
+// MongoDB configuration with fallback
+const FALLBACK_MONGODB_URI = 'mongodb+srv://Vercel-Admin-atlas-teal-garden:9h38ZfhOukRfHyts@atlas-teal-garden.ulmgxtg.mongodb.net/?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || FALLBACK_MONGODB_URI;
+
+// Log warning if using fallback
+if (!process.env.MONGODB_URI) {
+  console.warn('⚠️ WARNING: MONGODB_URI not set in environment variables. Using fallback connection.');
+  console.warn('⚠️ Please set MONGODB_URI in your environment variables for production use.');
+}
 
 // Connection options
 const options = {

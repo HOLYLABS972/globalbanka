@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import connectDB from '../../../../../src/database/config';
+import { AdminConfig } from '../../../../../src/database/models';
 
 export async function POST(request) {
   try {
@@ -8,8 +10,12 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No authorization code provided' }, { status: 400 });
     }
 
-    const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
-    const yandexAppSecret = process.env.YANDEX_APP_SECRET;
+    // Load Yandex config from MongoDB
+    await connectDB();
+    const config = await AdminConfig.findOne();
+    
+    const yandexAppId = config?.yandexAppId || process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID || '';
+    const yandexAppSecret = config?.yandexAppSecret || process.env.YANDEX_APP_SECRET || '';
     const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://globalbanka.roamjet.net'}/auth/yandex/callback`;
 
     console.log('🔍 Server-side OAuth parameters:', {
