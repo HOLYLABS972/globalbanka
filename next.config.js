@@ -36,6 +36,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Admin redirect
+      {
+        source: '/admin',
+        destination: 'https://biz.roamjet.net/login',
+        permanent: false,
+      },
       // Redirect old language routes to new ones
       {
         source: '/hebrew/:path*',
