@@ -23,6 +23,7 @@ export async function loadAdminConfig() {
     const roamjetMode = dbConfig?.roamjetMode || 'sandbox';
     const config = {
       googleId: dbConfig?.googleId || process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      googleSecret: dbConfig?.googleSecret || process.env.GOOGLE_CLIENT_SECRET,
       googleAuthEnabled: dbConfig?.googleAuthEnabled ?? false,
       yandexAppId: dbConfig?.yandexAppId || process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
       yandexAppSecret: dbConfig?.yandexAppSecret || process.env.YANDEX_APP_SECRET,
@@ -33,7 +34,9 @@ export async function loadAdminConfig() {
       robokassaMerchantLogin: dbConfig?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
       robokassaPassOne: dbConfig?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
       robokassaPassTwo: dbConfig?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
-      robokassaMode: dbConfig?.robokassaMode || process.env.ROBOKASSA_MODE || 'test'
+      robokassaMode: dbConfig?.robokassaMode || process.env.ROBOKASSA_MODE || 'test',
+      discountPercentage: dbConfig?.discountPercentage || 0,
+      usdToRubRate: dbConfig?.usdToRubRate || 100
     };
     
     // Update cache
@@ -48,6 +51,7 @@ export async function loadAdminConfig() {
     const roamjetMode = 'sandbox';
     const envConfig = {
       googleId: process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      googleSecret: process.env.GOOGLE_CLIENT_SECRET,
       googleAuthEnabled: false,
       yandexAppId: process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
       yandexAppSecret: process.env.YANDEX_APP_SECRET,
@@ -58,7 +62,9 @@ export async function loadAdminConfig() {
       robokassaMerchantLogin: process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
       robokassaPassOne: process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
       robokassaPassTwo: process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
-      robokassaMode: process.env.ROBOKASSA_MODE || 'test'
+      robokassaMode: process.env.ROBOKASSA_MODE || 'test',
+      discountPercentage: 0,
+      usdToRubRate: 100
     };
     
     configCache = envConfig;

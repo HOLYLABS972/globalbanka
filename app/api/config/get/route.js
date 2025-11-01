@@ -16,6 +16,7 @@ export async function GET(request) {
     // Return config with defaults filled in
     const configData = {
       googleId: config.googleId || '',
+      googleSecret: config.googleSecret || '',
       googleAuthEnabled: config.googleAuthEnabled ?? false,
       yandexAppId: config.yandexAppId || '',
       yandexAppSecret: config.yandexAppSecret || '',
@@ -25,7 +26,9 @@ export async function GET(request) {
       robokassaMerchantLogin: config.robokassaMerchantLogin || '',
       robokassaPassOne: config.robokassaPassOne || '',
       robokassaPassTwo: config.robokassaPassTwo || '',
-      robokassaMode: config.robokassaMode || 'test'
+      robokassaMode: config.robokassaMode || 'test',
+      discountPercentage: config.discountPercentage || 0,
+      usdToRubRate: config.usdToRubRate || 100
     };
     
     return NextResponse.json({ 

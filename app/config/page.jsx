@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe, Users, Search, Edit2, Shield, UserCheck, UserX, X, ShoppingBag } from 'lucide-react';
+import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe, Users, Search, Edit2, Shield, UserCheck, UserX, X, ShoppingBag, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ConfigPage() {
@@ -14,6 +14,7 @@ export default function ConfigPage() {
   // Config fields
   const [config, setConfig] = useState({
     googleId: '',
+    googleSecret: '',
     googleAuthEnabled: false,
     yandexAppId: '',
     yandexAppSecret: '',
@@ -23,10 +24,13 @@ export default function ConfigPage() {
     robokassaMerchantLogin: '',
     robokassaPassOne: '',
     robokassaPassTwo: '',
-    robokassaMode: 'test'
+    robokassaMode: 'test',
+    discountPercentage: 0,
+    usdToRubRate: 100
   });
   
   const [showPasswords, setShowPasswords] = useState({
+    googleSecret: false,
     yandexAppSecret: false,
     roamjetApiKey: false,
     robokassaPassOne: false,
@@ -279,6 +283,68 @@ export default function ConfigPage() {
     }
   };
 
+  const handleDeleteUser = async (user) => {
+    if (!confirm(`Are you sure you want to delete user "${user.displayName || user.email}"? This will delete all their orders and eSIMs.`)) {
+      return;
+    }
+
+    setUsersLoading(true);
+    try {
+      const response = await fetch('/api/users/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user._id })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success('User deleted successfully');
+        loadUsers();
+        loadUserStats();
+      } else {
+        toast.error(data.error || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleDeleteOrder = async (order) => {
+    if (!confirm(`Are you sure you want to delete this order?`)) {
+      return;
+    }
+
+    setOrdersLoading(true);
+    try {
+      const response = await fetch('/api/orders/delete-by-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: order._id })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success('Order deleted successfully');
+        // Reload orders for the current user
+        if (selectedUserOrders) {
+          handleViewUserOrders(selectedUserOrders);
+        }
+      } else {
+        toast.error(data.error || 'Failed to delete order');
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast.error('Failed to delete order');
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authenticated && activeTab === 'users') {
       loadUsers();
@@ -409,6 +475,25 @@ export default function ConfigPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Google Client Secret</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.googleSecret ? 'text' : 'password'}
+                      value={config.googleSecret}
+                      onChange={(e) => setConfig({...config, googleSecret: e.target.value})}
+                      className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Google OAuth Client Secret"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('googleSecret')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      {showPasswords.googleSecret ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Yandex App ID</label>
                   <input
                     type="text"
@@ -418,7 +503,7 @@ export default function ConfigPage() {
                     placeholder="Yandex OAuth App ID"
                   />
                 </div>
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Yandex App Secret</label>
                   <div className="relative">
                     <input
@@ -624,6 +709,44 @@ export default function ConfigPage() {
             </div>
           </div>
 
+          {/* Pricing Section */}
+          <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-2xl p-6 shadow-xl">
+            <div className="flex items-center gap-3 mb-6">
+              <DollarSign className="w-5 h-5 text-green-400" />
+              <h2 className="text-xl font-semibold text-white">Pricing Settings</h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Discount Percentage</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={config.discountPercentage}
+                  onChange={(e) => setConfig({...config, discountPercentage: parseFloat(e.target.value) || 0})}
+                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
+                />
+                <p className="text-xs text-gray-500 mt-1">Global discount percentage for all plans (0-100)</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">USD to RUB Exchange Rate</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={config.usdToRubRate}
+                  onChange={(e) => setConfig({...config, usdToRubRate: parseFloat(e.target.value) || 0})}
+                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="1.00"
+                />
+                <p className="text-xs text-gray-500 mt-1">Current exchange rate for USD to Russian Ruble</p>
+              </div>
+            </div>
+          </div>
+
           {/* Save Button */}
           <div>
             <button
@@ -752,12 +875,14 @@ export default function ConfigPage() {
                             {formatDate(user.createdAt)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => setEditingUser(editingUser?._id === user._id ? null : user)}
-                              className="text-blue-400 hover:text-blue-300 transition-colors"
-                            >
-                              {editingUser?._id === user._id ? <UserX size={18} /> : <Edit2 size={18} />}
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleDeleteUser(user)}
+                                className="text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -842,16 +967,27 @@ export default function ConfigPage() {
                         className="bg-gray-700/30 border border-gray-600 rounded-xl p-4 hover:bg-gray-700/50 transition-colors"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div>
+                          <div className="flex-1">
                             <div className="text-sm font-semibold text-white mb-1">
                               {order.description || order.packageId}
                             </div>
                             <div className="text-xs text-gray-400">Order ID: {order.orderId}</div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-lg font-bold text-white">
-                              {order.amount} {order.currency}
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <div className="text-lg font-bold text-white">
+                                {order.amount} {order.currency}
+                              </div>
                             </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteOrder(order);
+                              }}
+                              className="text-red-400 hover:text-red-300 transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">

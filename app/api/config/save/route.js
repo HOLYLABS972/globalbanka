@@ -17,6 +17,7 @@ export async function POST(request) {
     // Update fields (exclude adminPassword from updates here - use separate endpoint)
     const allowedFields = [
       'googleId',
+      'googleSecret',
       'googleAuthEnabled',
       'yandexAppId',
       'yandexAppSecret',
@@ -26,7 +27,9 @@ export async function POST(request) {
       'robokassaMerchantLogin',
       'robokassaPassOne',
       'robokassaPassTwo',
-      'robokassaMode'
+      'robokassaMode',
+      'discountPercentage',
+      'usdToRubRate'
     ];
     
     allowedFields.forEach(field => {

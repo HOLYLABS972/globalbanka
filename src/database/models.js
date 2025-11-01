@@ -665,6 +665,7 @@ const adminConfigSchema = new mongoose.Schema({
     required: true
   },
   googleId: String,
+  googleSecret: String,
   googleAuthEnabled: {
     type: Boolean,
     default: false
@@ -688,6 +689,14 @@ const adminConfigSchema = new mongoose.Schema({
     type: String,
     enum: ['test', 'production'],
     default: 'test'
+  },
+  discountPercentage: {
+    type: Number,
+    default: 0
+  },
+  usdToRubRate: {
+    type: Number,
+    default: 100
   },
   lastUpdated: {
     type: Date,
