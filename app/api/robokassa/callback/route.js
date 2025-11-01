@@ -1,18 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import connectDB from '../../../../src/database/config';
-import { Order } from '../../../../src/database/models';
+import { Order, AdminConfig } from '../../../../src/database/models';
 
 // Force dynamic rendering for this API route (handles callbacks with dynamic parameters)
 export const dynamic = 'force-dynamic';
 
-// Robokassa configuration
-const ROBOKASSA_CONFIG = {
-  merchantLogin: process.env.ROBOKASSA_MERCHANT_LOGIN || 'your_merchant_login',
-  passOne: process.env.ROBOKASSA_PASS_ONE || 'your_pass_one',
-  passTwo: process.env.ROBOKASSA_PASS_TWO || 'your_pass_two',
-  mode: process.env.ROBOKASSA_MODE || 'test'
-};
+// Load Robokassa config from MongoDB or fallback to env
+async function getRobokassaConfig() {
+  await connectDB();
+  const config = await AdminConfig.findOne();
+  
+  return {
+    merchantLogin: config?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN || '',
+    passOne: config?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE || '',
+    passTwo: config?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO || '',
+    mode: config?.robokassaMode || process.env.ROBOKASSA_MODE || 'test'
+  };
+}
 
 /**
  * Generate MD5 hash for Robokassa signature verification
@@ -30,8 +35,9 @@ function generateSignature(...args) {
  * For ResultURL: uses Password2, signature format: OutSum:InvId:Password2
  * For SuccessURL: uses Password1, signature format: MerchantLogin:OutSum:InvId:Password1
  */
-function verifyCallbackSignature(params, usePassOne = false) {
+async function verifyCallbackSignature(params, usePassOne = false) {
   const { OutSum, InvId, SignatureValue } = params;
+  const ROBOKASSA_CONFIG = await getRobokassaConfig();
   
   // Use Password1 for SuccessURL, Password2 for ResultURL
   const password = usePassOne ? ROBOKASSA_CONFIG.passOne : ROBOKASSA_CONFIG.passTwo;
@@ -92,7 +98,7 @@ export async function POST(request) {
     console.log('🔍 Robokassa ResultURL callback received:', body);
 
     // Verify the signature using Password2 for ResultURL
-    const isValid = verifyCallbackSignature(body, false);
+    const isValid = await verifyCallbackSignature(body, false);
     
     if (!isValid) {
       console.error('❌ Invalid Robokassa callback signature');
@@ -142,6 +148,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const params = Object.fromEntries(searchParams.entries());
     
+    const ROBOKASSA_CONFIG = await getRobokassaConfig();
+    
     console.log('🔍 Robokassa success callback received:', params);
     console.log('🔍 Full URL:', request.url);
     console.log('🔍 Environment:', {
@@ -151,7 +159,7 @@ export async function GET(request) {
     });
 
     // Verify the signature for success callback using Password1
-    const isValid = verifyCallbackSignature(params, true);
+    const isValid = await verifyCallbackSignature(params, true);
     
     if (!isValid) {
       console.error('❌ Invalid Robokassa success callback signature');

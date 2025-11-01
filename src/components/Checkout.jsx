@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { robokassaService } from '../services/robokassaService';
 import { convertCurrency } from '../services/currencyService';
 // import { esimService } from '../services/esimService'; // Removed - causes client-side issues
 import { useAuth } from '../contexts/AuthContext';
@@ -83,8 +82,36 @@ const Checkout = ({ plan }) => {
             // Don't block payment flow if order creation fails
           }
 
-          // Redirect to Robokassa payment (server-side for better security)
-          await robokassaService.createCheckoutSession(orderData);
+          // Redirect to Robokassa payment via Next.js API
+          const response = await fetch('/api/robokassa/create-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              order: uniqueOrderId,
+              email: currentUser ? currentUser.email : null,
+              name: plan.name,
+              total: amountRUB,
+              currency: 'RUB',
+              domain: window.location.origin,
+              description: plan.name
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create payment');
+          }
+
+          const result = await response.json();
+          
+          if (result.paymentUrl) {
+            console.log('✅ Payment URL created, redirecting...');
+            window.location.href = result.paymentUrl;
+          } else {
+            throw new Error('No payment URL received');
+          }
           
         } catch (err) {
           console.error('❌ Payment redirect failed:', err);
