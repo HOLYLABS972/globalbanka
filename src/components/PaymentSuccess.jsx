@@ -3,10 +3,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { useI18n } from '../contexts/I18nContext';
 // import { apiService } from '../services/apiService'; // Removed - causes client-side issues
 // import { configService } from '../services/configService'; // Removed - causes client-side issues
 
 const PaymentSuccess = () => {
+  const { t, locale } = useI18n();
   console.log('🚀 PaymentSuccess component mounting...');
   
   const router = useRouter();
@@ -631,7 +633,7 @@ const PaymentSuccess = () => {
       
       if (!orderParam || !email || !total) {
         console.log('❌ Missing payment information');
-        setError('Missing payment information.');
+        setError('Отсутствует информация о платеже.');
         return;
       }
 
@@ -730,7 +732,7 @@ const PaymentSuccess = () => {
     } catch (err) {
       console.error('❌ Payment processing failed:', err);
       console.error('❌ Error stack:', err.stack);
-      setError(`Error processing payment. Please contact support.`);
+      setError(`Ошибка при обработке платежа. Пожалуйста, свяжитесь со службой поддержки.`);
     } finally {
       setProcessing(false);
     }
@@ -749,7 +751,7 @@ const PaymentSuccess = () => {
     // If no user after auth loads and no email in URL, show error
     if (!currentUser && !emailFromUrl) {
       console.log('❌ No user found after auth loaded and no email in URL');
-      setError('Please log in to complete your purchase.');
+      setError('Пожалуйста, войдите в систему, чтобы завершить покупку.');
       setProcessing(false);
       return;
     }
@@ -768,7 +770,7 @@ const PaymentSuccess = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading authentication...</p>
+          <p className="text-gray-600">Загрузка авторизации...</p>
         </div>
       </div>
     );
@@ -779,27 +781,27 @@ const PaymentSuccess = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Processing payment...</p>
+          <p className="text-gray-600">Обработка платежа...</p>
         </div>
       </div>
     );
   }
 
   if (error) {
-    const isAuthError = error.includes('log in');
+    const isAuthError = error.includes('войдите') || error.includes('log in');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="mb-6">
             <div className="text-8xl text-red-500 mb-4">✕</div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {isAuthError ? 'Authentication Required' : 'Payment Error'}
+              {isAuthError ? 'Требуется авторизация' : 'Ошибка платежа'}
             </h2>
             <p className="text-gray-600 text-lg">{error}</p>
             {isAuthError && (
               <p className="text-gray-500 text-sm mt-4">
-                Your payment was successful, but you need to log in to access your eSIM.
-                Please save this URL and log in to complete the process.
+                Ваш платеж был успешно обработан, но вам нужно войти в систему, чтобы получить доступ к eSIM.
+                Пожалуйста, сохраните этот URL и войдите в систему, чтобы завершить процесс.
               </p>
             )}
           </div>
@@ -807,7 +809,7 @@ const PaymentSuccess = () => {
             onClick={() => router.push(isAuthError ? `/login?redirect=${encodeURIComponent(window.location.href)}` : '/dashboard')}
             className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {isAuthError ? 'Log In' : 'Go to Dashboard'}
+            {isAuthError ? 'Войти' : 'Перейти в панель управления'}
           </button>
         </div>
       </div>
@@ -818,10 +820,10 @@ const PaymentSuccess = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          🎉 Payment Successful!
+          🎉 Платёж успешно выполнен!
         </h2>
         <p className="text-gray-600 mb-6">
-          Your payment has been processed successfully. Redirecting to dashboard...
+          Ваш платёж был успешно обработан. Перенаправление в панель управления...
         </p>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
       </div>
