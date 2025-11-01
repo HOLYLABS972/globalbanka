@@ -43,6 +43,20 @@ export default function ConfigPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [editingUser, setEditingUser] = useState(null);
 
+  const loadConfig = useCallback(async () => {
+    try {
+      const response = await fetch('/api/config/get');
+      const data = await response.json();
+      
+      if (data.success && data.config) {
+        setConfig(data.config);
+      }
+    } catch (error) {
+      console.error('Error loading config:', error);
+      toast.error('Failed to load configuration');
+    }
+  }, []);
+
   useEffect(() => {
     // Check if already authenticated
     const sessionAuth = sessionStorage.getItem('configAuthenticated');
@@ -50,14 +64,7 @@ export default function ConfigPage() {
       setAuthenticated(true);
       loadConfig();
     }
-  }, []);
-
-  useEffect(() => {
-    if (authenticated && activeTab === 'users') {
-      loadUsers();
-      loadUserStats();
-    }
-  }, [authenticated, activeTab, currentPage, searchQuery, roleFilter, loadUsers, loadUserStats]);
+  }, [loadConfig]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -86,20 +93,6 @@ export default function ConfigPage() {
       toast.error('Login failed');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadConfig = async () => {
-    try {
-      const response = await fetch('/api/config/get');
-      const data = await response.json();
-      
-      if (data.success && data.config) {
-        setConfig(data.config);
-      }
-    } catch (error) {
-      console.error('Error loading config:', error);
-      toast.error('Failed to load configuration');
     }
   };
 
@@ -258,6 +251,13 @@ export default function ConfigPage() {
       minute: '2-digit'
     });
   };
+
+  useEffect(() => {
+    if (authenticated && activeTab === 'users') {
+      loadUsers();
+      loadUserStats();
+    }
+  }, [authenticated, activeTab, currentPage, searchQuery, roleFilter, loadUsers, loadUserStats]);
 
   if (!authenticated) {
     return (
