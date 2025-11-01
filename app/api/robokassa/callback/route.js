@@ -168,7 +168,7 @@ export async function GET(request) {
     }
 
     const { OutSum, InvId } = params;
-    const amount = OutSum; // OutSum is already in rubles (not kopecks)
+    const amount = OutSum / 100; // Convert from kopecks to rubles
     
     console.log('✅ Robokassa payment success verified:', {
       orderId: InvId,
