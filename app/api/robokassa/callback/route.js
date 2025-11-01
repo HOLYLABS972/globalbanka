@@ -14,53 +14,95 @@ const ROBOKASSA_CONFIG = {
 
 /**
  * Generate MD5 hash for Robokassa signature verification
+ * Robokassa signature format: OutSum:InvId:Password2 (for ResultURL)
+ * or MerchantLogin:OutSum:InvId:Password1 (for SuccessURL)
  */
-function generateSignature(params, password) {
-  const sortedParams = Object.keys(params)
-    .sort()
-    .map(key => `${key}=${params[key]}`)
-    .join(':');
-  
-  const signatureString = `${sortedParams}:${password}`;
+function generateSignature(...args) {
+  // Join all arguments with colons
+  const signatureString = args.join(':');
   return crypto.createHash('md5').update(signatureString).digest('hex');
 }
 
 /**
  * Verify Robokassa callback signature
+ * For ResultURL: uses Password2, signature format: OutSum:InvId:Password2
+ * For SuccessURL: uses Password1, signature format: MerchantLogin:OutSum:InvId:Password1
  */
-function verifyCallbackSignature(params) {
+function verifyCallbackSignature(params, usePassOne = false) {
   const { OutSum, InvId, SignatureValue } = params;
   
-  const verificationParams = {
-    OutSum,
-    InvId,
-    PassTwo: ROBOKASSA_CONFIG.passTwo
-  };
-
-  const expectedSignature = generateSignature(verificationParams, ROBOKASSA_CONFIG.passTwo);
+  // Use Password1 for SuccessURL, Password2 for ResultURL
+  const password = usePassOne ? ROBOKASSA_CONFIG.passOne : ROBOKASSA_CONFIG.passTwo;
+  
+  let expectedSignature;
+  let expectedSignatureWithoutMerchantLogin;
+  
+  if (usePassOne) {
+    // SuccessURL: Try both formats - with and without MerchantLogin
+    // Format 1: MerchantLogin:OutSum:InvId:Password1
+    expectedSignature = generateSignature(
+      ROBOKASSA_CONFIG.merchantLogin,
+      OutSum,
+      InvId,
+      password
+    );
+    // Format 2: OutSum:InvId:Password1 (fallback)
+    expectedSignatureWithoutMerchantLogin = generateSignature(OutSum, InvId, password);
+  } else {
+    // ResultURL: OutSum:InvId:Password2
+    expectedSignature = generateSignature(OutSum, InvId, password);
+  }
+  
+  console.log('🔐 Signature verification:', {
+    merchantLogin: usePassOne ? ROBOKASSA_CONFIG.merchantLogin : 'N/A',
+    outSum: OutSum,
+    invId: InvId,
+    passwordType: usePassOne ? 'PassOne' : 'PassTwo',
+    signatureFormat: usePassOne ? 'MerchantLogin:OutSum:InvId:PassOne' : 'OutSum:InvId:PassTwo',
+    expectedSignature,
+    expectedSignatureWithoutMerchantLogin: usePassOne ? expectedSignatureWithoutMerchantLogin : 'N/A',
+    receivedSignature: SignatureValue,
+    match: expectedSignature.toLowerCase() === SignatureValue.toLowerCase(),
+    matchWithoutMerchantLogin: usePassOne ? expectedSignatureWithoutMerchantLogin.toLowerCase() === SignatureValue.toLowerCase() : false
+  });
+  
+  // Try primary signature first, fallback to alternate format for SuccessURL
+  if (usePassOne && expectedSignatureWithoutMerchantLogin) {
+    return expectedSignature.toLowerCase() === SignatureValue.toLowerCase() || 
+           expectedSignatureWithoutMerchantLogin.toLowerCase() === SignatureValue.toLowerCase();
+  }
+  
   return expectedSignature.toLowerCase() === SignatureValue.toLowerCase();
 }
 
 export async function POST(request) {
   try {
-    const body = await request.json();
-    console.log('🔍 Robokassa callback received:', body);
+    // Robokassa ResultURL sends form data, not JSON
+    // Try to get form data first, fallback to JSON
+    let body;
+    try {
+      body = await request.formData();
+      body = Object.fromEntries(body.entries());
+    } catch {
+      body = await request.json();
+    }
+    
+    console.log('🔍 Robokassa ResultURL callback received:', body);
 
-    // Verify the signature
-    const isValid = verifyCallbackSignature(body);
+    // Verify the signature using Password2 for ResultURL
+    const isValid = verifyCallbackSignature(body, false);
     
     if (!isValid) {
       console.error('❌ Invalid Robokassa callback signature');
-      return NextResponse.json(
-        { success: false, error: 'Invalid signature' },
-        { status: 400 }
-      );
+      // Robokassa expects plain text "bad sign" for invalid signature
+      return new NextResponse('bad sign', { status: 400 });
     }
 
     const { OutSum, InvId, SignatureValue } = body;
     
-    // Convert amount from kopecks to rubles
-    const amount = OutSum / 100;
+    // Convert amount from kopecks to rubles (if needed)
+    // Note: OutSum might already be in rubles or kopecks depending on Robokassa config
+    const amount = OutSum;
     
     console.log('✅ Robokassa payment verified:', {
       orderId: InvId,
@@ -77,19 +119,19 @@ export async function POST(request) {
     // For now, we'll just log the successful payment
     console.log('💰 Payment processed successfully for order:', InvId);
 
-    return NextResponse.json({
-      success: true,
-      message: 'Payment processed successfully',
-      orderId: InvId,
-      amount: amount
+    // Robokassa ResultURL expects plain text response: "OK{InvId}"
+    return new NextResponse(`OK${InvId}`, { 
+      status: 200,
+      headers: { 'Content-Type': 'text/plain' }
     });
 
   } catch (error) {
     console.error('❌ Error processing Robokassa callback:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Robokassa expects plain text "error" for errors
+    return new NextResponse('error', { 
+      status: 500,
+      headers: { 'Content-Type': 'text/plain' }
+    });
   }
 }
 
@@ -99,12 +141,19 @@ export async function GET(request) {
     const params = Object.fromEntries(searchParams.entries());
     
     console.log('🔍 Robokassa success callback received:', params);
+    console.log('🔍 Full URL:', request.url);
+    console.log('🔍 Environment:', {
+      merchantLogin: ROBOKASSA_CONFIG.merchantLogin,
+      passOne: ROBOKASSA_CONFIG.passOne?.substring(0, 5) + '...',
+      passTwo: ROBOKASSA_CONFIG.passTwo?.substring(0, 5) + '...'
+    });
 
-    // Verify the signature for success callback
-    const isValid = verifyCallbackSignature(params);
+    // Verify the signature for success callback using Password1
+    const isValid = verifyCallbackSignature(params, true);
     
     if (!isValid) {
       console.error('❌ Invalid Robokassa success callback signature');
+      console.error('❌ Received params:', JSON.stringify(params, null, 2));
       return NextResponse.redirect(new URL('/payment-failed?reason=invalid_signature', request.url));
     }
 

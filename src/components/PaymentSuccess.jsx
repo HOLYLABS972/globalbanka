@@ -651,13 +651,13 @@ const PaymentSuccess = () => {
         
         // Fallback: If orderId is not numeric (old format), try to extract planId from string format
         if (typeof orderId === 'string' && orderId.includes('-')) {
-          const parts = orderId.split('-');
-          // Find the index where timestamp starts (all digits)
-          const timestampIndex = parts.findIndex(part => /^\d+$/.test(part));
-          
-          if (timestampIndex > 0) {
-            // Join all parts before the timestamp
-            return parts.slice(0, timestampIndex).join('-');
+        const parts = orderId.split('-');
+        // Find the index where timestamp starts (all digits)
+        const timestampIndex = parts.findIndex(part => /^\d+$/.test(part));
+        
+        if (timestampIndex > 0) {
+          // Join all parts before the timestamp
+          return parts.slice(0, timestampIndex).join('-');
           }
         }
         
