@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Database, Globe } from 'lucide-react';
+import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ConfigPage() {
@@ -16,23 +16,17 @@ export default function ConfigPage() {
     yandexAppId: '',
     yandexAppSecret: '',
     roamjetApiKey: '',
-    mongodbUri: '',
     robokassaMerchantLogin: '',
     robokassaPassOne: '',
     robokassaPassTwo: '',
-    robokassaMode: 'test',
-    stripePublishableKey: '',
-    stripeSecretKey: '',
-    emailServiceUrl: ''
+    robokassaMode: 'test'
   });
   
   const [showPasswords, setShowPasswords] = useState({
     yandexAppSecret: false,
     roamjetApiKey: false,
     robokassaPassOne: false,
-    robokassaPassTwo: false,
-    stripeSecretKey: false,
-    mongodbUri: false
+    robokassaPassTwo: false
   });
 
   useEffect(() => {
@@ -310,15 +304,12 @@ export default function ConfigPage() {
                   </button>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Email Service URL</label>
-                <input
-                  type="text"
-                  value={config.emailServiceUrl}
-                  onChange={(e) => setConfig({...config, emailServiceUrl: e.target.value})}
-                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Email Service API URL"
-                />
+              <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600">
+                <p className="text-xs text-gray-400">
+                  <span className="font-semibold text-gray-300">API Base URLs:</span><br />
+                  Production: <code className="text-blue-300">https://api.roamjet.net</code><br />
+                  Sandbox: <code className="text-yellow-300">https://sandbox.roamjet.net</code>
+                </p>
               </div>
             </div>
           </div>
@@ -327,41 +318,9 @@ export default function ConfigPage() {
           <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-2xl p-6 shadow-xl">
             <div className="flex items-center gap-3 mb-6">
               <DollarSign className="w-5 h-5 text-yellow-400" />
-              <h2 className="text-xl font-semibold text-white">Payment Gateways</h2>
+              <h2 className="text-xl font-semibold text-white">Robokassa</h2>
             </div>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Stripe Publishable Key</label>
-                  <input
-                    type="text"
-                    value={config.stripePublishableKey}
-                    onChange={(e) => setConfig({...config, stripePublishableKey: e.target.value})}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="pk_test_..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Stripe Secret Key</label>
-                  <div className="relative">
-                    <input
-                      type={showPasswords.stripeSecretKey ? 'text' : 'password'}
-                      value={config.stripeSecretKey}
-                      onChange={(e) => setConfig({...config, stripeSecretKey: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="sk_test_..."
-                    />
-                    <button
-                      type="button"
-                      onClick={() => togglePasswordVisibility('stripeSecretKey')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                    >
-                      {showPasswords.stripeSecretKey ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Robokassa Merchant Login</label>
                 <input
@@ -424,33 +383,6 @@ export default function ConfigPage() {
                   <option value="test">Test</option>
                   <option value="production">Production</option>
                 </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Database Section */}
-          <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-2xl p-6 shadow-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <Database className="w-5 h-5 text-purple-400" />
-              <h2 className="text-xl font-semibold text-white">Database</h2>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">MongoDB URI</label>
-              <div className="relative">
-                <input
-                  type={showPasswords.mongodbUri ? 'text' : 'password'}
-                  value={config.mongodbUri}
-                  onChange={(e) => setConfig({...config, mongodbUri: e.target.value})}
-                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="mongodb://..."
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePasswordVisibility('mongodbUri')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                >
-                  {showPasswords.mongodbUri ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
             </div>
           </div>

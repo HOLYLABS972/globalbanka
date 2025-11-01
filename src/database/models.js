@@ -668,7 +668,6 @@ const adminConfigSchema = new mongoose.Schema({
   yandexAppId: String,
   yandexAppSecret: String,
   roamjetApiKey: String,
-  mongodbUri: String,
   robokassaMerchantLogin: String,
   robokassaPassOne: String,
   robokassaPassTwo: String,
@@ -677,9 +676,6 @@ const adminConfigSchema = new mongoose.Schema({
     enum: ['test', 'production'],
     default: 'test'
   },
-  stripePublishableKey: String,
-  stripeSecretKey: String,
-  emailServiceUrl: String,
   lastUpdated: {
     type: Date,
     default: Date.now

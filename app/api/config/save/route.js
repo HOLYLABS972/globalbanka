@@ -20,14 +20,10 @@ export async function POST(request) {
       'yandexAppId',
       'yandexAppSecret',
       'roamjetApiKey',
-      'mongodbUri',
       'robokassaMerchantLogin',
       'robokassaPassOne',
       'robokassaPassTwo',
-      'robokassaMode',
-      'stripePublishableKey',
-      'stripeSecretKey',
-      'emailServiceUrl'
+      'robokassaMode'
     ];
     
     allowedFields.forEach(field => {

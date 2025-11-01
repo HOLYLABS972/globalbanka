@@ -25,14 +25,11 @@ export async function loadAdminConfig() {
       yandexAppId: dbConfig?.yandexAppId || process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
       yandexAppSecret: dbConfig?.yandexAppSecret || process.env.YANDEX_APP_SECRET,
       roamjetApiKey: dbConfig?.roamjetApiKey || process.env.ROAMJET_API_KEY || process.env.NEXT_PUBLIC_ROAMJET_API_KEY,
-      mongodbUri: dbConfig?.mongodbUri || process.env.MONGODB_URI || process.env.MONGODB_URL,
+      roamjetApiUrl: process.env.NODE_ENV === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
       robokassaMerchantLogin: dbConfig?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
       robokassaPassOne: dbConfig?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
       robokassaPassTwo: dbConfig?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
-      robokassaMode: dbConfig?.robokassaMode || process.env.ROBOKASSA_MODE || 'test',
-      stripePublishableKey: dbConfig?.stripePublishableKey || process.env.STRIPE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      stripeSecretKey: dbConfig?.stripeSecretKey || process.env.STRIPE_SECRET_KEY,
-      emailServiceUrl: dbConfig?.emailServiceUrl || process.env.EMAIL_SERVICE_URL || process.env.NEXT_PUBLIC_EMAIL_SERVICE_URL
+      robokassaMode: dbConfig?.robokassaMode || process.env.ROBOKASSA_MODE || 'test'
     };
     
     // Update cache
@@ -49,14 +46,11 @@ export async function loadAdminConfig() {
       yandexAppId: process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
       yandexAppSecret: process.env.YANDEX_APP_SECRET,
       roamjetApiKey: process.env.ROAMJET_API_KEY || process.env.NEXT_PUBLIC_ROAMJET_API_KEY,
-      mongodbUri: process.env.MONGODB_URI || process.env.MONGODB_URL,
+      roamjetApiUrl: process.env.NODE_ENV === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
       robokassaMerchantLogin: process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
       robokassaPassOne: process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
       robokassaPassTwo: process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
-      robokassaMode: process.env.ROBOKASSA_MODE || 'test',
-      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      stripeSecretKey: process.env.STRIPE_SECRET_KEY,
-      emailServiceUrl: process.env.EMAIL_SERVICE_URL || process.env.NEXT_PUBLIC_EMAIL_SERVICE_URL
+      robokassaMode: process.env.ROBOKASSA_MODE || 'test'
     };
     
     configCache = envConfig;
