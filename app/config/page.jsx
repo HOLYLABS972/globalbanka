@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe, Users, Search, Edit2, Shield, UserCheck, UserX, X, ShoppingBag, Trash2 } from 'lucide-react';
+import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe, Users, Search, Edit2, Shield, UserCheck, UserX, X, ShoppingBag, Trash2, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ConfigPage() {
@@ -343,6 +343,17 @@ export default function ConfigPage() {
     } finally {
       setOrdersLoading(false);
     }
+  };
+
+  const handleDownloadPrices = () => {
+    const url = 'https://bucket.roamjet.net/uploads/report.csv';
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'prices-report.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Prices report downloaded');
   };
 
   useEffect(() => {
@@ -769,11 +780,23 @@ export default function ConfigPage() {
 
         {activeTab === 'users' && (
           <div className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-4 max-w-xs">
-              <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
-                <div className="text-gray-400 text-sm mb-1">Customers</div>
-                <div className="text-3xl font-bold text-blue-400">{userStats.customers}</div>
+            {/* Stats Cards and Download Button */}
+            <div className="flex items-start gap-4">
+              <div className="grid grid-cols-1 gap-4 max-w-xs">
+                <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
+                  <div className="text-gray-400 text-sm mb-1">Customers</div>
+                  <div className="text-3xl font-bold text-blue-400">{userStats.customers}</div>
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <button
+                  onClick={handleDownloadPrices}
+                  className="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <Download size={20} />
+                  Download Prices Report
+                </button>
               </div>
             </div>
 

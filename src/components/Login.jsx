@@ -18,6 +18,8 @@ const Login = () => {
   const [step, setStep] = useState(1); // 1: email, 2: password
   const [googleAuthEnabled, setGoogleAuthEnabled] = useState(false);
   const [yandexAuthEnabled, setYandexAuthEnabled] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState('');
+  const [yandexAppId, setYandexAppId] = useState('');
   const { login, signInWithGoogle } = useAuth();
   const { t, locale: contextLocale, changeLanguage } = useI18n();
   // Force Russian locale for login page
@@ -42,6 +44,8 @@ const Login = () => {
         if (data.success) {
           setGoogleAuthEnabled(data.googleAuthEnabled);
           setYandexAuthEnabled(data.yandexAuthEnabled);
+          setGoogleClientId(data.googleId);
+          setYandexAppId(data.yandexAppId);
         }
       } catch (error) {
         console.error('Error fetching auth status:', error);
@@ -167,9 +171,9 @@ const Login = () => {
   }, [router, t]);
 
   const initializeYandexLogin = useCallback(() => {
-    const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
+    const appId = yandexAppId || process.env.NEXT_PUBLIC_YANDEX_APP_ID;
     
-    if (!yandexAppId) {
+    if (!appId) {
       console.error('Yandex App ID not configured');
       return;
     }
@@ -181,7 +185,7 @@ const Login = () => {
     if (window.YaSendSuggestToken) {
       try {
         window.YaSendSuggestToken('https://globalbanka.roamjet.net/login', {
-          client_id: yandexAppId,
+          client_id: appId,
           response_type: 'code',
           redirect_uri: 'https://globalbanka.roamjet.net/auth/yandex/callback',
           scope: 'login:email login:info',
@@ -219,7 +223,7 @@ const Login = () => {
       // Fallback to custom button
       createFallbackButton();
     }
-  }, [router, t]);
+  }, [router, t, yandexAppId]);
 
   const createFallbackButton = useCallback(() => {
     const buttonContainer = document.getElementById('yandex-login-button');
@@ -242,17 +246,17 @@ const Login = () => {
   }, []);
 
   const handleYandexLoginFallback = useCallback(() => {
-    const yandexAppId = process.env.NEXT_PUBLIC_YANDEX_APP_ID;
+    const appId = yandexAppId || process.env.NEXT_PUBLIC_YANDEX_APP_ID;
     const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/yandex/callback`;
     
-    if (!yandexAppId) {
+    if (!appId) {
       toast.error('Yandex App ID not configured');
       return;
     }
 
     // Open Yandex OAuth in popup
     const popup = window.open(
-      `https://oauth.yandex.ru/authorize?response_type=code&client_id=${yandexAppId}&redirect_uri=${encodeURIComponent(redirectUri)}`,
+      `https://oauth.yandex.ru/authorize?response_type=code&client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}`,
       'yandex-auth',
       'width=500,height=600,scrollbars=yes,resizable=yes'
     );
@@ -318,13 +322,13 @@ const Login = () => {
         window.removeEventListener('message', messageListener);
       }
     }, 1000);
-  }, [router, t]);
+  }, [router, t, yandexAppId, currentLanguage]);
 
   const initializeGoogleSignIn = useCallback(() => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientId = googleClientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     
     if (!clientId) {
-      toast.error('Google Client ID not configured');
+      console.log('Google Client ID not configured');
       return;
     }
     
@@ -351,7 +355,7 @@ const Login = () => {
         );
       }
     }
-  }, [handleCredentialResponse]);
+  }, [handleCredentialResponse, googleClientId]);
 
   useEffect(() => {
     // Load Google Identity Services script
@@ -370,6 +374,13 @@ const Login = () => {
       }
     };
   }, [initializeGoogleSignIn]);
+
+  // Re-initialize Google login when Client ID changes
+  useEffect(() => {
+    if (googleClientId && window.google && window.google.accounts && window.google.accounts.id) {
+      initializeGoogleSignIn();
+    }
+  }, [googleClientId, initializeGoogleSignIn]);
 
   // Removed complex SDK initialization - using simple button approach
 

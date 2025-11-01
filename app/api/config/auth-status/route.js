@@ -9,10 +9,14 @@ export async function GET(request) {
     // Get admin config
     let config = await AdminConfig.findOne();
     
-    // Return only auth enabled flags
+    // Return auth status and credentials
     return NextResponse.json({
       success: true,
+      googleId: config?.googleId || '',
+      googleSecret: config?.googleSecret || '',
       googleAuthEnabled: config?.googleAuthEnabled ?? false,
+      yandexAppId: config?.yandexAppId || '',
+      yandexAppSecret: config?.yandexAppSecret || '',
       yandexAuthEnabled: config?.yandexAuthEnabled ?? false
     });
     
@@ -21,7 +25,11 @@ export async function GET(request) {
     // Return defaults on error
     return NextResponse.json({
       success: true,
+      googleId: '',
+      googleSecret: '',
       googleAuthEnabled: false,
+      yandexAppId: '',
+      yandexAppSecret: '',
       yandexAuthEnabled: false
     });
   }
