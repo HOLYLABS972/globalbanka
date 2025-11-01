@@ -657,6 +657,40 @@ esimSchema.index({ 'orderResult.orderId': 1 });
 esimSchema.index({ status: 1 });
 esimSchema.index({ processingStatus: 1 });
 
+// Admin Config Schema
+const adminConfigSchema = new mongoose.Schema({
+  adminPassword: {
+    type: String,
+    default: '123456', // Default fallback password
+    required: true
+  },
+  googleId: String,
+  yandexAppId: String,
+  yandexAppSecret: String,
+  roamjetApiKey: String,
+  mongodbUri: String,
+  robokassaMerchantLogin: String,
+  robokassaPassOne: String,
+  robokassaPassTwo: String,
+  robokassaMode: {
+    type: String,
+    enum: ['test', 'production'],
+    default: 'test'
+  },
+  stripePublishableKey: String,
+  stripeSecretKey: String,
+  emailServiceUrl: String,
+  lastUpdated: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true
+});
+
+// Only one config document should exist
+adminConfigSchema.index({}, { unique: true });
+
 export const User = mongoose.models?.User || mongoose.model('User', userSchema);
 export const BusinessUser = mongoose.models?.BusinessUser || mongoose.model('BusinessUser', businessUserSchema);
 export const DataPlan = mongoose.models?.DataPlan || mongoose.model('DataPlan', dataPlanSchema);
@@ -667,6 +701,7 @@ export const Order = mongoose.models?.Order || mongoose.model('Order', orderSche
 export const OTP = mongoose.models?.OTP || mongoose.model('OTP', otpSchema);
 export const ApiUsage = mongoose.models?.ApiUsage || mongoose.model('ApiUsage', apiUsageSchema);
 export const Esim = mongoose.models?.Esim || mongoose.model('Esim', esimSchema);
+export const AdminConfig = mongoose.models?.AdminConfig || mongoose.model('AdminConfig', adminConfigSchema);
 
 export default {
   User,
@@ -678,5 +713,6 @@ export default {
   Order,
   OTP,
   ApiUsage,
-  Esim
+  Esim,
+  AdminConfig
 };
