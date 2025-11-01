@@ -29,12 +29,12 @@ const PlanCard = ({ plan, isSelected, onClick, index, regularSettings }) => {
   const currentLanguage = getCurrentLanguage();
   const isRTL = getLanguageDirection(currentLanguage) === 'rtl';
   
-  // Calculate discounted price - ALWAYS use regular discount only
+  // Calculate discounted price - ALWAYS use regular discount only from MongoDB
   const originalPrice = parseFloat(plan.price);
   
-  // Use regular discount only (not referral discount)
-  const discountPercentage = regularSettings?.discountPercentage || parseInt(process.env.NEXT_PUBLIC_DISCOUNT_PERCENTAGE) || 20;
-  const minimumPrice = regularSettings?.minimumPrice || parseFloat(process.env.NEXT_PUBLIC_MINIMUM_PRICE) || 4;
+  // Use regular discount only from MongoDB config (no ENV fallback)
+  const discountPercentage = regularSettings?.discountPercentage || 0;
+  const minimumPrice = regularSettings?.minimumPrice || 0.5;
   const discountedPrice = Math.max(minimumPrice, originalPrice * (100 - discountPercentage) / 100);
   const hasDiscount = discountedPrice < originalPrice;
   

@@ -125,10 +125,10 @@ const EsimPlansContent = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   
-  // Discount settings state
+  // Discount settings state - will be loaded from MongoDB
   const [regularSettings, setRegularSettings] = useState({ 
-    discountPercentage: parseInt(process.env.NEXT_PUBLIC_DISCOUNT_PERCENTAGE) || 20, 
-    minimumPrice: parseFloat(process.env.NEXT_PUBLIC_MINIMUM_PRICE) || 4 
+    discountPercentage: 0, 
+    minimumPrice: 0.5 
   });
   
   // Simplified state - no sorting or grouping
@@ -348,13 +348,13 @@ const EsimPlansContent = () => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
-  // Helper function to calculate discounted price - ALWAYS use regular discount only
+  // Helper function to calculate discounted price - ALWAYS use regular discount only from MongoDB
   const calculateDiscountedPrice = (originalPrice) => {
     if (!originalPrice || originalPrice <= 0) return originalPrice;
     
-    // ALWAYS apply regular discount (for both landing pages and plans page)
-    const discountPercentage = regularSettings.discountPercentage || parseInt(process.env.NEXT_PUBLIC_DISCOUNT_PERCENTAGE) || 20;
-    const minimumPrice = regularSettings.minimumPrice || parseFloat(process.env.NEXT_PUBLIC_MINIMUM_PRICE) || 4;
+    // ALWAYS apply regular discount from MongoDB config only
+    const discountPercentage = regularSettings.discountPercentage || 0;
+    const minimumPrice = regularSettings.minimumPrice || 0.5;
     
     const discountedPrice = Math.max(minimumPrice, originalPrice * (100 - discountPercentage) / 100);
     return discountedPrice;
