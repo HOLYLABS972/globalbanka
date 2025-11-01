@@ -423,14 +423,16 @@ const PaymentSuccess = () => {
         simDetails: airaloOrderResult.orderData // Store airalo order data in simDetails
       };
 
-      const orderResponse = await fetch('/api/orders/create', {
+      const orderResponse = await fetch('/api/orders/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderRecord)
       });
 
       if (!orderResponse.ok) {
-        throw new Error('Failed to save order to database');
+        const errorData = await orderResponse.json().catch(() => ({}));
+        console.error('❌ Order update failed:', errorData);
+        throw new Error('Failed to update order in database');
       }
 
       // Step 2.5: ALSO save to api_usage collection for admin dashboard tracking

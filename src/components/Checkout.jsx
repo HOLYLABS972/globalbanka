@@ -61,7 +61,6 @@ const Checkout = ({ plan }) => {
               body: JSON.stringify({
                 orderId: uniqueOrderId,
                 packageId: plan.id,
-                planName: plan.name,
                 customerEmail: currentUser ? currentUser.email : null,
                 amount: amountRUB,
                 currency: 'RUB',

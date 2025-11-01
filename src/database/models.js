@@ -429,6 +429,9 @@ const orderSchema = new mongoose.Schema({
   paymentIntentId: {
     type: String
   },
+  paymentMethod: {
+    type: String
+  },
   qrCode: {
     type: String
   },
