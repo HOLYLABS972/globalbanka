@@ -13,9 +13,20 @@ export async function GET(request) {
       await config.save();
     }
     
-    // Return config without password
-    const configData = config.toObject();
-    delete configData.adminPassword;
+    // Return config with defaults filled in
+    const configData = {
+      googleId: config.googleId || '',
+      googleAuthEnabled: config.googleAuthEnabled ?? false,
+      yandexAppId: config.yandexAppId || '',
+      yandexAppSecret: config.yandexAppSecret || '',
+      yandexAuthEnabled: config.yandexAuthEnabled ?? false,
+      roamjetApiKey: config.roamjetApiKey || '',
+      roamjetMode: config.roamjetMode || 'sandbox',
+      robokassaMerchantLogin: config.robokassaMerchantLogin || '',
+      robokassaPassOne: config.robokassaPassOne || '',
+      robokassaPassTwo: config.robokassaPassTwo || '',
+      robokassaMode: config.robokassaMode || 'test'
+    };
     
     return NextResponse.json({ 
       success: true,

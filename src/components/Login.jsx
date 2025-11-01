@@ -16,6 +16,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: email, 2: password
+  const [googleAuthEnabled, setGoogleAuthEnabled] = useState(false);
+  const [yandexAuthEnabled, setYandexAuthEnabled] = useState(false);
   const { login, signInWithGoogle } = useAuth();
   const { t, locale: contextLocale, changeLanguage } = useI18n();
   // Force Russian locale for login page
@@ -30,6 +32,24 @@ const Login = () => {
       changeLanguage('ru');
     }
   }, [contextLocale, changeLanguage]);
+
+  // Fetch auth status on mount
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      try {
+        const response = await fetch('/api/config/auth-status');
+        const data = await response.json();
+        if (data.success) {
+          setGoogleAuthEnabled(data.googleAuthEnabled);
+          setYandexAuthEnabled(data.yandexAuthEnabled);
+        }
+      } catch (error) {
+        console.error('Error fetching auth status:', error);
+      }
+    };
+    
+    fetchAuthStatus();
+  }, []);
 
   // Get current language for localized URLs
   const getCurrentLanguage = () => {
@@ -505,37 +525,45 @@ const Login = () => {
             </form>
           )}
 
-          {/* Social OAuth buttons - show on both steps */}
-          <div className="mt-6 space-y-4">
-            {/* Yandex Login Button */}
-            <button
-              type="button"
-              onClick={handleYandexLoginFallback}
-              disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors min-h-[52px]"
-            >
-              {/* Yandex Logo */}
-              <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#FF0000"/>
-                <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" fill="#FF0000"/>
-                <text x="12" y="16" textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">Я</text>
-              </svg>
-              {t('auth.login.signInWithYandex', 'Sign in with Yandex')}
-            </button>
+          {/* Social OAuth buttons - show only if enabled */}
+          {(googleAuthEnabled || yandexAuthEnabled) && (
+            <div className="mt-6 space-y-4">
+              {/* Yandex Login Button */}
+              {yandexAuthEnabled && (
+                <button
+                  type="button"
+                  onClick={handleYandexLoginFallback}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors min-h-[52px]"
+                >
+                  {/* Yandex Logo */}
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#FF0000"/>
+                    <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" fill="#FF0000"/>
+                    <text x="12" y="16" textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">Я</text>
+                  </svg>
+                  {t('auth.login.signInWithYandex', 'Sign in with Yandex')}
+                </button>
+              )}
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-jordy-blue opacity-30" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-cool-black " style={{ fontFamily: 'Open Sans, sans-serif' }}>
-                  {t('auth.login.orContinueWith', 'Or continue with')}
-                </span>
-              </div>
+              {googleAuthEnabled && yandexAuthEnabled && (
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-jordy-blue opacity-30" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-cool-black " style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                      {t('auth.login.orContinueWith', 'Or continue with')}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {googleAuthEnabled && (
+                <div id="google-signin-button"></div>
+              )}
             </div>
-            
-            <div id="google-signin-button"></div>
-          </div>
+          )}
         </motion.div>
       </div>
 
