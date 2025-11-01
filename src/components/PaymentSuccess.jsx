@@ -632,19 +632,36 @@ const PaymentSuccess = () => {
       console.log('⚠️ Link check disabled - processing payment directly');
 
       // Extract actual plan ID from unique order ID
-      // Format: planId-timestamp-random -> extract planId
+      // Order ID is now numeric (timestamp), so we need to get planId from localStorage
       const extractPlanId = (orderId) => {
-        // If orderId contains timestamp pattern (digits), extract the base plan ID
-        const parts = orderId.split('-');
-        // Find the index where timestamp starts (all digits)
-        const timestampIndex = parts.findIndex(part => /^\d+$/.test(part));
-        
-        if (timestampIndex > 0) {
-          // Join all parts before the timestamp
-          return parts.slice(0, timestampIndex).join('-');
+        try {
+          // Try to get plan ID from localStorage first
+          const pendingOrder = localStorage.getItem('pendingEsimOrder');
+          if (pendingOrder) {
+            const orderData = JSON.parse(pendingOrder);
+            // Check if this is the same order by comparing orderId
+            if (orderData.orderId == orderId) {
+              console.log('✅ Found plan ID in localStorage:', orderData.planId);
+              return orderData.planId;
+            }
+          }
+        } catch (err) {
+          console.error('❌ Error reading localStorage:', err);
         }
         
-        // If no timestamp pattern found, return the whole orderId
+        // Fallback: If orderId is not numeric (old format), try to extract planId from string format
+        if (typeof orderId === 'string' && orderId.includes('-')) {
+          const parts = orderId.split('-');
+          // Find the index where timestamp starts (all digits)
+          const timestampIndex = parts.findIndex(part => /^\d+$/.test(part));
+          
+          if (timestampIndex > 0) {
+            // Join all parts before the timestamp
+            return parts.slice(0, timestampIndex).join('-');
+          }
+        }
+        
+        // If no plan ID found, return the whole orderId (fallback)
         return orderId;
       };
 
@@ -727,10 +744,10 @@ const PaymentSuccess = () => {
   // Show loading while auth is loading
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Загрузка аутентификации...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading authentication...</p>
         </div>
       </div>
     );
@@ -738,10 +755,10 @@ const PaymentSuccess = () => {
 
   if (processing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Обработка платежа...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Processing payment...</p>
         </div>
       </div>
     );
@@ -750,26 +767,26 @@ const PaymentSuccess = () => {
   if (error) {
     const isAuthError = error.includes('log in');
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
-        <div className="max-w-md mx-auto bg-gray-800/90 backdrop-blur-md border border-gray-700/50 rounded-xl shadow-lg p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="mb-6">
-            <div className="text-8xl text-red-400 mb-4">✕</div>
-            <h2 className="text-3xl font-bold text-white mb-2">
-              {isAuthError ? 'Требуется аутентификация' : 'Ошибка платежа'}
+            <div className="text-8xl text-red-500 mb-4">✕</div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {isAuthError ? 'Authentication Required' : 'Payment Error'}
             </h2>
-            <p className="text-gray-300 text-lg">{error}</p>
+            <p className="text-gray-600 text-lg">{error}</p>
             {isAuthError && (
-              <p className="text-gray-400 text-sm mt-4">
-                Ваш платёж прошёл успешно, но вам нужно войти, чтобы получить доступ к вашему eSIM.
-                Сохраните эту ссылку и войдите, чтобы завершить процесс.
+              <p className="text-gray-500 text-sm mt-4">
+                Your payment was successful, but you need to log in to access your eSIM.
+                Please save this URL and log in to complete the process.
               </p>
             )}
           </div>
           <button
             onClick={() => router.push(isAuthError ? `/login?redirect=${encodeURIComponent(window.location.href)}` : '/dashboard')}
-            className="w-full px-8 py-4 bg-blue-400 hover:bg-blue-500 text-white text-lg font-semibold rounded-lg transition-colors"
+            className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {isAuthError ? 'Войти' : 'Перейти в панель управления'}
+            {isAuthError ? 'Log In' : 'Go to Dashboard'}
           </button>
         </div>
       </div>
@@ -777,15 +794,15 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
-      <div className="max-w-md mx-auto bg-gray-800/90 backdrop-blur-md border border-gray-700/50 rounded-xl shadow-lg p-8 text-center">
-        <h2 className="text-2xl font-bold text-white mb-4">
-          🎉 Платёж успешен!
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          🎉 Payment Successful!
         </h2>
-        <p className="text-gray-300 mb-6">
-          Ваш платёж был успешно обработан. Перенаправление в панель управления...
+        <p className="text-gray-600 mb-6">
+          Your payment has been processed successfully. Redirecting to dashboard...
         </p>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
       </div>
     </div>
   );

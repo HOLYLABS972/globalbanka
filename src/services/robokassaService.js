@@ -279,6 +279,7 @@ export const robokassaService = {
           order: orderData.orderId,
           email: orderData.customerEmail,
           name: orderData.planName,
+          plan_id: orderData.planId,  // Include plan ID for success callback
           total: orderData.amount,
           currency: orderData.currency || 'RUB',
           domain: window.location.origin,

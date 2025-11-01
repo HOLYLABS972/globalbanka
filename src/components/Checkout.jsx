@@ -23,8 +23,10 @@ const Checkout = ({ plan }) => {
       // Create order and redirect immediately (no auth required)
       const redirectToPayment = async () => {
         try {
-          // Generate unique order ID
-          const uniqueOrderId = `${plan.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          // Generate unique numeric order ID for Robokassa
+          // Robokassa requires numeric InvId between 1 and 9223372036854775807
+          // Using timestamp ensures uniqueness and keeps it numeric
+          const uniqueOrderId = Date.now(); // Numeric timestamp as order ID
           
           // Send email if user is logged in; Robokassa can also collect it
           const amountUSD = parseFloat(plan.price) || 0;
