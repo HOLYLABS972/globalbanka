@@ -712,19 +712,19 @@ const Dashboard = () => {
       
       console.log('🗑️ Order details:', { iccid, packageId, orderId });
       
-      // Delete the order via MongoDB API
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.roamjet.net';
-      
-      const response = await fetch(`${API_BASE_URL}/api/user/orders/${orderId}`, {
-        method: 'DELETE',
+      // Delete the order via Next.js MongoDB API
+      const response = await fetch('/api/orders/delete', {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${currentUser.accessToken || 'dummy-token'}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ orderId })
       });
       
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || `API request failed: ${response.status}`);
       }
       
       console.log('✅ Order deleted from MongoDB');
