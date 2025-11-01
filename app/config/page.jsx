@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe, Users, Search, Edit2, Shield, UserCheck, UserX } from 'lucide-react';
+import { Lock, Eye, EyeOff, Save, Settings, Key, DollarSign, Globe, Users, Search, Edit2, Shield, UserCheck, UserX, X, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ConfigPage() {
@@ -42,6 +42,9 @@ export default function ConfigPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [editingUser, setEditingUser] = useState(null);
+  const [selectedUserOrders, setSelectedUserOrders] = useState(null);
+  const [userOrders, setUserOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   const loadConfig = useCallback(async () => {
     try {
@@ -250,6 +253,30 @@ export default function ConfigPage() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleViewUserOrders = async (user) => {
+    setSelectedUserOrders(user);
+    setOrdersLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (user._id) params.append('userId', user._id);
+      if (user.email) params.append('email', user.email);
+      
+      const response = await fetch(`/api/users/orders?${params}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setUserOrders(data.orders || []);
+      } else {
+        toast.error('Failed to load orders');
+      }
+    } catch (error) {
+      console.error('Error loading user orders:', error);
+      toast.error('Failed to load orders');
+    } finally {
+      setOrdersLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -620,58 +647,27 @@ export default function ConfigPage() {
         {activeTab === 'users' && (
           <div className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
-                <div className="text-gray-400 text-sm mb-1">Total Users</div>
-                <div className="text-2xl font-bold text-white">{userStats.total}</div>
-              </div>
-              <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
-                <div className="text-gray-400 text-sm mb-1">Active</div>
-                <div className="text-2xl font-bold text-green-400">{userStats.active}</div>
-              </div>
+            <div className="grid grid-cols-1 gap-4 max-w-xs">
               <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
                 <div className="text-gray-400 text-sm mb-1">Customers</div>
-                <div className="text-2xl font-bold text-blue-400">{userStats.customers}</div>
-              </div>
-              <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
-                <div className="text-gray-400 text-sm mb-1">Admins</div>
-                <div className="text-2xl font-bold text-purple-400">{userStats.admins}</div>
-              </div>
-              <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-xl p-4 shadow-xl">
-                <div className="text-gray-400 text-sm mb-1">Business</div>
-                <div className="text-2xl font-bold text-yellow-400">{userStats.businesses}</div>
+                <div className="text-3xl font-bold text-blue-400">{userStats.customers}</div>
               </div>
             </div>
 
             {/* Filters and Search */}
             <div className="bg-gray-800/90 backdrop-blur-md border border-gray-700 rounded-2xl p-6 shadow-xl">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    placeholder="Search by email or name..."
-                    className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <select
-                  value={roleFilter}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  value={searchQuery}
                   onChange={(e) => {
-                    setRoleFilter(e.target.value);
+                    setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All Roles</option>
-                  <option value="customer">Customers</option>
-                  <option value="admin">Admins</option>
-                  <option value="business">Business</option>
-                </select>
+                  placeholder="Search by email or name..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
 
@@ -704,7 +700,11 @@ export default function ConfigPage() {
                       </tr>
                     ) : (
                       users.map((user) => (
-                        <tr key={user._id} className="hover:bg-gray-700/30 transition-colors">
+                        <tr 
+                          key={user._id} 
+                          className="hover:bg-gray-700/30 transition-colors cursor-pointer"
+                          onClick={() => handleViewUserOrders(user)}
+                        >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
@@ -716,7 +716,7 @@ export default function ConfigPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={user.role}
                               onChange={(e) => handleRoleChange(user, e.target.value)}
@@ -729,14 +729,14 @@ export default function ConfigPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                              user.provider === 'google' ? 'bg-red-500/20 text-red-300' :
-                              user.provider === 'yandex' ? 'bg-yellow-500/20 text-yellow-300' :
-                              'bg-gray-500/20 text-gray-300'
-                            }`}>
+                              user.provider === 'google' ? 'bg-red-500/20' :
+                              user.provider === 'yandex' ? 'bg-yellow-500/20' :
+                              'bg-gray-500/20'
+                            } text-white`}>
                               {user.provider}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => handleToggleUserStatus(user)}
                               className={`px-3 py-1 text-xs font-semibold rounded-full ${
@@ -751,7 +751,7 @@ export default function ConfigPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                             {formatDate(user.createdAt)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => setEditingUser(editingUser?._id === user._id ? null : user)}
                               className="text-blue-400 hover:text-blue-300 transition-colors"
@@ -790,6 +790,107 @@ export default function ConfigPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* User Orders Modal */}
+        {selectedUserOrders && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-700">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 rounded-lg">
+                    <ShoppingBag className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">
+                      Orders for {selectedUserOrders.displayName || selectedUserOrders.email}
+                    </h2>
+                    <p className="text-sm text-gray-400">{selectedUserOrders.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedUserOrders(null);
+                    setUserOrders([]);
+                  }}
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              {/* Orders List */}
+              <div className="flex-1 overflow-y-auto p-6">
+                {ordersLoading ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                    <p className="mt-4 text-gray-400">Loading orders...</p>
+                  </div>
+                ) : userOrders.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 text-lg mb-2">No orders found</div>
+                    <div className="text-gray-500 text-sm">This user hasn't placed any orders yet</div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {userOrders.map((order) => (
+                      <div
+                        key={order._id}
+                        className="bg-gray-700/30 border border-gray-600 rounded-xl p-4 hover:bg-gray-700/50 transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="text-sm font-semibold text-white mb-1">
+                              {order.description || order.packageId}
+                            </div>
+                            <div className="text-xs text-gray-400">Order ID: {order.orderId}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-white">
+                              {order.amount} {order.currency}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                          <div>
+                            <div className="text-gray-400 mb-1">Status</div>
+                            <div className={`px-2 py-1 rounded-full inline-block ${
+                              order.status === 'completed' ? 'bg-green-500/20 text-green-300' :
+                              order.status === 'processing' ? 'bg-blue-500/20 text-blue-300' :
+                              order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' :
+                              order.status === 'failed' ? 'bg-red-500/20 text-red-300' :
+                              'bg-gray-500/20 text-gray-300'
+                            }`}>
+                              {order.status}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Payment</div>
+                            <div className={`px-2 py-1 rounded-full inline-block ${
+                              order.paymentStatus === 'paid' ? 'bg-green-500/20 text-green-300' :
+                              order.paymentStatus === 'failed' ? 'bg-red-500/20 text-red-300' :
+                              'bg-gray-500/20 text-gray-300'
+                            }`}>
+                              {order.paymentStatus}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Quantity</div>
+                            <div className="text-white">{order.quantity}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Date</div>
+                            <div className="text-white">{formatDate(order.createdAt)}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
