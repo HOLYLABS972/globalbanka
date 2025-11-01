@@ -20,12 +20,16 @@ export async function loadAdminConfig() {
     const dbConfig = await AdminConfig.findOne();
     
     // Merge DB config with env vars, DB takes priority
+    const roamjetMode = dbConfig?.roamjetMode || 'sandbox';
     const config = {
       googleId: dbConfig?.googleId || process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      googleAuthEnabled: dbConfig?.googleAuthEnabled ?? false,
       yandexAppId: dbConfig?.yandexAppId || process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
       yandexAppSecret: dbConfig?.yandexAppSecret || process.env.YANDEX_APP_SECRET,
+      yandexAuthEnabled: dbConfig?.yandexAuthEnabled ?? false,
       roamjetApiKey: dbConfig?.roamjetApiKey || process.env.ROAMJET_API_KEY || process.env.NEXT_PUBLIC_ROAMJET_API_KEY,
-      roamjetApiUrl: process.env.NODE_ENV === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
+      roamjetMode,
+      roamjetApiUrl: roamjetMode === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
       robokassaMerchantLogin: dbConfig?.robokassaMerchantLogin || process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
       robokassaPassOne: dbConfig?.robokassaPassOne || process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
       robokassaPassTwo: dbConfig?.robokassaPassTwo || process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,
@@ -41,12 +45,16 @@ export async function loadAdminConfig() {
     console.error('❌ Error loading admin config, falling back to ENV:', error);
     
     // Fallback to ENV vars only
+    const roamjetMode = 'sandbox';
     const envConfig = {
       googleId: process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      googleAuthEnabled: false,
       yandexAppId: process.env.YANDEX_APP_ID || process.env.NEXT_PUBLIC_YANDEX_APP_ID,
       yandexAppSecret: process.env.YANDEX_APP_SECRET,
+      yandexAuthEnabled: false,
       roamjetApiKey: process.env.ROAMJET_API_KEY || process.env.NEXT_PUBLIC_ROAMJET_API_KEY,
-      roamjetApiUrl: process.env.NODE_ENV === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
+      roamjetMode,
+      roamjetApiUrl: roamjetMode === 'production' ? 'https://api.roamjet.net' : 'https://sandbox.roamjet.net',
       robokassaMerchantLogin: process.env.ROBOKASSA_MERCHANT_LOGIN || process.env.NEXT_PUBLIC_ROBOKASSA_MERCHANT_LOGIN,
       robokassaPassOne: process.env.ROBOKASSA_PASS_ONE || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_ONE,
       robokassaPassTwo: process.env.ROBOKASSA_PASS_TWO || process.env.NEXT_PUBLIC_ROBOKASSA_PASS_TWO,

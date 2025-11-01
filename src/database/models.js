@@ -665,9 +665,22 @@ const adminConfigSchema = new mongoose.Schema({
     required: true
   },
   googleId: String,
+  googleAuthEnabled: {
+    type: Boolean,
+    default: false
+  },
   yandexAppId: String,
   yandexAppSecret: String,
+  yandexAuthEnabled: {
+    type: Boolean,
+    default: false
+  },
   roamjetApiKey: String,
+  roamjetMode: {
+    type: String,
+    enum: ['sandbox', 'production'],
+    default: 'sandbox'
+  },
   robokassaMerchantLogin: String,
   robokassaPassOne: String,
   robokassaPassTwo: String,

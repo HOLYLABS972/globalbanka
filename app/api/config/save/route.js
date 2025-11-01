@@ -17,9 +17,12 @@ export async function POST(request) {
     // Update fields (exclude adminPassword from updates here - use separate endpoint)
     const allowedFields = [
       'googleId',
+      'googleAuthEnabled',
       'yandexAppId',
       'yandexAppSecret',
+      'yandexAuthEnabled',
       'roamjetApiKey',
+      'roamjetMode',
       'robokassaMerchantLogin',
       'robokassaPassOne',
       'robokassaPassTwo',
